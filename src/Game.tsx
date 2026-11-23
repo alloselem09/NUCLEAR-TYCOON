@@ -312,24 +312,95 @@ export default function Game() {
     scene.add(depot);
     function darkDepotMaterial() { return new THREE.MeshStandardMaterial({ color: "#52636a" }); }
 
-    // A simple, original low-poly engineer avatar for the first prototype.
+
+    // Original detailed site engineer with articulated workwear and safety equipment.
     const player = new THREE.Group();
-    const suit = new THREE.MeshStandardMaterial({ color: "#e2a33a" });
-    const darkSuit = new THREE.MeshStandardMaterial({ color: "#263a45" });
-    const skin = new THREE.MeshStandardMaterial({ color: "#d6a27b" });
-    const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.42, 0.8, 4, 8), darkSuit);
-    torso.position.y = 1.2;
-    torso.castShadow = true;
-    player.add(torso);
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.31, 16, 12), skin);
-    head.position.y = 2.05;
-    player.add(head);
-    const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.36, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2), suit);
-    helmet.position.y = 2.19;
-    player.add(helmet);
-    const legs = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.72, 0.34), darkSuit);
-    legs.position.y = 0.42;
-    player.add(legs);
+    const mat = (color: string, roughness = 0.82, metalness = 0) => new THREE.MeshStandardMaterial({ color, roughness, metalness });
+    const jacket = mat("#df922d");
+    const jacketDark = mat("#a85e20");
+    const navy = mat("#263b4c");
+    const navyLight = mat("#3b5363");
+    const reflective = mat("#e7d7a0", 0.38, 0.12);
+    const helmetMat = mat("#e5a52f", 0.45);
+    const skin = mat("#bd8967");
+    const boot = mat("#202a30");
+    const glove = mat("#303a3c");
+    const metal = mat("#9ba8a6", 0.35, 0.55);
+    const addMesh = (parent: THREE.Object3D, geometry: THREE.BufferGeometry, material: THREE.Material, x: number, y: number, z: number, rx = 0, ry = 0, rz = 0) => {
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.position.set(x, y, z);
+      mesh.rotation.set(rx, ry, rz);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      parent.add(mesh);
+      return mesh;
+    };
+    const box = (parent: THREE.Object3D, w: number, h: number, d: number, material: THREE.Material, x: number, y: number, z: number) =>
+      addMesh(parent, new THREE.BoxGeometry(w, h, d), material, x, y, z);
+    const legs: THREE.Group[] = [];
+    for (const x of [-0.19, 0.19]) {
+      const leg = new THREE.Group();
+      leg.position.set(x, 0.9, 0);
+      player.add(leg);
+      addMesh(leg, new THREE.CapsuleGeometry(0.145, 0.48, 4, 8), navy, 0, -0.28, 0);
+      box(leg, 0.31, 0.09, 0.34, reflective, 0, -0.48, 0);
+      box(leg, 0.32, 0.16, 0.43, boot, 0, -0.68, 0.07);
+      box(leg, 0.32, 0.06, 0.44, glove, 0, -0.77, 0.07);
+      legs.push(leg);
+    }
+    // Jacket torso, shoulders, waist and high-visibility bands.
+    const torso = addMesh(player, new THREE.CapsuleGeometry(0.43, 0.72, 6, 12), jacket, 0, 1.36, 0);
+    torso.scale.set(1, 1.05, 0.78);
+    box(player, 0.82, 0.13, 0.49, navy, 0, 0.98, 0);
+    box(player, 0.88, 0.12, 0.54, reflective, 0, 1.57, 0.015);
+    box(player, 0.86, 0.09, 0.53, reflective, 0, 1.22, 0.015);
+    box(player, 0.035, 0.73, 0.025, jacketDark, 0, 1.38, 0.34);
+    for (const x of [-0.25, 0.25]) {
+      box(player, 0.22, 0.19, 0.045, jacketDark, x, 1.27, 0.31);
+      box(player, 0.18, 0.04, 0.055, helmetMat, x, 1.38, 0.34);
+    }
+    box(player, 0.86, 0.11, 0.5, boot, 0, 0.91, 0);
+    box(player, 0.13, 0.15, 0.06, metal, 0, 0.91, 0.29);
+    // Neck, head, ears, hair and facial details.
+    addMesh(player, new THREE.CylinderGeometry(0.13, 0.15, 0.2, 12), skin, 0, 1.91, 0);
+    const head = addMesh(player, new THREE.SphereGeometry(0.29, 20, 16), skin, 0, 2.17, 0.015);
+    head.scale.set(0.88, 1.08, 0.86);
+    for (const x of [-0.27, 0.27]) addMesh(player, new THREE.SphereGeometry(0.075, 10, 8), skin, x, 2.16, 0);
+    const hair = mat("#4a392e");
+    addMesh(player, new THREE.SphereGeometry(0.285, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.42), hair, 0, 2.31, -0.015);
+    const eyes = mat("#20282b", 0.35);
+    for (const x of [-0.095, 0.095]) addMesh(player, new THREE.SphereGeometry(0.027, 8, 8), eyes, x, 2.2, 0.263);
+    // Hard hat: crown, brim, front ridge and small lamp.
+    addMesh(player, new THREE.SphereGeometry(0.34, 20, 12, 0, Math.PI * 2, 0, Math.PI / 2), helmetMat, 0, 2.42, 0);
+    addMesh(player, new THREE.CylinderGeometry(0.36, 0.36, 0.055, 24), helmetMat, 0, 2.39, 0);
+    box(player, 0.11, 0.035, 0.42, reflective, 0, 2.62, 0);
+    addMesh(player, new THREE.SphereGeometry(0.065, 12, 8), reflective, 0, 2.53, 0.31);
+    // Articulated arms, reinforced shoulders, cuffs and gloves.
+    const arms: THREE.Group[] = [];
+    for (const side of [-1, 1]) {
+      const arm = new THREE.Group();
+      arm.position.set(side * 0.48, 1.66, 0);
+      player.add(arm);
+      addMesh(arm, new THREE.SphereGeometry(0.19, 12, 10), jacket, 0, -0.02, 0);
+      addMesh(arm, new THREE.CapsuleGeometry(0.135, 0.38, 4, 8), jacket, 0, -0.28, 0, 0, 0, side * -0.08);
+      addMesh(arm, new THREE.CylinderGeometry(0.145, 0.145, 0.11, 12), reflective, 0, -0.49, 0);
+      addMesh(arm, new THREE.CapsuleGeometry(0.105, 0.3, 4, 8), navyLight, 0, -0.68, 0);
+      addMesh(arm, new THREE.SphereGeometry(0.115, 12, 10), glove, 0, -0.9, 0.025);
+      arms.push(arm);
+    }
+    // Backpack, shoulder straps, radio, antenna and belt equipment.
+    box(player, 0.48, 0.62, 0.2, navy, 0, 1.45, -0.36);
+    box(player, 0.52, 0.12, 0.23, navyLight, 0, 1.73, -0.37);
+    for (const x of [-0.25, 0.25]) {
+      box(player, 0.09, 0.52, 0.08, navyLight, x, 1.48, 0.245);
+      box(player, 0.12, 0.07, 0.1, reflective, x, 1.65, 0.29);
+    }
+    box(player, 0.13, 0.23, 0.09, glove, 0.34, 1.72, -0.02);
+    addMesh(player, new THREE.CylinderGeometry(0.012, 0.012, 0.22, 6), metal, 0.34, 1.95, -0.02);
+    box(player, 0.17, 0.2, 0.08, jacketDark, -0.34, 1.05, 0.22);
+    addMesh(player, new THREE.CylinderGeometry(0.025, 0.025, 0.35, 8), metal, -0.42, 1.1, 0.22, 0, 0, 0.12);
+    box(player, 0.18, 0.11, 0.025, navy, 0.23, 1.76, 0.35);
+    box(player, 0.1, 0.045, 0.03, reflective, 0.23, 1.77, 0.37);
     player.position.set(-6, 0, 5);
     scene.add(player);
 
@@ -455,6 +526,18 @@ export default function Game() {
           player.position.z = THREE.MathUtils.clamp(player.position.z, -18, 18);
           player.rotation.y = Math.atan2(direction.x, direction.z);
         }
+        const walking = direction.lengthSq() > 0;
+        const gait = clock.elapsedTime * 9;
+        const stride = walking ? Math.sin(gait) * 0.62 : 0;
+        legs[0].rotation.x = stride;
+        legs[1].rotation.x = -stride;
+        arms[0].rotation.x = -stride * 0.55;
+        arms[1].rotation.x = stride * 0.55;
+        player.position.y = walking ? Math.abs(Math.sin(gait * 2)) * 0.045 : 0;
+      } else {
+        legs.forEach((leg) => { leg.rotation.x = 0; });
+        arms.forEach((arm) => { arm.rotation.x = 0; });
+        player.position.y = 0;
       }
       updateCamera();
       renderer.render(scene, camera);
