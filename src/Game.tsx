@@ -420,7 +420,7 @@ export default function Game() {
         camera.position.set(target.x + Math.sin(angle) * radius * 0.72, radius * 0.68, target.z + Math.cos(angle) * radius * 0.72);
         camera.lookAt(target);
       } else {
-        const forward = new THREE.Vector3(0, 0, -1).applyQuaternion(player.quaternion);
+        const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(player.quaternion);
         camera.position.set(player.position.x - forward.x * 6, 4.2, player.position.z - forward.z * 6);
         camera.lookAt(player.position.x, 1.5, player.position.z);
       }
@@ -616,7 +616,7 @@ export default function Game() {
     setNotice(selected.name + " amélioré(e).");
   };
 
-  if (entryScreen) {
+  if (entryScreen && !introMap) {
     return (
       <main className="entry-screen">
         <div className="entry-3d-backdrop" ref={entryBgRef} aria-hidden="true" />
