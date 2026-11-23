@@ -35,3 +35,12 @@ button{font:inherit;cursor:pointer}
 .entry-footer{border-top:1px solid #ffffff18;padding-top:14px;color:#71848d;font:9px 'DM Mono',monospace;letter-spacing:1px}.entry-footer b{color:#d39a39}.entry-footer span:nth-child(2){color:#526873}
 @media(max-width:900px){.entry-content{grid-template-columns:1fr;gap:28px;max-width:760px;padding:42px 0}.entry-copy{max-width:600px}.entry-copy h1{font-size:48px;margin:14px 0}.entry-copy p{max-width:520px}.mode-art{height:165px}}
 @media(max-width:560px){.entry-screen{padding:17px 14px 13px}.entry-version{font-size:8px}.entry-content{padding:32px 0}.entry-copy h1{font-size:43px}.mode-grid{grid-template-columns:1fr;gap:13px}.mode-art{height:145px}.mode-card-body{padding:16px}.mode-card-body p{min-height:0;margin-bottom:14px}.entry-footer span:nth-child(2){display:none}}
+
+
+/* Cinematic Three.js backdrop for the mode-selection screen */
+.entry-3d-backdrop{position:absolute;z-index:0;inset:0;overflow:hidden;opacity:.82;pointer-events:none;mask-image:linear-gradient(90deg,transparent 0%,#000 28%,#000 100%),linear-gradient(to bottom,#000 0%,#000 68%,transparent 100%);mask-composite:intersect}
+.entry-3d-backdrop canvas{display:block;width:100%;height:100%}
+.entry-screen:after{content:"";position:absolute;z-index:0;inset:0;background:linear-gradient(90deg,#0a1219 0%,#0a1219e8 27%,#0a121980 57%,#0a121930 100%),linear-gradient(0deg,#0a1219 0%,transparent 34%);pointer-events:none}
+.entry-topline,.entry-content,.entry-footer{z-index:2}
+@media(max-width:900px){.entry-3d-backdrop{opacity:.5;mask-image:linear-gradient(to bottom,#000 0%,#000 48%,transparent 90%)}.entry-screen:after{background:linear-gradient(90deg,#0a1219d9,#0a1219a6),linear-gradient(0deg,#0a1219 0%,transparent 55%)}}
+@media(prefers-reduced-motion:reduce){.entry-3d-backdrop{display:none}}
