@@ -18,6 +18,7 @@ export default function Game() {
   const mountRef = useRef<HTMLDivElement>(null);
   const entryBgRef = useRef<HTMLDivElement>(null);
   const [entryScreen, setEntryScreen] = useState(true);
+  const [introMap, setIntroMap] = useState(false);
   const [cameraMode, setCameraMode] = useState<"management" | "exploration">("management");
   const [money, setMoney] = useState(12500);
   const [ore, setOre] = useState(0);
@@ -30,7 +31,7 @@ export default function Game() {
   const [showBuild, setShowBuild] = useState(false);
 
   useEffect(() => {
-    if (!entryScreen) return;
+    if (!entryScreen || introMap) return;
     const host = entryBgRef.current;
     if (!host) return;
 
@@ -157,10 +158,10 @@ export default function Game() {
       renderer.dispose();
       if (host.contains(renderer.domElement)) host.removeChild(renderer.domElement);
     };
-  }, [entryScreen]);
+  }, [entryScreen, introMap]);
 
   useEffect(() => {
-    if (entryScreen) return;
+    if (entryScreen || introMap) return;
     const host = mountRef.current;
     if (!host) return;
 
@@ -482,7 +483,7 @@ export default function Game() {
       renderer.dispose();
       host.removeChild(renderer.domElement);
     };
-  }, [cameraMode, buildings, entryScreen]);
+  }, [cameraMode, buildings, entryScreen, introMap]);
 
   useEffect(() => {
     const onSelected = (event: Event) => {
@@ -547,7 +548,7 @@ export default function Game() {
             <p>Construis ton entreprise, développe tes infrastructures et bâtis un empire énergétique dans un vaste monde 3D.</p>
           </div>
           <div className="mode-grid">
-            <button className="mode-card civil-card" onClick={() => setEntryScreen(false)}>
+            <button className="mode-card civil-card" onClick={() => setIntroMap(true)}>
               <div className="mode-art civil-art"><div className="art-sun"/><div className="art-hill hill-back"/><div className="art-hill hill-front"/><div className="art-factory"><i/><i/><i/></div><div className="art-road"/></div>
               <div className="mode-card-body"><span className="mode-number">01 / MODE DISPONIBLE</span><h2>MODE CIVIL</h2><p>Développe une entreprise minière et énergétique. Pars de zéro et construis ton empire industriel.</p><span className="mode-action">ENTRER DANS LE MODE <b>↗</b></span></div>
             </button>
@@ -558,6 +559,40 @@ export default function Game() {
           </div>
         </section>
         <footer className="entry-footer"><span>NUCLEAR TYCOON <b>©</b></span><span>UN JEU DE GESTION & D'EXPLORATION 3D</span><span>FR · EN</span></footer>
+      </main>
+    );
+  }
+
+
+  if (introMap) {
+    return (
+      <main className="story-map-screen">
+        <header className="story-map-header">
+          <div className="entry-brand"><span className="entry-logo">N</span><div><strong>NUCLEAR TYCOON</strong><small>CHAPITRE 01 · LES PREMIERS PAS</small></div></div>
+          <span className="entry-version">CARTE DE CAMPAGNE</span>
+        </header>
+        <section className="story-map-layout">
+          <div className="story-copy-panel">
+            <span className="story-kicker">PROLOGUE · 06:40</span>
+            <h1>Tout commence<br/><em>à Valmont.</em></h1>
+            <p className="story-lead">Tu viens d'hériter d'un petit terrain à la périphérie de Valmont. Pas d'usine, pas d'équipe, presque aucun équipement. Seulement un vieux dépôt, un gisement de minerai fictif et une ambition : bâtir une entreprise qui alimentera la région en énergie.</p>
+            <div className="story-brief"><span>MISSION INITIALE</span><strong>Prendre tes marques sur le terrain</strong><small>Rencontrer le site, extraire tes premières unités de minerai et les rapporter au dépôt.</small></div>
+            <button className="story-start-button" onClick={() => { setIntroMap(false); setEntryScreen(false); setNotice("Bienvenue à Valmont. Va au gisement, récupère du minerai et rapporte-le au dépôt."); setCameraMode("exploration"); }}>ARRIVER SUR LE SITE <b>↗</b></button>
+          </div>
+          <div className="story-map-card">
+            <div className="map-topline"><span>RÉGION DE VALMONT</span><span>CARTE 01 / 01</span></div>
+            <div className="flat-map">
+              <div className="map-contour contour-a"/><div className="map-contour contour-b"/><div className="map-river"/>
+              <div className="map-road road-one"/><div className="map-road road-two"/>
+              <div className="map-forest forest-one"/><div className="map-forest forest-two"/><div className="map-forest forest-three"/>
+              <div className="map-town"><i/><i/><i/><i/><span>VALMONT</span></div>
+              <div className="map-location-point"><span className="point-pulse"/><span className="point-core"/><label>TON TERRAIN</label></div>
+              <div className="map-compass">N <b>↑</b></div><div className="map-scale"><i/> 500 m</div>
+            </div>
+            <div className="map-legend"><span><i className="legend-site"/> SITE DE DÉPART</span><span><i className="legend-town"/> VILLE DE VALMONT</span><span><i className="legend-road"/> ROUTE RÉGIONALE</span></div>
+          </div>
+        </section>
+        <footer className="story-map-footer"><span>NUCLEAR TYCOON · CAMPAGNE CIVILE</span><span>UN PETIT TERRAIN. UN GRAND PROJET.</span></footer>
       </main>
     );
   }
