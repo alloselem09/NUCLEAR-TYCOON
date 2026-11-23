@@ -19,6 +19,8 @@ export default function Game() {
   const [cameraMode, setCameraMode] = useState<"management" | "exploration">("management");
   const [money, setMoney] = useState(12500);
   const [ore, setOre] = useState(0);
+  const [carried, setCarried] = useState(0);
+  const [stored, setStored] = useState(0);
   const [power, setPower] = useState(0);
   const [selected, setSelected] = useState<Building | null>(null);
   const [buildings, setBuildings] = useState(initialBuildings);
@@ -144,6 +146,38 @@ export default function Game() {
 
     buildings.forEach(addBuilding);
 
+    // First playable loop: fictional ore nodes and a simple stockpile.
+    const oreNodes: THREE.Group[] = [];
+    const oreMaterial = new THREE.MeshStandardMaterial({ color: "#a99a70", roughness: 0.95 });
+    for (let i = 0; i < 5; i++) {
+      const node = new THREE.Group();
+      node.position.set(-9 + (i % 3) * 1.35, 0, 3.5 + Math.floor(i / 3) * 1.35);
+      for (let j = 0; j < 4; j++) {
+        const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(0.42 + (j % 2) * 0.12, 0), oreMaterial);
+        rock.position.set((Math.random() - 0.5) * 0.7, 0.35 + (j % 2) * 0.25, (Math.random() - 0.5) * 0.7);
+        rock.rotation.set(Math.random(), Math.random(), Math.random());
+        rock.castShadow = true;
+        node.add(rock);
+      }
+      scene.add(node);
+      oreNodes.push(node);
+    }
+    const depot = new THREE.Group();
+    depot.position.set(-3, 0, 8);
+    const depotBase = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.25, 2.8), new THREE.MeshStandardMaterial({ color: "#b58a4b" }));
+    depotBase.position.y = 0.13;
+    depot.add(depotBase);
+    const depotRoof = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.18, 2.6), new THREE.MeshStandardMaterial({ color: "#344a54" }));
+    depotRoof.position.y = 1.65;
+    depot.add(depotRoof);
+    for (const x of [-1.35, 1.35]) for (const z of [-1.05, 1.05]) {
+      const post = new THREE.Mesh(new THREE.BoxGeometry(0.16, 1.6, 0.16), darkDepotMaterial());
+      post.position.set(x, 0.9, z);
+      depot.add(post);
+    }
+    scene.add(depot);
+    function darkDepotMaterial() { return new THREE.MeshStandardMaterial({ color: "#52636a" }); }
+
     // A simple, original low-poly engineer avatar for the first prototype.
     const player = new THREE.Group();
     const suit = new THREE.MeshStandardMaterial({ color: "#e2a33a" });
@@ -162,7 +196,7 @@ export default function Game() {
     const legs = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.72, 0.34), darkSuit);
     legs.position.y = 0.42;
     player.add(legs);
-    player.position.set(-2, 0, 4);
+    player.position.set(-6, 0, 5);
     scene.add(player);
 
     const raycaster = new THREE.Raycaster();
@@ -351,17 +385,18 @@ export default function Game() {
           <button className="nav-item" onClick={() => setNotice("La gestion détaillée sera ajoutée dans une prochaine version.")}>▤ <span>Production</span></button>
           <button className="nav-item" onClick={() => setNotice("Le réseau électrique sera développé dans la prochaine étape.")}>ϟ <span>Réseau électrique</span></button>
           <div className="side-spacer" />
-          <div className="objective"><span className="side-label">OBJECTIF ACTUEL</span><strong>Développer le site de départ</strong><small>Construis ton premier complexe industriel.</small></div>
+          <div className="objective"><span className="side-label">OBJECTIF ACTUEL</span><strong>Extraire et vendre</strong><small>Approche-toi des rochers, appuie sur E, puis livre au dépôt.</small></div>
         </aside>
 
         <section className="world-panel">
           <div className="world-heading"><div><span className="eyebrow">SITE INDUSTRIEL · SECTEUR 01</span><h1>Complexe de Valmont</h1></div><span className="live-pill"><i /> SIMULATION ACTIVE</span></div>
           <div className="world-canvas" ref={mountRef}>
-            <div className="world-hint">{cameraMode === "management" ? "Glisser : tourner · Molette : zoom · Cliquer : sélectionner" : "ZQSD / flèches : déplacer le personnage · V : changer de caméra"}</div>
+            <div className="world-hint">{cameraMode === "management" ? "Glisser : tourner · Molette : zoom · Cliquer : sélectionner" : "ZQSD / flèches : déplacer · E : extraire / livrer · V : changer de caméra"}</div>
+            {cameraMode === "exploration" && <div className="mining-hud"><span>INVENTAIRE</span><strong>{carried} / 5</strong><small>À livrer · {stored} unités vendues</small></div>}
             {showBuild && <div className="build-modal"><div className="modal-head"><div><span className="eyebrow">DÉVELOPPEMENT</span><h2>Construire</h2></div><button className="close-button" onClick={() => setShowBuild(false)}>×</button></div><div className="build-options"><button onClick={() => build("mine")}><b>⛏</b><strong>Mine</strong><small>3 500 €</small></button><button onClick={() => build("factory")}><b>▥</b><strong>Centre industriel</strong><small>5 000 €</small></button><button onClick={() => build("plant")}><b>ϟ</b><strong>Centrale</strong><small>9 000 €</small></button></div></div>}
             {selected && <div className="selection-card"><button className="close-button" onClick={() => setSelected(null)}>×</button><span className="eyebrow">INSTALLATION SÉLECTIONNÉE</span><h2>{selected.name}</h2><p>Niveau {selected.level} · Site de Valmont</p><button className="primary-button" onClick={upgrade}>Améliorer · 2 500 €</button></div>}
           </div>
-          <div className="statusbar"><span><i className="status-dot" /> {notice}</span><span>V0.1 · PROTOTYPE</span></div>
+          <div className="statusbar"><span><i className="status-dot" /> {notice}</span><span>V0.2 · BOUCLE DE MINAGE</span></div>
         </section>
       </section>
       <footer className="footer"><span>NUCLEAR TYCOON</span><span>Prototype jouable en développement · Univers fictif</span></footer>
