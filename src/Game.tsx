@@ -16,6 +16,7 @@ const moneyFormat = (value: number) =>
 
 export default function Game() {
   const mountRef = useRef<HTMLDivElement>(null);
+  const entryBgRef = useRef<HTMLDivElement>(null);
   const [entryScreen, setEntryScreen] = useState(true);
   const [cameraMode, setCameraMode] = useState<"management" | "exploration">("management");
   const [money, setMoney] = useState(12500);
@@ -27,6 +28,136 @@ export default function Game() {
   const [buildings, setBuildings] = useState(initialBuildings);
   const [notice, setNotice] = useState("Bienvenue. Explore ton premier site industriel.");
   const [showBuild, setShowBuild] = useState(false);
+
+  useEffect(() => {
+    if (!entryScreen) return;
+    const host = entryBgRef.current;
+    if (!host) return;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(42, host.clientWidth / host.clientHeight, 0.1, 180);
+    camera.position.set(17, 11, 24);
+    camera.lookAt(0, 3, 0);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.6));
+    renderer.setSize(host.clientWidth, host.clientHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.setClearColor(0x000000, 0);
+    host.appendChild(renderer.domElement);
+
+    scene.add(new THREE.HemisphereLight(0xc8e2eb, 0x25333a, 2.0));
+    const keyLight = new THREE.DirectionalLight(0xffd99a, 2.4);
+    keyLight.position.set(-12, 20, 10);
+    scene.add(keyLight);
+    const rimLight = new THREE.PointLight(0xd39a39, 34, 42);
+    rimLight.position.set(7, 8, -5);
+    scene.add(rimLight);
+
+    const mat = (color: string, roughness = 0.9) => new THREE.MeshStandardMaterial({ color, roughness });
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(110, 90), mat("#263b3c"));
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -0.25;
+    scene.add(ground);
+
+    const addBlock = (w: number, h: number, d: number, x: number, y: number, z: number, material: THREE.Material) => {
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material);
+      mesh.position.set(x, y, z);
+      scene.add(mesh);
+      return mesh;
+    };
+    const addCylinder = (rt: number, rb: number, h: number, x: number, y: number, z: number, material: THREE.Material) => {
+      const mesh = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, 12), material);
+      mesh.position.set(x, y, z);
+      scene.add(mesh);
+      return mesh;
+    };
+
+    const hillMat = mat("#344d49");
+    for (let i = 0; i < 7; i++) {
+      const hill = new THREE.Mesh(new THREE.ConeGeometry(9 + (i % 3) * 2, 8 + (i % 2) * 3, 6), hillMat);
+      hill.position.set(-25 + i * 9, 2, -22 - (i % 2) * 5);
+      hill.rotation.y = i * 0.7;
+      scene.add(hill);
+    }
+
+    const concrete = mat("#84918c");
+    const dark = mat("#293a40");
+    const gold = mat("#c9953e");
+    const glass = new THREE.MeshStandardMaterial({ color: "#7ca7a6", emissive: "#244b4c", emissiveIntensity: 0.55, roughness: 0.3 });
+    // Silhouette industrielle décorative : bâtiments, cuves et cheminées.
+    addBlock(10, 5.4, 7, -5, 2.45, -2, concrete);
+    addBlock(11, 0.45, 7.5, -5, 5.25, -2, gold);
+    addBlock(5, 8, 5, 4, 3.7, -6, dark);
+    addBlock(4.5, 6.2, 4.5, 4, 3.3, -6, glass);
+    addBlock(8, 3.3, 6, 13, 1.35, 0, concrete);
+    addBlock(8.5, 0.35, 6.5, 13, 3.15, 0, gold);
+    for (let i = 0; i < 3; i++) {
+      addCylinder(0.72, 0.9, 5.2, -13 + i * 2.2, 2.35, -8, dark);
+      addCylinder(0.58, 0.72, 0.35, -13 + i * 2.2, 5.12, -8, gold);
+    }
+    addCylinder(0.9, 1.1, 10, 10, 4.7, -8, concrete);
+    addCylinder(0.72, 0.9, 0.5, 10, 9.85, -8, gold);
+    for (let i = 0; i < 4; i++) {
+      const tank = addCylinder(1.05, 1.05, 2.6, 17 + (i % 2) * 2.4, 1.05, -5 + Math.floor(i / 2) * 3, glass);
+      tank.rotation.z = 0;
+    }
+    // Tuyauteries décoratives en hauteur.
+    const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 13, 10), gold);
+    pipe.rotation.z = Math.PI / 2;
+    pipe.position.set(2, 4.7, 1.8);
+    scene.add(pipe);
+
+    const road = addBlock(4.5, 0.12, 46, 3, -0.08, 5, dark);
+    road.rotation.y = -0.12;
+    for (let i = 0; i < 8; i++) {
+      const lamp = addBlock(0.12, 2.1, 0.12, 0.5, 1, -12 + i * 5, gold);
+      addBlock(0.55, 0.08, 0.08, 0.72, 1.95, -12 + i * 5, gold);
+      lamp.castShadow = false;
+    }
+
+    const steam: THREE.Mesh[] = [];
+    const steamMat = new THREE.MeshBasicMaterial({ color: "#d8e3df", transparent: true, opacity: 0.2, depthWrite: false });
+    for (let i = 0; i < 9; i++) {
+      const puff = new THREE.Mesh(new THREE.SphereGeometry(0.42 + (i % 3) * 0.12, 8, 7), steamMat.clone());
+      puff.position.set(10 + Math.sin(i) * 0.5, 10 + i * 0.85, -8);
+      scene.add(puff);
+      steam.push(puff);
+    }
+
+    let frame = 0;
+    let raf = 0;
+    const animateBackdrop = () => {
+      raf = requestAnimationFrame(animateBackdrop);
+      frame += 0.003;
+      camera.position.x = 17 + Math.sin(frame) * 1.15;
+      camera.position.y = 11 + Math.sin(frame * 0.7) * 0.28;
+      camera.lookAt(0, 3, 0);
+      steam.forEach((puff, i) => {
+        puff.position.y = 9.5 + ((frame * 5 + i * 1.15) % 8);
+        puff.position.x = 10 + Math.sin(frame * 1.5 + i) * 0.55;
+        (puff.material as THREE.MeshBasicMaterial).opacity = 0.14 + (Math.sin(frame * 2 + i) + 1) * 0.045;
+      });
+      renderer.render(scene, camera);
+    };
+    animateBackdrop();
+
+    const resize = () => {
+      if (!host.clientWidth || !host.clientHeight) return;
+      camera.aspect = host.clientWidth / host.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(host.clientWidth, host.clientHeight);
+    };
+    const observer = new ResizeObserver(resize);
+    observer.observe(host);
+    return () => {
+      cancelAnimationFrame(raf);
+      observer.disconnect();
+      steam.forEach((puff) => (puff.material as THREE.Material).dispose());
+      renderer.dispose();
+      if (host.contains(renderer.domElement)) host.removeChild(renderer.domElement);
+    };
+  }, [entryScreen]);
 
   useEffect(() => {
     if (entryScreen) return;
