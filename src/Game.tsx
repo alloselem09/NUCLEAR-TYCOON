@@ -535,6 +535,7 @@ export default function Game() {
   if (entryScreen) {
     return (
       <main className="entry-screen">
+        <div className="entry-3d-backdrop" ref={entryBgRef} aria-hidden="true" />
         <div className="entry-topline">
           <div className="entry-brand"><span className="entry-logo">N</span><div><strong>NUCLEAR TYCOON</strong><small>BUILD YOUR ENERGY EMPIRE</small></div></div>
           <span className="entry-version">EARLY DEVELOPMENT · V0.3</span>
