@@ -16,6 +16,7 @@ const moneyFormat = (value: number) =>
 
 export default function Game() {
   const mountRef = useRef<HTMLDivElement>(null);
+  const [entryScreen, setEntryScreen] = useState(true);
   const [cameraMode, setCameraMode] = useState<"management" | "exploration">("management");
   const [money, setMoney] = useState(12500);
   const [ore, setOre] = useState(0);
@@ -28,6 +29,7 @@ export default function Game() {
   const [showBuild, setShowBuild] = useState(false);
 
   useEffect(() => {
+    if (entryScreen) return;
     const host = mountRef.current;
     if (!host) return;
 
@@ -349,7 +351,7 @@ export default function Game() {
       renderer.dispose();
       host.removeChild(renderer.domElement);
     };
-  }, [cameraMode, buildings]);
+  }, [cameraMode, buildings, entryScreen]);
 
   useEffect(() => {
     const onSelected = (event: Event) => {
@@ -398,6 +400,35 @@ export default function Game() {
     setSelected({ ...selected, level: selected.level + 1 });
     setNotice(selected.name + " amélioré(e).");
   };
+
+  if (entryScreen) {
+    return (
+      <main className="entry-screen">
+        <div className="entry-topline">
+          <div className="entry-brand"><span className="entry-logo">N</span><div><strong>NUCLEAR TYCOON</strong><small>BUILD YOUR ENERGY EMPIRE</small></div></div>
+          <span className="entry-version">EARLY DEVELOPMENT · V0.3</span>
+        </div>
+        <section className="entry-content">
+          <div className="entry-copy">
+            <span className="entry-kicker"><i /> UNE NOUVELLE ÈRE INDUSTRIELLE</span>
+            <h1>CHOISIS TON<br/><em>DESTIN.</em></h1>
+            <p>Construis ton entreprise, développe tes infrastructures et bâtis un empire énergétique dans un vaste monde 3D.</p>
+          </div>
+          <div className="mode-grid">
+            <button className="mode-card civil-card" onClick={() => setEntryScreen(false)}>
+              <div className="mode-art civil-art"><div className="art-sun"/><div className="art-hill hill-back"/><div className="art-hill hill-front"/><div className="art-factory"><i/><i/><i/></div><div className="art-road"/></div>
+              <div className="mode-card-body"><span className="mode-number">01 / MODE DISPONIBLE</span><h2>MODE CIVIL</h2><p>Développe une entreprise minière et énergétique. Pars de zéro et construis ton empire industriel.</p><span className="mode-action">ENTRER DANS LE MODE <b>↗</b></span></div>
+            </button>
+            <div className="mode-card military-card" aria-disabled="true">
+              <div className="mode-art military-art"><div className="military-grid"/><div className="military-silhouette"><i/><i/><i/><i/></div><div className="lock-symbol">⌑</div></div>
+              <div className="mode-card-body"><span className="mode-number">02 / EN DÉVELOPPEMENT</span><h2>MODE MILITAIRE</h2><p>Ce mode n'est pas encore disponible. Il sera présenté dans une future mise à jour.</p><span className="coming-soon">BIENTÔT DISPONIBLE</span></div>
+            </div>
+          </div>
+        </section>
+        <footer className="entry-footer"><span>NUCLEAR TYCOON <b>©</b></span><span>UN JEU DE GESTION & D'EXPLORATION 3D</span><span>FR · EN</span></footer>
+      </main>
+    );
+  }
 
   return (
     <main className="game-shell">
