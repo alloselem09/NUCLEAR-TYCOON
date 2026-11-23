@@ -221,8 +221,42 @@ export default function Game() {
       }
     };
 
+    let remainingOre = 20;
+    let carriedUnits = 0;
     const onKeyDown = (event: KeyboardEvent) => {
       keys[event.key.toLowerCase()] = true;
+      if (event.key.toLowerCase() === "e" && cameraMode === "exploration") {
+        const nearNode = oreNodes.find((node) => player.position.distanceTo(node.position) < 3.1);
+        if (nearNode && remainingOre > 0 && carriedUnits < 5) {
+          remainingOre -= 1;
+          carriedUnits += 1;
+          setCarried(carriedUnits);
+          setNotice("Tu as extrait 1 unité de minerai fictif. (" + carriedUnits + "/5)");
+          const rock = nearNode.children.pop();
+          if (rock) {
+            nearNode.remove(rock);
+            (rock as THREE.Mesh).geometry.dispose();
+          }
+          if (nearNode.children.length === 0) {
+            const index = oreNodes.indexOf(nearNode);
+            if (index >= 0) oreNodes.splice(index, 1);
+          }
+        } else if (player.position.distanceTo(depot.position) < 3.6 && carriedUnits > 0) {
+          const delivered = carriedUnits;
+          carriedUnits = 0;
+          setCarried(0);
+          setStored((value) => value + delivered);
+          setOre((value) => value + delivered);
+          setMoney((value) => value + delivered * 35);
+          setNotice(delivered + " unités livrées et vendues : +" + moneyFormat(delivered * 35) + ".");
+        } else if (carriedUnits >= 5) {
+          setNotice("Inventaire plein : retourne au dépôt pour livrer ton minerai.");
+        } else if (remainingOre <= 0) {
+          setNotice("Ce petit gisement est épuisé pour le moment.");
+        } else {
+          setNotice("Approche-toi du gisement ou du dépôt pour interagir avec E.");
+        }
+      }
       if (event.key.toLowerCase() === "v") setCameraMode((mode) => mode === "management" ? "exploration" : "management");
     };
     const onKeyUp = (event: KeyboardEvent) => { keys[event.key.toLowerCase()] = false; };
