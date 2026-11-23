@@ -342,14 +342,14 @@ export default function Game() {
       const leg = new THREE.Group();
       leg.position.set(x, 0.9, 0);
       player.add(leg);
-      addMesh(leg, new THREE.CapsuleGeometry(0.145, 0.48, 4, 8), navy, 0, -0.28, 0);
+      addMesh(leg, new THREE.CylinderGeometry(0.145, 0.16, 0.72, 12), navy, 0, -0.28, 0);
       box(leg, 0.31, 0.09, 0.34, reflective, 0, -0.48, 0);
       box(leg, 0.32, 0.16, 0.43, boot, 0, -0.68, 0.07);
       box(leg, 0.32, 0.06, 0.44, glove, 0, -0.77, 0.07);
       legs.push(leg);
     }
     // Jacket torso, shoulders, waist and high-visibility bands.
-    const torso = addMesh(player, new THREE.CapsuleGeometry(0.43, 0.72, 6, 12), jacket, 0, 1.36, 0);
+    const torso = addMesh(player, new THREE.CylinderGeometry(0.39, 0.46, 1.5, 16), jacket, 0, 1.36, 0);
     torso.scale.set(1, 1.05, 0.78);
     box(player, 0.82, 0.13, 0.49, navy, 0, 0.98, 0);
     box(player, 0.88, 0.12, 0.54, reflective, 0, 1.57, 0.015);
@@ -382,9 +382,9 @@ export default function Game() {
       arm.position.set(side * 0.48, 1.66, 0);
       player.add(arm);
       addMesh(arm, new THREE.SphereGeometry(0.19, 12, 10), jacket, 0, -0.02, 0);
-      addMesh(arm, new THREE.CapsuleGeometry(0.135, 0.38, 4, 8), jacket, 0, -0.28, 0, 0, 0, side * -0.08);
+      addMesh(arm, new THREE.CylinderGeometry(0.12, 0.15, 0.56, 12), jacket, 0, -0.28, 0, 0, 0, side * -0.08);
       addMesh(arm, new THREE.CylinderGeometry(0.145, 0.145, 0.11, 12), reflective, 0, -0.49, 0);
-      addMesh(arm, new THREE.CapsuleGeometry(0.105, 0.3, 4, 8), navyLight, 0, -0.68, 0);
+      addMesh(arm, new THREE.CylinderGeometry(0.09, 0.11, 0.46, 12), navyLight, 0, -0.68, 0);
       addMesh(arm, new THREE.SphereGeometry(0.115, 12, 10), glove, 0, -0.9, 0.025);
       arms.push(arm);
     }
