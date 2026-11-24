@@ -11,25 +11,45 @@
   <body>
     <div id="root"></div>
 
-    <!-- Bibliothèques chargées directement par le navigateur, sans installation locale. -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.171.0/three.min.js"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Bibliothèques externes : aucune installation locale nécessaire. -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.171.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
 
-    <!-- Le navigateur transforme le TSX à l'ouverture de la page : aucun build Vite. -->
-    <script type="text/babel" data-presets="typescript,react" src="./src/Game.tsx"></script>
+    <!-- On attend explicitement le chargement des bibliothèques et la compilation du TSX. -->
     <script>
-      window.addEventListener("load", function () {
-        if (!window.Game || !window.ReactDOM || !window.ReactDOM.createRoot) {
-          document.getElementById("root").innerHTML =
-            '<p style="padding:24px;color:#fff;font-family:Arial">Impossible de charger les bibliothèques du jeu. Vérifie ta connexion Internet puis actualise la page.</p>';
+      (async function () {
+        const root = document.getElementById("root");
+        const showError = (message) => {
+          root.innerHTML = '<div style="padding:24px;color:#fff;font-family:Arial;line-height:1.5">' + message + '</div>';
+        };
+
+        if (!window.THREE || !window.React || !window.ReactDOM || !window.Babel) {
+          showError("Impossible de charger une bibliothèque externe (Three.js, React ou Babel). Vérifie ta connexion Internet et actualise la page.");
           return;
         }
-        ReactDOM.createRoot(document.getElementById("root")).render(
-          React.createElement(window.Game)
-        );
-      });
+
+        try {
+          const response = await fetch("./src/Game.tsx");
+          if (!response.ok) throw new Error("Game.tsx introuvable (" + response.status + ").");
+          const source = await response.text();
+          const compiled = Babel.transform(source, {
+            filename: "Game.tsx",
+            presets: ["typescript", "react"]
+          }).code;
+
+          const script = document.createElement("script");
+          script.textContent = compiled;
+          document.body.appendChild(script);
+
+          if (!window.Game) throw new Error("Le composant du jeu n'a pas été chargé.");
+          ReactDOM.createRoot(root).render(React.createElement(window.Game));
+        } catch (error) {
+          console.error("NUCLEAR TYCOON — erreur de démarrage :", error);
+          showError("Le jeu n'a pas pu démarrer : " + (error && error.message ? error.message : error) + ". Ouvre la console du navigateur (F12) pour voir le détail.");
+        }
+      })();
     </script>
   </body>
 </html>
