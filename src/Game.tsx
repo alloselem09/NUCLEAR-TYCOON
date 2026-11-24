@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import * as THREE from "three";
+const { useEffect, useRef, useState } = React;
+const THREE = window.THREE;
 
 type BuildingKind = "mine" | "factory" | "plant" | "city";
 type Building = { id: number; kind: BuildingKind; name: string; x: number; z: number; level: number };
@@ -14,7 +14,7 @@ const initialBuildings: Building[] = [
 const moneyFormat = (value: number) =>
   new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(value) + " €";
 
-export default function Game() {
+function Game() {
   const mountRef = useRef<HTMLDivElement>(null);
   const entryBgRef = useRef<HTMLDivElement>(null);
   const [entryScreen, setEntryScreen] = useState(true);
@@ -829,3 +829,7 @@ export default function Game() {
     </main>
   );
 }
+
+
+// Expose le composant au lanceur HTML autonome.
+window.Game = Game;
