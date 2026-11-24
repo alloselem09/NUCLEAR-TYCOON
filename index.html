@@ -6,9 +6,30 @@
     <meta name="theme-color" content="#101923" />
     <meta name="description" content="NUCLEAR TYCOON — construis ton empire énergétique." />
     <title>NUCLEAR TYCOON</title>
+    <link rel="stylesheet" href="./src/styles.css" />
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Bibliothèques chargées directement par le navigateur, sans installation locale. -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.171.0/three.min.js"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Le navigateur transforme le TSX à l'ouverture de la page : aucun build Vite. -->
+    <script type="text/babel" data-presets="typescript,react" src="./src/Game.tsx"></script>
+    <script>
+      window.addEventListener("load", function () {
+        if (!window.Game || !window.ReactDOM || !window.ReactDOM.createRoot) {
+          document.getElementById("root").innerHTML =
+            '<p style="padding:24px;color:#fff;font-family:Arial">Impossible de charger les bibliothèques du jeu. Vérifie ta connexion Internet puis actualise la page.</p>';
+          return;
+        }
+        ReactDOM.createRoot(document.getElementById("root")).render(
+          React.createElement(window.Game)
+        );
+      });
+    </script>
   </body>
 </html>
