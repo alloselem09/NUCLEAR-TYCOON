@@ -280,6 +280,113 @@ export default function Game() {
 
     buildings.forEach(addBuilding);
 
+    // Centrifugeuse expérimentale : modèle 3D de présentation, non fonctionnel.
+    // Les particules sont des éléments visuels fictifs, sans simulation physique réelle.
+    const centrifuge = new THREE.Group();
+    centrifuge.position.set(-11, 0, -5);
+    const machineMetal = new THREE.MeshStandardMaterial({ color: "#53636b", metalness: 0.78, roughness: 0.32 });
+    const machineDark = new THREE.MeshStandardMaterial({ color: "#202d35", metalness: 0.55, roughness: 0.42 });
+    const machineGold = new THREE.MeshStandardMaterial({ color: "#d39a39", metalness: 0.62, roughness: 0.3 });
+    const machineGlass = new THREE.MeshPhysicalMaterial({ color: "#78c9d0", transparent: true, opacity: 0.16, roughness: 0.12, metalness: 0.12, transmission: 0.25, side: THREE.DoubleSide, depthWrite: false });
+    const machineBase = new THREE.Mesh(new THREE.CylinderGeometry(2.25, 2.4, 0.42, 40), machineDark);
+    machineBase.position.y = 0.22;
+    machineBase.castShadow = true;
+    centrifuge.add(machineBase);
+    const lowerTrim = new THREE.Mesh(new THREE.TorusGeometry(2.05, 0.12, 10, 48), machineGold);
+    lowerTrim.rotation.x = Math.PI / 2;
+    lowerTrim.position.y = 0.48;
+    centrifuge.add(lowerTrim);
+
+    const chamber = new THREE.Mesh(new THREE.CylinderGeometry(1.95, 1.95, 4.15, 48, 1, true), machineGlass);
+    chamber.position.y = 2.62;
+    centrifuge.add(chamber);
+    const topRing = new THREE.Mesh(new THREE.TorusGeometry(1.98, 0.13, 12, 48), machineMetal);
+    topRing.rotation.x = Math.PI / 2;
+    topRing.position.y = 4.72;
+    centrifuge.add(topRing);
+    const bottomRing = new THREE.Mesh(new THREE.TorusGeometry(1.98, 0.13, 12, 48), machineMetal);
+    bottomRing.rotation.x = Math.PI / 2;
+    bottomRing.position.y = 0.58;
+    centrifuge.add(bottomRing);
+
+    // Montants extérieurs qui donnent une silhouette industrielle lisible.
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2;
+      const post = new THREE.Mesh(new THREE.BoxGeometry(0.13, 4.2, 0.13), machineMetal);
+      post.position.set(Math.cos(a) * 2.02, 2.62, Math.sin(a) * 2.02);
+      centrifuge.add(post);
+      const bolt = new THREE.Mesh(new THREE.SphereGeometry(0.105, 10, 8), machineGold);
+      bolt.position.set(Math.cos(a) * 2.1, 4.76, Math.sin(a) * 2.1);
+      centrifuge.add(bolt);
+    }
+
+    const rotor = new THREE.Group();
+    const rotorCore = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.48, 3.75, 24), machineMetal);
+    rotorCore.position.y = 2.62;
+    rotor.add(rotorCore);
+    for (let y = 0.95; y <= 4.3; y += 0.56) {
+      const rotorBand = new THREE.Mesh(new THREE.TorusGeometry(0.93, 0.075, 10, 36), machineGold);
+      rotorBand.rotation.x = Math.PI / 2;
+      rotorBand.position.y = y;
+      rotor.add(rotorBand);
+    }
+    for (let i = 0; i < 6; i++) {
+      const blade = new THREE.Mesh(new THREE.BoxGeometry(0.12, 3.1, 1.45), machineMetal);
+      blade.position.y = 2.62;
+      blade.rotation.y = (i / 6) * Math.PI * 2;
+      rotor.add(blade);
+    }
+    centrifuge.add(rotor);
+
+    // Particules lumineuses décoratives réparties sur une couronne intérieure.
+    const particleOrbit = new THREE.Group();
+    const particleMaterials = [
+      new THREE.MeshStandardMaterial({ color: "#63d6d0", emissive: "#1c9d9a", emissiveIntensity: 1.8, roughness: 0.28 }),
+      new THREE.MeshStandardMaterial({ color: "#f0bd61", emissive: "#b66d18", emissiveIntensity: 1.6, roughness: 0.3 }),
+    ];
+    for (let i = 0; i < 36; i++) {
+      const angle = (i / 36) * Math.PI * 2;
+      const y = 0.95 + ((i * 7) % 30) / 30 * 3.25;
+      const particle = new THREE.Mesh(new THREE.SphereGeometry(0.075 + (i % 3) * 0.018, 10, 8), particleMaterials[i % 2]);
+      particle.position.set(Math.cos(angle) * 1.57, y, Math.sin(angle) * 1.57);
+      particleOrbit.add(particle);
+    }
+    centrifuge.add(particleOrbit);
+
+    const motorCap = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 0.92, 0.34, 32), machineDark);
+    motorCap.position.y = 4.98;
+    centrifuge.add(motorCap);
+    const motorLight = new THREE.Mesh(new THREE.TorusGeometry(0.58, 0.055, 8, 32), machineGold);
+    motorLight.rotation.x = Math.PI / 2;
+    motorLight.position.y = 5.17;
+    centrifuge.add(motorLight);
+
+    // Pupitre de supervision placé devant la vitre de la machine.
+    const console = new THREE.Group();
+    console.position.set(0, 0, 2.85);
+    const consoleDesk = new THREE.Mesh(new THREE.BoxGeometry(2.35, 0.22, 0.82), machineDark);
+    consoleDesk.position.y = 1.08;
+    console.add(consoleDesk);
+    const consoleStem = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.02, 0.55), machineMetal);
+    consoleStem.position.y = 0.56;
+    console.add(consoleStem);
+    const screenMat = new THREE.MeshStandardMaterial({ color: "#173b45", emissive: "#145d65", emissiveIntensity: 0.8, metalness: 0.2, roughness: 0.25 });
+    const screen = new THREE.Mesh(new THREE.BoxGeometry(1.55, 0.72, 0.07), screenMat);
+    screen.position.set(0, 1.58, -0.22);
+    screen.rotation.x = -0.22;
+    console.add(screen);
+    for (let i = 0; i < 3; i++) {
+      const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 8), particleMaterials[i % 2]);
+      lamp.position.set(-0.55 + i * 0.55, 1.22, 0.18);
+      console.add(lamp);
+    }
+    centrifuge.add(console);
+
+    const warningLight = new THREE.PointLight(0x54c9c4, 3.5, 7);
+    warningLight.position.set(0, 5.35, 0);
+    centrifuge.add(warningLight);
+    scene.add(centrifuge);
+
     // First playable loop: fictional ore nodes and a simple stockpile.
     const oreNodes: THREE.Group[] = [];
     const oreMaterial = new THREE.MeshStandardMaterial({ color: "#a99a70", roughness: 0.95 });
@@ -513,6 +620,9 @@ export default function Game() {
     const animate = () => {
       animationFrame = requestAnimationFrame(animate);
       const delta = Math.min(clock.getDelta(), 0.05);
+      rotor.rotation.y += delta * 1.35;
+      particleOrbit.rotation.y -= delta * 0.62;
+      motorLight.material.opacity = 0.78 + Math.sin(clock.elapsedTime * 2.4) * 0.18;
       if (cameraMode === "exploration") {
         const direction = new THREE.Vector3();
         if (keys.w || keys.z || keys.arrowup) direction.z -= 1;
@@ -707,6 +817,7 @@ export default function Game() {
           <div className="world-heading"><div><span className="eyebrow">SITE INDUSTRIEL · SECTEUR 01</span><h1>Complexe de Valmont</h1></div><span className="live-pill"><i /> SIMULATION ACTIVE</span></div>
           <div className="world-canvas" ref={mountRef}>
             <div className="world-hint">{cameraMode === "management" ? "Glisser : tourner · Molette : zoom · Cliquer : sélectionner" : "ZQSD / flèches : déplacer · E : extraire / livrer · V : changer de caméra"}</div>
+          <div className="centrifuge-preview"><span className="centrifuge-indicator" /> UNITÉ EXPÉRIMENTALE <small>APERÇU 3D · DÉBLOCAGE ULTÉRIEUR</small></div>
             {cameraMode === "exploration" && <div className="mining-hud"><span>INVENTAIRE</span><strong>{carried} / 5</strong><small>À livrer · {stored} unités vendues</small></div>}
             {showBuild && <div className="build-modal"><div className="modal-head"><div><span className="eyebrow">DÉVELOPPEMENT</span><h2>Construire</h2></div><button className="close-button" onClick={() => setShowBuild(false)}>×</button></div><div className="build-options"><button onClick={() => build("mine")}><b>⛏</b><strong>Mine</strong><small>3 500 €</small></button><button onClick={() => build("factory")}><b>▥</b><strong>Centre industriel</strong><small>5 000 €</small></button><button onClick={() => build("plant")}><b>ϟ</b><strong>Centrale</strong><small>9 000 €</small></button></div></div>}
             {selected && <div className="selection-card"><button className="close-button" onClick={() => setSelected(null)}>×</button><span className="eyebrow">INSTALLATION SÉLECTIONNÉE</span><h2>{selected.name}</h2><p>Niveau {selected.level} · Site de Valmont</p><button className="primary-button" onClick={upgrade}>Améliorer · 2 500 €</button></div>}
