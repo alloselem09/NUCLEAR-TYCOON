@@ -1,43 +1,29 @@
 # NUCLEAR TYCOON
 
-Prototype d'un jeu de gestion industrielle et d'exploration en 3D, jouable dans un navigateur.
+Prototype de jeu de gestion et d'exploration 3D, lancé directement depuis `index.html`.
 
-## Technologies
+## Lancer le jeu
 
-- React + TypeScript
-- Vite
-- Three.js
+1. Ouvre le dossier du projet.
+2. Double-clique sur `index.html` (ou clic droit → Ouvrir avec → navigateur).
+3. Le jeu démarre dans Chrome, sans Vite, terminal, serveur local ni extension.
 
-## Lancer le projet en local
+Une connexion Internet est nécessaire au premier chargement pour récupérer React, Three.js et Babel depuis leurs CDN. Aucun logiciel ni paquet n'est à installer sur l'ordinateur.
 
-~~~bash
-npm install
-npm run dev
-~~~
+## Architecture navigateur
 
-Pour générer la version de production :
-
-~~~bash
-npm run build
-npm run preview
-~~~
-
-## Prototype actuel
-
-- Monde 3D généré avec Three.js
-- Personnage 3D low-poly contrôlable
-- Caméra Gestion (isométrique) et caméra Exploration
-- Bâtiments de départ : mine, centre industriel, centrale et ville
-- Sélection et amélioration des bâtiments
-- Menu de construction
-- Ressources et revenus de démonstration
+- `index.html` : point d'entrée autonome et lancement de l'application.
+- `src/Game.tsx` : interface, logique et scène 3D du jeu.
+- `src/styles.css` : styles de l'interface.
+- Les bibliothèques sont chargées comme scripts navigateur ; Babel transforme le TSX au chargement. Il n'y a plus d'import de modules ni de commande Vite dans le chemin de lancement.
 
 ## Commandes
 
-- **ZQSD** ou **flèches** : déplacer le personnage en mode Exploration
-- **V** : basculer entre les deux caméras
-- **Mode Gestion** : glisser pour tourner la caméra, molette pour zoomer, cliquer sur un bâtiment pour le sélectionner
+- **ZQSD** ou **flèches** : déplacer le personnage en mode Exploration.
+- **E** : interagir avec les éléments proches.
+- **V** : basculer entre caméra Gestion et caméra Exploration.
+- **Mode Gestion** : glisser pour tourner la caméra, molette pour zoomer, cliquer sur un bâtiment pour le sélectionner.
 
 ## Note de conception
 
-Les systèmes nucléaires sont représentés par des mécaniques de gestion fictives et abstraites. Le prototype se concentre sur la construction, l'économie, l'exploration et la production d'électricité.
+Les éléments industriels et les ressources sont fictifs et abstraits. Le prototype se concentre sur la construction, l'économie, l'exploration et la production d'électricité.
