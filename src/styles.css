@@ -79,3 +79,10 @@ button{font:inherit;cursor:pointer}
 .story-map-footer{border-top:1px solid #ffffff18;padding-top:14px;color:#71848d;font:9px 'DM Mono',monospace;letter-spacing:1px}
 @media(max-width:850px){.story-map-layout{grid-template-columns:1fr;gap:25px;padding:32px 0}.story-copy-panel{max-width:650px}.story-copy-panel h1{font-size:45px;margin:12px 0}.story-lead{font-size:12px}.flat-map{height:310px}.story-map-screen{padding:17px 14px 13px}}
 @media(max-width:560px){.story-map-header .entry-version{display:none}.flat-map{height:260px}.map-legend{gap:9px;font-size:7px}.story-map-footer{font-size:7px}.story-map-footer span:last-child{display:none}}
+
+
+/* In-world preview label for the future centrifuge unlock */
+.centrifuge-preview{position:absolute;z-index:3;top:14px;right:14px;display:flex;flex-direction:column;gap:5px;padding:10px 12px;border:1px solid #d39a3970;border-radius:7px;background:#172630eF;color:#e8edf1;font:9px 'DM Mono',monospace;letter-spacing:1px;pointer-events:none;box-shadow:0 8px 25px #0003}
+.centrifuge-preview small{color:#d6ad63;font-size:8px;letter-spacing:.7px}
+.centrifuge-indicator{width:7px;height:7px;border-radius:50%;background:#62c9c2;box-shadow:0 0 10px #62c9c2;display:inline-block}
+@media(max-width:560px){.centrifuge-preview{top:auto;bottom:54px;right:10px;padding:8px;font-size:8px}.centrifuge-preview small{font-size:7px}}
