@@ -122,7 +122,7 @@ let toastTimer;
 function toast(msg){const el=$('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2600);}
 function updateUI(){
  $('money').textContent=state.money.toLocaleString('fr-FR')+' €';$('materials').textContent=state.materials+' / 3';$('energy').textContent=state.energy+' MW';
- if(!state.delivered){$('mission-title').textContent='Le premier chantier';$('mission-copy').textContent='Récupère 3 caisses de minerai fictif près du dépôt.';$('progress-label').textContent=state.materials+' / 3 CAISSES';$('progress-bar').style.width=(state.materials/3*100)+'%';$('mission-reward').textContent='RÉCOMPENSE : 300 €';}
+ if(!state.delivered){$('mission-title').textContent='Le premier chantier';$('mission-copy').textContent='Récupère 3 caisses de minerai fictif près du dépôt.';$('progress-label').textContent=state.materials+' / 3 CAISSES';$('progress-bar').style.width=(state.materials/3*100)+'%';$('mission-reward').textContent='RÉCOMPENSE : 500 €';}
  else if(!state.bakeryOn){$('mission-title').textContent='Une première lumière';$('mission-copy').textContent='Retourne à la boulangerie et active son module énergétique.';$('progress-label').textContent='MODULE À INSTALLER';$('progress-bar').style.width='55%';$('mission-reward').textContent='COÛT : 250 €';}
  else if(!state.villageOn){$('mission-title').textContent='Voir plus grand';$('mission-copy').textContent='Alimente le village pour étendre ton réseau.';$('progress-label').textContent='1 / 2 ZONES ALIMENTÉES';$('progress-bar').style.width='70%';$('mission-reward').textContent='RÉCOMPENSE : 500 €';}
  else {$('mission-title').textContent='Valmont est éclairée';$('mission-copy').textContent='Ton premier réseau énergétique est opérationnel.';$('progress-label').textContent='CONTRAT TERMINÉ';$('progress-bar').style.width='100%';$('mission-reward').textContent='CHAPITRE 01 TERMINÉ';}
@@ -145,7 +145,7 @@ function interact(){
  }
  if(t.type==='depot'){
   if(state.materials===0){toast('Récupère d’abord des caisses de matériaux.');return;}
-  const count=state.materials;state.materials=0;state.delivered+=count;state.money+=300;updateUI();toast('Livraison validée : +300 €. Bon travail !');return;
+  const count=state.materials;state.materials=0;state.delivered+=count;state.money+=500;updateUI();toast('Livraison validée : +500 €. Bon travail !');return;
  }
  if(t.type==='bakery'){
   if(state.bakeryOn){toast('La boulangerie est déjà alimentée.');return;}
@@ -157,7 +157,7 @@ function interact(){
   if(state.villageOn){toast('Le village est déjà alimenté.');return;}
   if(!state.bakeryOn){toast('Commence par alimenter la boulangerie.');return;}
   if(state.money<500){toast('Il te faut 500 €. Explore et livre des caisses au dépôt.');return;}
-  state.money-=500;state.villageOn=true;state.energy+=5;state.money+=500;updateUI();$('win-screen').classList.remove('hidden');state.paused=true;toast('Le réseau de Valmont est activé !');return;
+  state.money-=500;state.villageOn=true;state.energy+=5;updateUI();$('win-screen').classList.remove('hidden');state.paused=true;toast('Le réseau de Valmont est activé !');return;
  }
 }
 function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
