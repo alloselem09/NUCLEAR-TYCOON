@@ -84,11 +84,10 @@ const nodes=[];
 const nodePositions=[[-18,1],[-16,5],[-19,9],[-5,12],[5,12],[19,3]];
 for(const [x,z] of nodePositions){
  const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
- const crate=box(g,1.05,.85,1.05,0,.55,0,mat('#527d83',.5,.25));
- box(g,1.1,.08,1.1,0,1,0,mat('#c6a65c',.45,.3));
- const crystal=new THREE.Mesh(new THREE.OctahedronGeometry(.42),new THREE.MeshStandardMaterial({color:'#7fe0d3',emissive:'#1c6f69',emissiveIntensity:.6,metalness:.25,roughness:.25}));
- crystal.position.y=1.55;crystal.castShadow=true;g.add(crystal);
- nodes.push({group:g,crystal,active:true});
+ const rockMat=mat('#596b66',.98), veinMat=new THREE.MeshStandardMaterial({color:'#79d7c8',emissive:'#1c6f69',emissiveIntensity:.45,metalness:.2,roughness:.5});
+ const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(.85,1),rockMat);rock.position.y=.62;rock.scale.set(1.25,.8,1);rock.castShadow=true;g.add(rock);
+ const vein=new THREE.Mesh(new THREE.OctahedronGeometry(.32),veinMat);vein.position.set(.05,1.05,.2);vein.castShadow=true;g.add(vein);
+ nodes.push({group:g,crystal:vein,rock,active:true});
 }
 
 const avatar=new THREE.Group();scene.add(avatar);
@@ -122,7 +121,7 @@ let toastTimer;
 function toast(msg){const el=$('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2600);}
 function updateUI(){
  $('money').textContent=state.money.toLocaleString('fr-FR')+' €';$('materials').textContent=state.materials+' / 3';$('energy').textContent=state.energy+' MW';
- if(!state.delivered){$('mission-title').textContent='Le premier chantier';$('mission-copy').textContent='Récupère 3 caisses de minerai fictif près du dépôt.';$('progress-label').textContent=state.materials+' / 3 CAISSES';$('progress-bar').style.width=(state.materials/3*100)+'%';$('mission-reward').textContent='RÉCOMPENSE : 500 €';}
+ if(!state.delivered){$('mission-title').textContent='Le premier gisement';$('mission-copy').textContent='Explore le petit site minier et extrais 3 unités de minerai fictif avec E.';$('progress-label').textContent=state.materials+' / 3 EXTRACTIONS';$('progress-bar').style.width=(state.materials/3*100)+'%';$('mission-reward').textContent='RÉCOMPENSE : 500 €';}
  else if(!state.bakeryOn){$('mission-title').textContent='Une première lumière';$('mission-copy').textContent='Retourne à la boulangerie et active son module énergétique.';$('progress-label').textContent='MODULE À INSTALLER';$('progress-bar').style.width='55%';$('mission-reward').textContent='COÛT : 250 €';}
  else if(!state.villageOn){$('mission-title').textContent='Voir plus grand';$('mission-copy').textContent='Alimente le village pour étendre ton réseau.';$('progress-label').textContent='1 / 2 ZONES ALIMENTÉES';$('progress-bar').style.width='70%';$('mission-reward').textContent='RÉCOMPENSE : 500 €';}
  else {$('mission-title').textContent='Valmont est éclairée';$('mission-copy').textContent='Ton premier réseau énergétique est opérationnel.';$('progress-label').textContent='CONTRAT TERMINÉ';$('progress-bar').style.width='100%';$('mission-reward').textContent='CHAPITRE 01 TERMINÉ';}
@@ -130,7 +129,7 @@ function updateUI(){
 }
 function closestTarget(){
  let best=null,dist=3.1;
- for(const n of nodes)if(n.active){const d=avatar.position.distanceTo(n.group.position);if(d<dist){dist=d;best={type:'node',obj:n,label:'RÉCUPÉRER LA CAISSE'};}}
+ for(const n of nodes)if(n.active){const d=avatar.position.distanceTo(n.group.position);if(d<dist){dist=d;best={type:'node',obj:n,label:'MINER LE GISEMENT'};}}
  for(const [type,obj,label] of [['depot',depot,'LIVRER LES MATÉRIAUX'],['bakery',bakery,state.bakeryOn?'BOULANGERIE ALIMENTÉE':'INSTALLER LE MODULE (250 €)'],['village',village,state.villageOn?'VILLAGE ALIMENTÉ':'ALIMENTER LE VILLAGE (500 €)']]){
   const d=avatar.position.distanceTo(obj.position);if(d<3.8&&d<dist+1){dist=d;best={type,obj,label};}
  }
@@ -140,11 +139,11 @@ function interact(){
  if(!state.started||state.paused)return;
  const t=closestTarget();if(!t){toast('Aucune interaction à proximité.');return;}
  if(t.type==='node'){
-  if(state.materials>=3){toast('Tu as assez de matériaux. Livre-les au dépôt.');return;}
-  t.obj.active=false;t.obj.group.visible=false;state.materials++;updateUI();toast('Caisse récupérée. '+state.materials+'/3 matériaux.');return;
+  if(state.materials>=3){toast('Tu as assez de minerai. Livre-le au dépôt.');return;}
+  t.obj.active=false;t.obj.group.visible=false;state.materials++;updateUI();toast('Extraction terminée : +1 unité de minerai fictif. '+state.materials+'/3.');return;
  }
  if(t.type==='depot'){
-  if(state.materials===0){toast('Récupère d’abord des caisses de matériaux.');return;}
+  if(state.materials===0){toast('Va d’abord extraire du minerai sur le petit gisement.');return;}
   const count=state.materials;state.materials=0;state.delivered+=count;state.money+=500;updateUI();toast('Livraison validée : +500 €. Bon travail !');return;
  }
  if(t.type==='bakery'){
@@ -171,13 +170,13 @@ function animate(){
  const dt=Math.min(clock.getDelta(),.04),time=clock.elapsedTime;
  if(state.started&&!state.paused){
   let dx=0,dz=0;
-  if(keys.z||keys.w||keys.arrowup)dz-=1;if(keys.s||keys.arrowdown)dz+=1;if(keys.q||keys.a||keys.arrowleft)dx-=1;if(keys.d||keys.arrowright)dx+=1;
+  if(keys.arrowup)dz-=1;if(keys.arrowdown)dz+=1;if(keys.arrowleft)dx-=1;if(keys.arrowright)dx+=1;
   const moving=dx!==0||dz!==0;
   if(moving){const len=Math.hypot(dx,dz);dx/=len;dz/=len;avatar.position.x+=dx*7*dt;avatar.position.z+=dz*7*dt;avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-28,28);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z,-24,24);avatar.rotation.y=Math.atan2(dx,dz);walkTime+=dt*10;legs[0].rotation.x=Math.sin(walkTime)*.55;legs[1].rotation.x=-Math.sin(walkTime)*.55;arms[0].rotation.x=-Math.sin(walkTime)*.35;arms[1].rotation.x=Math.sin(walkTime)*.35;body.position.y=1.35+Math.abs(Math.sin(walkTime))*.05;}
   else{legs.forEach(l=>l.rotation.x=THREE.MathUtils.damp(l.rotation.x,0,8,dt));arms.forEach(a=>a.rotation.x=THREE.MathUtils.damp(a.rotation.x,0,8,dt));body.position.y=THREE.MathUtils.damp(body.position.y,1.35,8,dt);}
  }
  rotor.rotation.y+=dt*1.8;
- nodes.forEach((n,i)=>{if(n.active){n.crystal.position.y=1.55+Math.sin(time*2+i)*.12;n.crystal.rotation.y=time*.65;}});
+ nodes.forEach((n,i)=>{if(n.active){n.crystal.position.y=1.05+Math.sin(time*2+i)*.08;n.crystal.rotation.y=time*.65;}});
  markers.forEach((m,i)=>{m.material.opacity=.5+Math.sin(time*2+i)*.25;m.scale.setScalar(1+Math.sin(time*2+i)*.05);});
  const desired=avatar.position.clone().add(camOffset);
  camera.position.lerp(desired,.07);camera.lookAt(avatar.position.x,1.15,avatar.position.z);
