@@ -1,29 +1,30 @@
 # NUCLEAR TYCOON
 
-Prototype de jeu de gestion et d'exploration 3D, lancé directement depuis `index.html`.
+Jeu de gestion et d'exploration 3D en HTML, CSS et JavaScript natifs.
 
-## Lancer le jeu
+## Lancer le jeu dans VS Code
 
-1. Ouvre le dossier du projet.
-2. Double-clique sur `index.html` (ou clic droit → Ouvrir avec → navigateur).
-3. Le jeu démarre dans Chrome, sans Vite, terminal, serveur local ni extension.
+1. Ouvre le dossier du dépôt dans VS Code.
+2. Ouvre `index.html`.
+3. Lance-le avec **Live Server** (clic droit → Open with Live Server).
+4. Le navigateur s'ouvre sur `http://127.0.0.1:5500` (ou un port similaire).
 
-Une connexion Internet est nécessaire au premier chargement pour récupérer React, Three.js et Babel depuis leurs CDN. Aucun logiciel ni paquet n'est à installer sur l'ordinateur.
+**Aucun Vite, npm, Node.js, terminal ou compilation.** Live Server sert simplement les fichiers au navigateur. Three.js est importé directement depuis un CDN en tant que module navigateur ; une connexion Internet est donc nécessaire.
 
-## Architecture navigateur
+## Fichiers utilisés au lancement
 
-- `index.html` : point d'entrée autonome et lancement de l'application.
-- `src/Game.tsx` : interface, logique et scène 3D du jeu.
-- `src/styles.css` : styles de l'interface.
-- Les bibliothèques sont chargées comme scripts navigateur ; Babel transforme le TSX au chargement. Il n'y a plus d'import de modules ni de commande Vite dans le chemin de lancement.
+- `index.html` : page du jeu.
+- `styles.css` : interface.
+- `game.js` : scène 3D, personnage, commandes et progression.
+
+Les anciens fichiers TypeScript de `src/` ne sont plus utilisés par cette version HTML autonome.
 
 ## Commandes
 
-- **ZQSD** ou **flèches** : déplacer le personnage en mode Exploration.
-- **E** : interagir avec les éléments proches.
-- **V** : basculer entre caméra Gestion et caméra Exploration.
-- **Mode Gestion** : glisser pour tourner la caméra, molette pour zoomer, cliquer sur un bâtiment pour le sélectionner.
+- **ZQSD** ou **flèches** : déplacer le personnage.
+- **E** : interagir avec une caisse, le dépôt ou un bâtiment.
+- **Échap** ou bouton pause : mettre en pause.
 
-## Note de conception
+## Premier objectif
 
-Les éléments industriels et les ressources sont fictifs et abstraits. Le prototype se concentre sur la construction, l'économie, l'exploration et la production d'électricité.
+Récupère trois caisses de matériaux fictifs, livre-les au dépôt, puis alimente la boulangerie et le village de Valmont. Le jeu utilise des ressources et installations fictives, avec des mécaniques de gestion abstraites.
