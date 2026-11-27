@@ -16,7 +16,7 @@
 .cinematic-glasses.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
 .cinematic-glasses span{display:block;width:min(19vw,150px);height:min(12vw,90px);border:7px solid #d9d8c8;border-radius:18px 18px 34px 34px;background:#0b171edb;box-shadow:0 0 22px #b9d9d966}
 .cinematic-glasses i{position:absolute;left:50%;top:34px;width:24px;height:8px;transform:translateX(-50%);background:#d9d8c8}
-.cinematic-hands{position:absolute;left:50%;bottom:0;transform:translateX(-50%);display:flex;gap:90px;opacity:0;animation:hands-rise 1.7s ease-out .3s forwards}
+.cinematic-hands{position:absolute;left:50%;bottom:0;transform:translateX(-50%);display:flex;gap:90px;opacity:0}.cinematic-ui:not(.hidden) .cinematic-hands{animation:hands-rise 1.7s ease-out .3s forwards}
 .cinematic-hands span{display:block;width:78px;height:150px;border-radius:40px 40px 8px 8px;background:linear-gradient(90deg,#101b20,#35434a);border:2px solid #687a7b;box-shadow:0 0 24px #0008}
 @keyframes hands-rise{to{opacity:.95;transform:translate(-50%,-25px)}}
 .cinematic-flash{position:absolute;inset:0;background:#fff8d9;opacity:0;pointer-events:none;transition:opacity .25s}
