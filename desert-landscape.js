@@ -126,37 +126,38 @@ export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,
     const cap=box(plateau,.38,.24,.1,Math.cos(a)*r,1.22,Math.sin(a)*r,mat('#c4a879'));
     cap.rotation.y=-a;
   }
-  // Quelques abris de service visuellement sobres, repoussés vers les bords.
-  const shelter=(x,z,rot=0)=>{
-    const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rot;plateau.add(g);
-    box(g,4.5,2.6,6,0,1.3,0,mat('#777c75'));
-    const cap=new THREE.Mesh(new THREE.CylinderGeometry(2.3,2.3,6,12,1,false,0,Math.PI),mat('#59635f'));
-    cap.rotation.x=Math.PI/2;cap.position.set(0,2.5,0);g.add(cap);
-    box(g,1.8,1.7,.12,0,.95,3.05,dark);
-  };
-  shelter(-7,-27,.4);shelter(20,24,-.5);shelter(29,-23,.2);
-  for(const [x,z] of [[-25,10],[24,11],[0,-29]]){
-    const wreck=new THREE.Group();wreck.position.set(x,0,z);plateau.add(wreck);
-    box(wreck,2.5,.65,1.25,0,.55,0,mat('#6d705f'));
-    box(wreck,1.1,.5,1.1,-.2,1.05,0,mat('#858778'));
-    for(const wx of [-.8,.8])for(const wz of [-.48,.48])cyl(wreck,.2,.2,.16,wx,.28,wz,dark,10);
-  }
+  // Plateau de la tour volontairement vide : aucun abri, annexe, véhicule ou bâtiment secondaire.
+  // La tour reste le seul élément bâti de cette zone ; l'unique bunker est à 1 000 m.
 
-  // BUNKER D'OBSERVATION — implanté exactement à 1 000 m du centre de la tour.
+  // UNIQUE BUNKER D'OBSERVATION — décor stylisé, enfoui dans un talus de sable.
+  // Son centre reste exactement à 1 000 m de la tour ; aucune autre construction sur le plateau.
   const bunker=new THREE.Group();bunker.position.set(layout.bunker.x,0,layout.bunker.z);world.add(bunker);
   bunker.name='ObservationBunker_1000m';
-  box(bunker,14,.3,11,0,.15,0,mat('#6f716a'));
-  box(bunker,12.5,2.5,9.5,0,1.4,0,concrete);
-  box(bunker,13,.45,10,0,2.85,0,roof);
-  box(bunker,6.2,1.05,.12,0,1.75,4.81,glass,false);
-  for(let x=-3;x<=3.01;x+=1.5)box(bunker,.1,1.2,.16,x,1.75,4.87,metal);
-  for(let i=0;i<8;i++){
-    const bag=new THREE.Mesh(new THREE.CapsuleGeometry(.34,.55,4,8),mat('#9a865f',1));
-    bag.rotation.z=Math.PI/2;bag.position.set(-4.3+i*1.23,.38,5.55);bunker.add(bag);
-  }
-  // Repère lisible à l'arrivée, purement visuel.
-  const marker=box(bunker,2.8,.65,.16,0,3.5,-5.1,mat('#343e3b'));
-  box(bunker,1.8,.12,.18,0,3.5,-5,mat('#d6b36c'));
+  const bunkerSand=mat('#b88a59',1), bunkerEarth=mat('#9d704b',1), bunkerTimber=mat('#624a35',.95), bunkerConcrete=mat('#77776d',.92);
+  // Talus bas et large qui donne au bunker son aspect semi-enterré.
+  const berm=new THREE.Mesh(new THREE.SphereGeometry(1,10,7),bunkerSand);
+  berm.scale.set(10.5,3.8,8.2);berm.position.set(0,1.8,-1.0);berm.castShadow=true;berm.receiveShadow=true;bunker.add(berm);
+  const bermSide=new THREE.Mesh(new THREE.SphereGeometry(1,8,6),bunkerEarth);
+  bermSide.scale.set(8.7,2.8,6.8);bermSide.position.set(0,1.25,-1.2);bermSide.castShadow=true;bunker.add(bermSide);
+  // Façade frontale simple, inspirée de la photo : béton, bois et une grande ouverture sombre.
+  box(bunker,12,.32,1.0,0,.16,4.0,bunkerConcrete);
+  box(bunker,12,.38,.35,0,3.05,4.05,bunkerTimber);
+  box(bunker,.42,2.9,.45,-5.65,1.65,4.12,bunkerConcrete);
+  box(bunker,.42,2.9,.45,5.65,1.65,4.12,bunkerConcrete);
+  box(bunker,11.0,.22,.35,0,2.78,4.1,bunkerTimber);
+  box(bunker,10.8,1.05,.16,0,2.12,4.18,dark);
+  for(let x=-5.0;x<=5.01;x+=1.0)box(bunker,.09,1.0,.2,x,2.12,4.28,bunkerTimber);
+  // Entrée centrale et quelques renforts visuels en bois, sans détail technique.
+  box(bunker,2.25,1.85,.22,0,.95,4.3,mat('#202522',.95));
+  for(const x of [-4.7,-2.8,2.8,4.7])box(bunker,.24,2.55,.3,x,1.35,4.42,bunkerTimber);
+  const brace=(x,y,angle)=>{
+    const part=box(bunker,.28,3.15,.32,x,y,4.48,bunkerTimber);
+    part.rotation.z=angle;
+  };
+  brace(-3.55,1.45,-.48);brace(-2.05,1.45,.48);brace(2.05,1.45,-.48);brace(3.55,1.45,.48);
+  // Petite lèvre de terre au pied de la façade pour l'intégrer au désert.
+  const apron=new THREE.Mesh(new THREE.CylinderGeometry(7.5,8.5,.18,10),bunkerSand);
+  apron.scale.z=.72;apron.position.set(0,.05,2.1);bunker.add(apron);
 
   // Aucun relief rocheux : le désert reste ouvert jusqu'à l'horizon.
 
