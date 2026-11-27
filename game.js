@@ -235,8 +235,15 @@ for(const [x,z] of [[-9,-7],[9,-7],[-9,7],[9,7]]) box(mineGroup,.7,2.2,.7,x,1.1,
 const centrifugeBuilding=new THREE.Group();centrifugeBuilding.position.set(-19,0,-19);centrifugeBuilding.scale.setScalar(.48);militaryWorld.add(centrifugeBuilding);
 box(centrifugeBuilding,13,5.8,11,0,2.9,0,mat('#777970'));
 box(centrifugeBuilding,13.5,.35,11.5,0,5.85,0,mat('#303b3a'));
-box(centrifugeBuilding,5.8,3.5,.16,0,2.45,5.58,mat('#29383a'));
-for(let x=-2.8;x<=2.81;x+=1.4) box(centrifugeBuilding,.1,3.55,.2,x,2.45,5.7,mat('#a2aaa0'));
+box(centrifugeBuilding,1.9,3.5,.16,-1.95,2.45,5.58,mat('#29383a'));
+box(centrifugeBuilding,1.9,3.5,.16,1.95,2.45,5.58,mat('#29383a'));
+box(centrifugeBuilding,2.0,.65,.16,0,4.0,5.58,mat('#29383a'));
+for(const x of [-1.0,1.0])box(centrifugeBuilding,.12,3.5,.2,x,2.45,5.7,mat('#a2aaa0'));
+const plantDoor=new THREE.Group();plantDoor.position.set(-1.35,0,5.62);centrifugeBuilding.add(plantDoor);
+box(plantDoor,2.55,3.25,.12,1.275,1.625,0,mat('#344448'));
+box(plantDoor,.09,3.05,.08,.18,1.62,.08,mat('#c5a96e'));
+box(plantDoor,.09,3.05,.08,2.37,1.62,.08,mat('#c5a96e'));
+plantDoor.userData.open=false;
 const cSign=box(centrifugeBuilding,3.8,.55,.15,0,4.7,5.78,mat('#d1b474'));
 const cMachine=new THREE.Group();cMachine.position.set(0,0,0);centrifugeBuilding.add(cMachine);
 box(cMachine,3.8,.45,3.8,0,.25,0,mat('#252f31',.5,.4));
@@ -318,6 +325,72 @@ box(previewCase,2.4,.35,.12,0,.48,1.62,mat('#d2b879',.55,.2));
  const interiorDoor=new THREE.Group();interiorDoor.position.set(-.75,0,6.35);labInterior.add(interiorDoor);
  box(interiorDoor,1.5,2.4,.16,.75,1.2,0,mat('#48534c'));
  // Position et configuration du laboratoire.
+
+ // CENTRALE — intérieur jouable séparé, avec centrifugeuse 3D scénographique.
+ const plantInterior=new THREE.Group();plantInterior.position.set(270,0,0);scene.add(plantInterior);plantInterior.visible=false;
+ const pWall=mat('#596661',.88,.12),pDark=mat('#202d30',.65,.35),pSteel=mat('#aab4ae',.32,.72),pGold=mat('#d3b36c',.38,.55);
+ const pGlass=new THREE.MeshStandardMaterial({color:'#78b9b4',transparent:true,opacity:.22,metalness:.2,roughness:.18});
+ box(plantInterior,22,.24,18,0,-.12,0,mat('#6a7168'));
+ box(plantInterior,22,6,.35,0,3,-8.82,pWall);
+ box(plantInterior,.35,6,18,-10.82,3,0,pWall);
+ box(plantInterior,.35,6,18,10.82,3,0,pWall);
+ box(plantInterior,22,.35,18,0,6.05,0,pDark);
+ box(plantInterior,8.5,6,.35,-6.55,3,8.82,pWall);
+ box(plantInterior,8.5,6,.35,6.55,3,8.82,pWall);
+ box(plantInterior,5,1.2,.35,0,5.4,8.82,pWall);
+ for(const x of [-8,-4,0,4,8]){
+   box(plantInterior,2.6,1.45,.07,x,4.15,-8.62,pGlass,false);
+   box(plantInterior,.07,1.55,.09,x,4.15,-8.55,pSteel,false);
+ }
+ for(const x of [-9,-6,-3,0,3,6,9])box(plantInterior,.12,.18,17.2,x,5.72,0,pSteel);
+ const pLight=new THREE.PointLight('#f0d7a1',26,32);pLight.position.set(0,5.2,0);plantInterior.add(pLight);
+ const pFill=new THREE.PointLight('#83b7b3',12,22);pFill.position.set(-7,3.8,-4);plantInterior.add(pFill);
+ box(plantInterior,9,.35,8,0,.18,-.6,pDark);
+ for(const x of [-4.3,4.3])for(const z of [-4,3])cylinder(plantInterior,.07,.07,1.1,x,.75,z,pGold,10);
+ // Machine de démonstration abstraite : aucun paramètre physique réel.
+ const interiorMachine=new THREE.Group();interiorMachine.position.set(0,.42,-.45);plantInterior.add(interiorMachine);
+ cylinder(interiorMachine,2.0,2.15,.42,0,.28,0,pDark,40);
+ cylinder(interiorMachine,1.65,1.85,2.85,0,1.9,0,pSteel,40);
+ cylinder(interiorMachine,1.78,1.78,.18,0,3.38,0,pGold,40);
+ const machineWindow=new THREE.Mesh(new THREE.CylinderGeometry(1.48,1.48,1.8,40,1,true),pGlass);
+ machineWindow.position.y=2.05;interiorMachine.add(machineWindow);
+ const interiorRotor=new THREE.Group();interiorRotor.position.y=2.08;interiorMachine.add(interiorRotor);
+ cylinder(interiorRotor,.35,.35,2.05,0,0,0,pDark,24);
+ for(let i=0;i<6;i++){
+   const a=i*Math.PI/3;
+   const blade=box(interiorRotor,.22,1.65,.32,Math.cos(a)*.62,0,Math.sin(a)*.62,pGold);
+   blade.rotation.y=-a;
+ }
+ cylinder(interiorRotor,.58,.58,.2,0,1.05,0,pGold,32);
+ cylinder(interiorRotor,.5,.5,.2,0,-1.05,0,pGold,32);
+ const rotorRing=new THREE.Mesh(new THREE.TorusGeometry(1.9,.055,10,64),pGold);rotorRing.rotation.x=Math.PI/2;rotorRing.position.y=2.1;interiorMachine.add(rotorRing);
+ for(let i=0;i<8;i++){const a=i*Math.PI/4;cylinder(interiorMachine,.07,.07,3.8,Math.cos(a)*2.25,1.95,Math.sin(a)*2.25,pDark,10);}
+ box(plantInterior,5.4,1.15,1.1,0,1.0,-6.1,pDark);
+ box(plantInterior,4.8,.72,.08,0,1.85,-6.63,mat('#183b40',.35,.2),false);
+ for(let i=0;i<5;i++){const led=new THREE.Mesh(new THREE.SphereGeometry(.09,10,8),new THREE.MeshBasicMaterial({color:i%2?'#d7b76c':'#72c6b0'}));led.position.set(-1.7+i*.85,2.05,-6.55);plantInterior.add(led);}
+ for(const x of [-8.8,8.8])box(plantInterior,.12,.04,14,x,.035,0,pGold,false);
+ let insideCentrifuge=false;
+ function enterCentrifuge(){
+   insideCentrifuge=true;plantInterior.visible=true;militaryWorld.visible=false;
+   avatar.position.set(270,0,6.75);avatar.rotation.y=Math.PI;
+   plantDoor.rotation.y=-1.25;plantDoor.userData.open=true;
+   $('pause-btn').classList.add('hidden');
+   $('centrifuge-panel').classList.remove('hidden');
+   $('centrifuge-panel').setAttribute('aria-hidden','false');
+   cameraYaw=0;cameraPitch=.2;cameraDistance=13;
+   updateCentrifugeUI();
+   toast('Centrale accessible : observe la centrifugeuse 3D en fonctionnement.');
+ }
+ function exitCentrifuge(){
+   insideCentrifuge=false;plantInterior.visible=false;militaryWorld.visible=true;
+   avatar.position.set(-19,0,-15.4);avatar.rotation.y=Math.PI;
+   plantDoor.rotation.y=0;plantDoor.userData.open=false;
+   $('pause-btn').classList.remove('hidden');
+   $('centrifuge-panel').classList.add('hidden');
+   $('centrifuge-panel').setAttribute('aria-hidden','true');
+   cameraYaw=Math.PI;cameraPitch=.4;cameraDistance=13;
+   toast('Tu as quitté la centrale.');
+ }
  let insideLab=false;
  let selectedLabComponents={console:'analogique',sensors:'standard',lighting:'warm'};
  function enterLab(){
@@ -473,10 +546,13 @@ function updateUI(){
  $('objective-chip').innerHTML='<span class="pulse"></span> OBJECTIF <b>'+(!state.delivered?'EXTRAIRE LES BLOCS':!state.centrifugeVisited?'VISITER LA CENTRIFUGEUSE':!state.labVisited?'VISITER LE LABORATOIRE':state.researchStock>=6?'REJOINDRE LE TERMINAL':'PRÉPARER LE DOSSIER ORION')+'</b>';
 }
 function closestTarget(){
+ if(insideCentrifuge){const exitDistance=avatar.position.distanceTo(new THREE.Vector3(270,0,7.8));return exitDistance<1.8?{type:'exitCentrifuge',label:'SORTIR DE LA CENTRALE'}:null;}
  if(insideLab){const exitDistance=avatar.position.distanceTo(new THREE.Vector3(240,0,5.8));return exitDistance<1.0?{type:'exitLab',label:'SORTIR DU LABORATOIRE'}:null;}
  let best=null,dist=3.1;
  const doorDistance=avatar.position.distanceTo(new THREE.Vector3(-36.8,0,26.2));
  if(doorDistance<2.4)return {type:'labDoor',label:'ENTRER DANS LE LABORATOIRE'};
+ const plantDoorDistance=avatar.position.distanceTo(new THREE.Vector3(-19,0,-16.3));
+ if(plantDoorDistance<2.1)return {type:'centrifugeEntrance',label:'ENTRER DANS LA CENTRALE'};
  for(const b of mineBlocks)if(b.active){const p=b.mesh.getWorldPosition(new THREE.Vector3());const d=avatar.position.distanceTo(p);if(d<3.5&&d<dist){dist=d;best={type:'mineBlock',obj:b,label:'PIOCHER LE BLOC'};}}
  for(const [type,obj,label] of [['depot',depot,'LIVRER LES MATÉRIAUX'],['centrifugeBuilding',centrifugeBuilding,'VISITER LE BÂTIMENT CENTRIFUGEUSE'],['previewCase',previewCase,'OBSERVER LE PROTOTYPE FICTIF']]){
   const d=avatar.position.distanceTo(obj.position);if(d<3.8&&d<dist+1){dist=d;best={type,obj,label};}
@@ -510,9 +586,12 @@ function updateCentrifugeUI(){
 function interact(){
  if(!state.started||state.paused)return;
  if(!insideLab&&!$('centrifuge-panel').classList.contains('hidden')){closeCentrifugePanel();return;}
+ if(insideCentrifuge){exitCentrifuge();return;}
  if(insideLab){exitLab();return;}
  const t=closestTarget();if(!t){toast('Aucune interaction à proximité.');return;}
  if(t.type==='labDoor'){enterLab();state.labVisited=true;updateUI();return;}
+ if(t.type==='centrifugeEntrance'){state.centrifugeVisited=true;enterCentrifuge();updateUI();return;}
+ if(t.type==='exitCentrifuge'){exitCentrifuge();return;}
  if(t.type==='mineBlock'){
   if(state.materials>=3){toast('Sac plein. Va déposer tes blocs au dépôt.');return;}
   t.obj.active=false;t.obj.mesh.visible=false;state.materials++;hero.setCarrying(state.materials);state.mineTime=.85;updateUI();toast('Bloc extrait : +1 minerai d’uranium fictif.');return;
@@ -521,16 +600,7 @@ function interact(){
   if(state.materials>=3){toast('Tu as assez de minerai. Livre-le au dépôt.');return;}
   t.obj.active=false;t.obj.group.visible=false;state.materials++;hero.setCarrying(state.materials);state.mineTime=.72;updateUI();toast('Extraction terminée : +1 unité de minerai d’uranium fictif. '+state.materials+'/3.');return;
  }
- if(t.type==='centrifugeBuilding'){
-  state.centrifugeVisited=true;
-  if(state.centrifugeRunning){openCentrifugePanel();toast('La simulation est déjà en cours.');return;}
-  if(state.materials<=0){updateUI();toast('Extrais d’abord du minerai d’uranium fictif, puis apporte-le ici.');return;}
-  state.centrifugeBatch=state.materials;state.delivered+=state.centrifugeBatch;state.materials=0;hero.setCarrying(0);
-  state.centrifugeProgress=0;state.centrifugeRunning=true;
-  openCentrifugePanel();updateUI();
-  toast('Charge fictive transférée : simulation lancée.');
-  return;
- }
+ if(t.type==='centrifugeBuilding'){state.centrifugeVisited=true;enterCentrifuge();updateUI();return;}
  if(t.type==='previewCase'){state.labVisited=true;updateUI();toast('Laboratoire découvert : maquette fictive ajoutée au dossier.');return;}
  if(t.type==='depot'){
   if(state.materials===0){toast('Va d’abord extraire du minerai sur le petit gisement.');return;}
@@ -582,7 +652,13 @@ function animate(){
    
    const oldX=avatar.position.x,oldZ=avatar.position.z;
    let nextX=oldX+vx*7*dt,nextZ=oldZ+vz*7*dt;
-   if(insideLab){
+   if(insideCentrifuge){
+     nextX=THREE.MathUtils.clamp(nextX,259.3,280.7);
+     nextZ=THREE.MathUtils.clamp(nextZ,-8.4,8.1);
+     const walls=[[259.0,281.0,-9.1,-8.75],[258.9,259.25,-8.7,8.7],[280.75,281.1,-8.7,8.7],[259.0,265.5,8.7,9.1],[274.5,281.0,8.7,9.1]];
+     const hit=walls.some(([x1,x2,z1,z2])=>nextX+.42>x1&&nextX-.42<x2&&nextZ+.42>z1&&nextZ-.42<z2);
+     if(hit){nextX=avatar.position.x;nextZ=avatar.position.z;}
+   }else if(insideLab){
      nextX=THREE.MathUtils.clamp(nextX,232.2,247.8);
      nextZ=THREE.MathUtils.clamp(nextZ,-6.0,6.1);
      const interiorWalls=[[232.0,248.0,-6.65,-6.25],[231.8,232.2,-6.2,6.3],[247.8,248.2,-6.2,6.3],[232.0,238.9,6.25,6.65],[241.1,248.0,6.25,6.65]];
@@ -642,6 +718,7 @@ function animate(){
  if(state.mineTime>0){if(!mineAnim&&!hero.isBusy()){hero.play('mine');mineAnim=true;}state.mineTime=Math.max(0,state.mineTime-dt);}else mineAnim=false;
  rotor.rotation.y+=dt*1.8;
  cRotor.rotation.y+=dt*(state.centrifugeRunning?8.5:1.4);
+ interiorRotor.rotation.y+=dt*(state.centrifugeRunning?7.2:1.35);
  if(state.centrifugeRunning){
    state.centrifugeProgress=Math.min(1,state.centrifugeProgress+dt/24);
    updateCentrifugeUI();
@@ -665,7 +742,7 @@ function animate(){
  nodes.forEach((n,i)=>{if(n.active){n.crystal.position.y=1.05+Math.sin(time*2+i)*.08;n.crystal.rotation.y=time*.65;}});
  markers.forEach((m,i)=>{m.material.opacity=.5+Math.sin(time*2+i)*.25;m.scale.setScalar(1+Math.sin(time*2+i)*.05);});
  if(militaryPhase!=='cinematic'){
-  cameraTarget.set(avatar.position.x,insideLab?1.5:1.35,avatar.position.z);
+  cameraTarget.set(avatar.position.x,(insideLab||insideCentrifuge)?1.5:1.35,avatar.position.z);
   const horizontal=Math.cos(cameraPitch)*cameraDistance;
   const desired=new THREE.Vector3(
    avatar.position.x+Math.sin(cameraYaw)*horizontal,
