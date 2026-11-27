@@ -314,7 +314,7 @@ box(previewCase,2.4,.35,.12,0,.48,1.62,mat('#d2b879',.55,.2));
  function enterLab(){
    insideLab=true;labInterior.visible=true;militaryWorld.visible=false;
    avatar.position.set(240,0,4.25);avatar.rotation.y=Math.PI;
-   labDoorPivot.rotation.y=-1.25;labDoorPivot.userData.open=true;
+   labDoorPivot.rotation.y=-1.25;labDoorPivot.userData.open=true;interiorDoor.rotation.y=-1.25;
    $('lab-customizer').classList.remove('hidden');
    $('lab-customizer').setAttribute('aria-hidden','false');
    $('pause-btn').classList.add('hidden');
@@ -324,7 +324,7 @@ box(previewCase,2.4,.35,.12,0,.48,1.62,mat('#d2b879',.55,.2));
  function exitLab(){
    insideLab=false;labInterior.visible=false;militaryWorld.visible=true;
    avatar.position.set(-36.8,0,29.3);avatar.rotation.y=Math.PI;
-   labDoorPivot.rotation.y=0;labDoorPivot.userData.open=false;
+   labDoorPivot.rotation.y=0;labDoorPivot.userData.open=false;interiorDoor.rotation.y=0;
    $('lab-customizer').classList.add('hidden');
    $('lab-customizer').setAttribute('aria-hidden','true');
    $('pause-btn').classList.remove('hidden');
@@ -464,7 +464,7 @@ function updateUI(){
  $('objective-chip').innerHTML='<span class="pulse"></span> OBJECTIF <b>'+(!state.delivered?'EXTRAIRE LES BLOCS':!state.centrifugeVisited?'VISITER LA CENTRIFUGEUSE':!state.labVisited?'VISITER LE LABORATOIRE':state.researchStock>=6?'REJOINDRE LE TERMINAL':'PRÉPARER LE DOSSIER ORION')+'</b>';
 }
 function closestTarget(){
- if(insideLab){const exitDistance=avatar.position.distanceTo(new THREE.Vector3(240,0,5.1));return exitDistance<2.1?{type:'exitLab',label:'SORTIR DU LABORATOIRE'}:null;}
+ if(insideLab){const exitDistance=avatar.position.distanceTo(new THREE.Vector3(240,0,5.8));return exitDistance<1.0?{type:'exitLab',label:'SORTIR DU LABORATOIRE'}:null;}
  let best=null,dist=3.1;
  const doorDistance=avatar.position.distanceTo(new THREE.Vector3(-36.8,0,26.2));
  if(doorDistance<2.4)return {type:'labDoor',label:'ENTRER DANS LE LABORATOIRE'};
