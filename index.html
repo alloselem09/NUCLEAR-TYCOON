@@ -42,6 +42,23 @@
       <div class="minimap-wrap"><div class="minimap-title">PLAN DU SITE <span>● EN DIRECT</span></div><canvas id="minimap" width="180" height="130"></canvas></div>
     </div>
 
+    <section class="centrifuge-panel hidden" id="centrifuge-panel" aria-hidden="true">
+      <div class="centrifuge-head">
+        <div><span class="lab-kicker">INSTALLATION INDUSTRIELLE · SIMULATION</span><h2>CENTRIFUGEUSE <em>DE RECHERCHE</em></h2></div>
+        <button id="centrifuge-close" class="lab-close" aria-label="Fermer">×</button>
+      </div>
+      <div class="centrifuge-visual">
+        <div class="centrifuge-orbit"><span></span><i></i><b></b></div>
+        <div><strong id="centrifuge-status">EN ATTENTE</strong><small>Traitement de ressources fictives</small></div>
+      </div>
+      <div class="isotope-readouts">
+        <div class="isotope-card isotope-235"><span>INDICE U-235</span><strong id="u235-value">07</strong><div class="isotope-track"><i id="u235-bar"></i></div></div>
+        <div class="isotope-card isotope-238"><span>INDICE U-238</span><strong id="u238-value">93</strong><div class="isotope-track"><i id="u238-bar"></i></div></div>
+      </div>
+      <div class="centrifuge-progress"><div><span>PROGRESSION DE LA SIMULATION</span><b id="centrifuge-percent">0 %</b></div><div class="progress-track"><span id="centrifuge-progress-bar"></span></div></div>
+      <p class="centrifuge-note">Indices de jeu fictifs : ils ne représentent pas des concentrations réelles ni un procédé physique.</p>
+      <div class="centrifuge-footer"><span id="centrifuge-batch">AUCUNE CHARGE</span><span>ÉCHAP / × POUR FERMER</span></div>
+    </section>
     <div class="toast" id="toast"></div>
 
     <section class="lab-customizer hidden" id="lab-customizer" aria-hidden="true">
