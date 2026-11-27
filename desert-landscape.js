@@ -1,7 +1,7 @@
 // Carte 3D du complexe désertique : zone industrielle compacte au nord-ouest,
 // laboratoire au sud-ouest, grand plateau ouvert à l'est et bunker au sud.
 // Les éléments sont des décors de jeu fictifs, sans fonctions opérationnelles.
-export function createDesertLandscape(THREE, site, mat) {
+export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,z:-3},bunker:{x:28,z:997}}) {
   const world = new THREE.Group();
   world.name = 'DesertResearchSite';
   site.add(world);
@@ -55,7 +55,7 @@ export function createDesertLandscape(THREE, site, mat) {
   road(17,20,39,4,-.22);
   road(4,38,28,3,.12);
   // Longue piste de liaison vers le bunker, situé à 1 000 m du Point Zéro dans l'échelle du jeu.
-  road(28,497,4,1000,0);
+  road(layout.pointZero.x,(layout.pointZero.z+layout.bunker.z)/2,4,Math.hypot(layout.bunker.x-layout.pointZero.x,layout.bunker.z-layout.pointZero.z),Math.atan2(layout.bunker.x-layout.pointZero.x,layout.bunker.z-layout.pointZero.z));
 
   // ZONE INDUSTRIELLE / MINIÈRE — compacte, dans le quadrant supérieur gauche.
   const plant=new THREE.Group();plant.position.set(-28,0,-22);world.add(plant);
@@ -171,7 +171,7 @@ export function createDesertLandscape(THREE, site, mat) {
   }
 
   // BUNKER D'OBSERVATION — au sud du plateau, visible depuis le laboratoire.
-  const bunker=new THREE.Group();bunker.position.set(28,0,997);world.add(bunker);
+  const bunker=new THREE.Group();bunker.position.set(layout.bunker.x,0,layout.bunker.z);world.add(bunker);
   box(bunker,12,.3,9,0,.15,0,mat('#6f716a'));
   box(bunker,11,2.5,8,0,1.4,0,concrete);
   box(bunker,11.5,.45,8.5,0,2.85,0,roof);
