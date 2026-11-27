@@ -85,3 +85,14 @@
 .centrifuge-note{font-size:10px;line-height:1.5;color:#8f9e94;margin:14px 0 0}
 .centrifuge-footer{display:flex;justify-content:space-between;gap:12px;margin-top:20px;padding-top:13px;border-top:1px solid #394945;font-size:9px;letter-spacing:.12em;color:#9eac9f}
 @media(max-width:560px){.centrifuge-panel{padding:17px}.centrifuge-head h2{font-size:18px}.isotope-card{padding:12px}.isotope-card strong{font-size:25px}}
+
+/* Tableau isotopique conservé à l'écran pendant la visite de la centrale */
+body:has(#centrifuge-panel:not(.hidden)) #centrifuge-panel{position:absolute;right:22px;top:88px;left:auto;transform:none;width:min(350px,calc(100vw - 32px));padding:17px;max-height:calc(100vh - 112px);overflow:auto}
+body:has(#centrifuge-panel:not(.hidden)) .centrifuge-head h2{font-size:17px}
+body:has(#centrifuge-panel:not(.hidden)) .centrifuge-visual{margin:12px 0;padding:10px}
+body:has(#centrifuge-panel:not(.hidden)) .centrifuge-orbit{width:48px;height:48px}
+body:has(#centrifuge-panel:not(.hidden)) .centrifuge-orbit span,body:has(#centrifuge-panel:not(.hidden)) .centrifuge-orbit i,body:has(#centrifuge-panel:not(.hidden)) .centrifuge-orbit b{left:21px;top:5px;height:36px}
+body:has(#centrifuge-panel:not(.hidden)) .isotope-card{padding:10px}
+body:has(#centrifuge-panel:not(.hidden)) .isotope-card strong{font-size:24px;margin:4px 0 8px}
+body:has(#centrifuge-panel:not(.hidden)) .centrifuge-progress{margin-top:13px}
+body:has(#centrifuge-panel:not(.hidden)) .centrifuge-note{font-size:9px}
