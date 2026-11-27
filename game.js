@@ -432,9 +432,9 @@ function drawMinimap(){
  const c=$('minimap'),ctx=c.getContext('2d'),w=c.width,h=c.height;
  ctx.clearRect(0,0,w,h);ctx.fillStyle='#18282a';ctx.fillRect(0,0,w,h);
  ctx.strokeStyle='#50645b';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(90,0);ctx.lineTo(90,130);ctx.moveTo(0,66);ctx.lineTo(180,66);ctx.stroke();
- const map=(x,z)=>({x:90+x*2.15,y:65+z*2.15});
+ const map=(x,z)=>({x:90+x*.92,y:65+z*.72});
  [[depot,'#a8c8c1'],[centrifugeBuilding,'#d4a45e'],[previewCase,'#e4c078']].forEach(([o,col])=>{const p=map(o.position.x,o.position.z);ctx.fillStyle=col;ctx.fillRect(p.x-4,p.y-4,8,8);});
- mineBlocks.forEach(b=>{if(b.active){const p=map(-30+b.mesh.position.x,-12+b.mesh.position.z);ctx.fillStyle='#c6a16b';ctx.fillRect(p.x-2,p.y-2,4,4);}});
+ mineBlocks.forEach(b=>{if(b.active){const p=map(-36+b.mesh.position.x,-43+b.mesh.position.z);ctx.fillStyle='#c6a16b';ctx.fillRect(p.x-2,p.y-2,4,4);}});
  const p=map(avatar.position.x,avatar.position.z);ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);ctx.fill();
 }
 $('loading').classList.add('hidden');
