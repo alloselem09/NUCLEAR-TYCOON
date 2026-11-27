@@ -44,6 +44,40 @@
 
     <div class="toast" id="toast"></div>
 
+    <section class="lab-customizer hidden" id="lab-customizer" aria-hidden="true">
+      <div class="lab-customizer-head">
+        <div><span class="lab-kicker">LABORATOIRE · ATELIER DE RECHERCHE</span><h2>CONFIGURATION <em>DU LABO</em></h2></div>
+        <button id="lab-close" class="lab-close" aria-label="Fermer">×</button>
+      </div>
+      <div class="lab-customizer-main">
+        <div class="lab-showcase">
+          <div class="lab-device">
+            <div class="device-screen"><span>NT / RESEARCH</span><i></i><i></i><i></i></div>
+            <div class="device-body"><div class="device-dial"></div><div class="device-slots"><b></b><b></b><b></b></div></div>
+            <div class="device-base"></div>
+          </div>
+          <div class="lab-showcase-caption">POSTE DE RECHERCHE MODULAIRE</div>
+        </div>
+        <div class="lab-options">
+          <div class="lab-option-group"><h3>CONSOLE</h3>
+            <button data-component="console" data-choice="analogique" class="selected"><b>CONSOLE ANALOGIQUE</b><small>Instruments rétro et cadrans</small></button>
+            <button data-component="console" data-choice="digital"><b>ÉCRAN NUMÉRIQUE</b><small>Interface de contrôle moderne</small></button>
+          </div>
+          <div class="lab-option-group"><h3>CAPTEURS</h3>
+            <button data-component="sensors" data-choice="standard" class="selected"><b>CAPTEURS STANDARD</b><small>Module de mesure décoratif</small></button>
+            <button data-component="sensors" data-choice="precision"><b>CAPTEURS DE PRÉCISION</b><small>Version de laboratoire avancée</small></button>
+          </div>
+          <div class="lab-option-group"><h3>ÉCLAIRAGE</h3>
+            <button data-component="lighting" data-choice="warm" class="selected"><b>LUMIÈRE CHAUDE</b><small>Ambiance atelier vintage</small></button>
+            <button data-component="lighting" data-choice="bright"><b>LUMIÈRE BLANCHE</b><small>Éclairage de travail renforcé</small></button>
+          </div>
+        </div>
+      </div>
+      <div class="lab-customizer-foot"><span id="lab-selection-summary">Sélection : analogique · standard · warm</span><button id="lab-apply">APPLIQUER LA CONFIGURATION</button></div>
+      <div class="lab-help">E : SORTIR DU LABORATOIRE · FLÈCHES : SE DÉPLACER</div>
+    </section>
+
+
     <section class="screen intro-screen" id="intro-screen">
       <div class="intro-content">
         <div class="intro-kicker"><span></span> SIMULATION DE GESTION · 2026</div>
