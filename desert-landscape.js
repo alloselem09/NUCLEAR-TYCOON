@@ -129,52 +129,70 @@ export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,
   // Plateau de la tour volontairement vide : aucun abri, annexe, véhicule ou bâtiment secondaire.
   // La tour reste le seul élément bâti de cette zone ; l'unique bunker est à 1 000 m.
 
-  // UNIQUE BUNKER D'OBSERVATION — décor stylisé, enfoui dans un talus de sable.
-  // Son centre reste exactement à 4 000 m de la tour ; aucune autre construction sur le plateau.
+  // BUNKER D'OBSERVATION — volume semi-enterré, voûte arrondie et façade en béton.
+  // Décor architectural fictif : aucune fonction opérationnelle n'est simulée.
+  // La position du bâtiment et celle de sa porte restent inchangées pour préserver le gameplay.
   const bunker=new THREE.Group();bunker.position.set(layout.bunker.x,0,layout.bunker.z);world.add(bunker);
   bunker.name='ObservationBunker_4000m';
-  const bunkerSand=mat('#b88a59',1), bunkerEarth=mat('#9d704b',1), bunkerTimber=mat('#624a35',.95), bunkerConcrete=mat('#77776d',.92);
-  // Talus bas et large qui donne au bunker son aspect semi-enterré.
-  const berm=new THREE.Mesh(new THREE.SphereGeometry(1,10,7),bunkerSand);
-  berm.scale.set(10.5,3.8,4.2);berm.position.set(0,1.8,0);berm.castShadow=true;berm.receiveShadow=true;bunker.add(berm);
-  const bermSide=new THREE.Mesh(new THREE.SphereGeometry(1,8,6),bunkerEarth);
-  bermSide.scale.set(8.7,2.8,3.5);bermSide.position.set(0,1.25,.1);bermSide.castShadow=true;bunker.add(bermSide);
-  // Façade frontale simple, inspirée de la photo : béton, bois et une grande ouverture sombre.
-  box(bunker,12,.32,1.0,0,.16,4.0,bunkerConcrete);
-  box(bunker,12,.38,.35,0,3.05,4.05,bunkerTimber);
-  box(bunker,.42,2.9,.45,-5.65,1.65,4.12,bunkerConcrete);
-  box(bunker,.42,2.9,.45,5.65,1.65,4.12,bunkerConcrete);
-  box(bunker,11.0,.22,.35,0,2.78,4.1,bunkerTimber);
-  box(bunker,10.8,1.05,.16,0,2.12,4.18,dark);
-  for(let x=-5.0;x<=5.01;x+=1.0)box(bunker,.09,1.0,.2,x,2.12,4.28,bunkerTimber);
-  // Entrée centrale et quelques renforts visuels en bois, sans détail technique.
-  box(bunker,2.25,1.85,.22,0,.95,4.3,mat('#202522',.95));
-  const bunkerDoor=new THREE.Group();bunkerDoor.position.set(-1.1,.05,4.38);bunker.add(bunkerDoor);
-  box(bunkerDoor,2.15,1.82,.16,1.075,.91,0,mat('#4b4032',.92));
-  box(bunkerDoor,.12,1.72,.08,.18,.91,.12,mat('#b69a67',.55,.35));
-  cyl(bunkerDoor,.055,.055,.12,1.88,.92,.16,mat('#d1b477',.35,.55),10);
-  bunkerDoor.userData.open=false;
-  // Grande vitre d'observation orientée vers la tour (face arrière, -Z).
-  box(bunker,5.1,2.35,.34,-7.55,2.25,-4.48,bunkerConcrete);
-  box(bunker,5.1,2.35,.34,7.55,2.25,-4.48,bunkerConcrete);
-  box(bunker,10.2,.38,.34,0,.92,-4.48,bunkerConcrete);
-  box(bunker,10.2,.38,.34,0,3.58,-4.48,bunkerConcrete);
-  const bunkerGlass=new THREE.Mesh(new THREE.BoxGeometry(8.7,1.55,.12),new THREE.MeshStandardMaterial({color:'#789b9a',metalness:.28,roughness:.18,transparent:true,opacity:.48}));
-  bunkerGlass.position.set(0,2.35,-4.28);bunker.add(bunkerGlass);
-  for(const x of [-4.45,0,4.45])box(bunker,.12,1.78,.2,x,2.35,-4.18,bunkerTimber);
-  box(bunker,8.95,.12,.22,0,1.53,-4.18,bunkerTimber);
-  box(bunker,8.95,.12,.22,0,3.17,-4.18,bunkerTimber);
-  bunker.userData.door=bunkerDoor;
-  for(const x of [-4.7,-2.8,2.8,4.7])box(bunker,.24,2.55,.3,x,1.35,4.42,bunkerTimber);
-  const brace=(x,y,angle)=>{
-    const part=box(bunker,.28,3.15,.32,x,y,4.48,bunkerTimber);
-    part.rotation.z=angle;
-  };
-  brace(-3.55,1.45,-.48);brace(-2.05,1.45,.48);brace(2.05,1.45,-.48);brace(3.55,1.45,.48);
-  // Petite lèvre de terre au pied de la façade pour l'intégrer au désert.
-  const apron=new THREE.Mesh(new THREE.CylinderGeometry(7.5,8.5,.18,10),bunkerSand);
-  apron.scale.z=.72;apron.position.set(0,.05,2.1);bunker.add(apron);
+  const bunkerSand=mat('#b88a59',1), bunkerEarth=mat('#9d704b',1);
+  const bunkerConcrete=mat('#777970',.92), bunkerConcreteLight=mat('#92938a',.9);
+  const bunkerMetal=mat('#424b49',.72,.38), bunkerTrim=mat('#4b514c',.85,.25);
+  const bunkerGlass=new THREE.MeshStandardMaterial({color:'#789b9a',metalness:.28,roughness:.18,transparent:true,opacity:.32});
 
+  // Talus de terre bas : le bâtiment semble émerger du terrain plutôt que reposer dessus.
+  const berm=new THREE.Mesh(new THREE.SphereGeometry(1,18,12),bunkerSand);
+  berm.scale.set(8.1,2.25,5.25);berm.position.set(0,.15,-.15);
+  berm.castShadow=true;berm.receiveShadow=true;bunker.add(berm);
+  const bermLeft=new THREE.Mesh(new THREE.SphereGeometry(1,12,8),bunkerEarth);
+  bermLeft.scale.set(2.2,1.25,4.2);bermLeft.position.set(-5.1,.12,-.1);bunker.add(bermLeft);
+  const bermRight=bermLeft.clone();bermRight.position.x=5.1;bunker.add(bermRight);
+
+  // Corps bas en béton, avec toiture cintrée au lieu d'un toit plat cubique.
+  box(bunker,10.8,2.15,8.0,0,.92,-.05,bunkerConcrete);
+  const vault=new THREE.Mesh(new THREE.SphereGeometry(1,24,12,0,Math.PI*2,0,Math.PI/2),bunkerConcrete);
+  vault.scale.set(5.55,3.25,4.15);vault.position.set(0,1.78,-.05);
+  vault.castShadow=true;vault.receiveShadow=true;bunker.add(vault);
+  // Bandeau frontal et joues latérales en béton apparent.
+  box(bunker,11.4,.34,.55,0,2.18,3.92,bunkerConcreteLight);
+  box(bunker,.62,2.55,.65,-5.35,1.27,3.88,bunkerConcrete);
+  box(bunker,.62,2.55,.65,5.35,1.27,3.88,bunkerConcrete);
+  // Entrée sombre avec encadrement arrondi et porte métallique épaisse, purement visuelle.
+  box(bunker,2.45,1.85,.18,0,.95,4.16,mat('#202522',.95));
+  const entranceArch=new THREE.Mesh(new THREE.TorusGeometry(1.22,.19,10,28,Math.PI),bunkerConcreteLight);
+  entranceArch.position.set(0,1.88,4.18);bunker.add(entranceArch);
+  const bunkerDoor=new THREE.Group();bunkerDoor.position.set(-1.1,.05,4.38);bunker.add(bunkerDoor);
+  box(bunkerDoor,2.15,1.82,.18,1.075,.91,0,bunkerMetal);
+  box(bunkerDoor,.12,1.72,.08,.18,.91,.13,bunkerTrim);
+  box(bunkerDoor,.08,1.72,.08,1.96,.91,.13,bunkerTrim);
+  box(bunkerDoor,1.78,.09,.08,1.075,.16,.13,bunkerTrim);
+  box(bunkerDoor,1.78,.09,.08,1.075,1.66,.13,bunkerTrim);
+  cyl(bunkerDoor,.055,.055,.12,1.88,.92,.19,mat('#d1b477',.35,.55),10);
+  bunkerDoor.userData.open=false;
+  bunker.userData.door=bunkerDoor;
+
+  // Petite fenêtre d'observation latérale, encastrée et divisée en panneaux.
+  box(bunker,4.25,1.42,.3,-7.55,2.05,-3.95,bunkerConcrete);
+  box(bunker,4.25,1.42,.3,7.55,2.05,-3.95,bunkerConcrete);
+  box(bunker,7.9,.2,.24,0,1.28,-4.12,bunkerConcreteLight);
+  box(bunker,7.9,.2,.24,0,2.82,-4.12,bunkerConcreteLight);
+  const rearGlass=new THREE.Mesh(new THREE.BoxGeometry(7.5,1.34,.1),bunkerGlass);
+  rearGlass.position.set(0,2.05,-3.88);bunker.add(rearGlass);
+  for(const x of [-3.8,0,3.8])box(bunker,.1,1.42,.15,x,2.05,-3.78,bunkerMetal);
+
+  // Détails de surface : joints de panneaux, angles chanfreinés et éclairage extérieur.
+  for(const x of [-4.25,-2.15,2.15,4.25]){
+    const seam=box(bunker,.1,1.55,.12,x,1.0,4.22,bunkerConcreteLight);
+    seam.position.y=1.05;
+  }
+  for(const x of [-4.9,4.9]){
+    box(bunker,.32,.18,.42,x,2.55,3.75,bunkerTrim);
+    const lamp=new THREE.Mesh(new THREE.BoxGeometry(.24,.16,.12),new THREE.MeshStandardMaterial({color:'#e4c27d',emissive:'#9a6d2d',emissiveIntensity:.55}));
+    lamp.position.set(x,2.68,3.96);bunker.add(lamp);
+  }
+  // Rampe d'accès et bordure basse intégrées au sable.
+  const apron=new THREE.Mesh(new THREE.CylinderGeometry(5.9,6.8,.16,24),bunkerSand);
+  apron.scale.z=.78;apron.position.set(0,.035,2.55);bunker.add(apron);
+  const threshold=box(bunker,3.1,.16,1.15,0,.08,4.85,bunkerConcreteLight);
   // Aucun relief rocheux : le désert reste ouvert jusqu'à l'horizon.
 
   // Végétation très clairsemée, uniquement sur les marges de la carte.
