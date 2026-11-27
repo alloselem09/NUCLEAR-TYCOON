@@ -6,9 +6,9 @@ const $ = (id) => document.getElementById(id);
 const canvas = $('game-canvas');
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x9bb4b1);
-scene.fog = new THREE.Fog(0x9bb4b1, 38, 105);
+scene.fog = new THREE.Fog(0x9bb4b1, 38, 1350);
 
-const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 180);
+const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 1500);
 camera.position.set(10, 10, 14);
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -162,7 +162,7 @@ scene.children.forEach((object) => {
   if (object.userData?.legacyTree || object.name === 'legacyRoad') object.visible = false;
 });
 scene.background = new THREE.Color('#c58d5a');
-scene.fog = new THREE.Fog('#c58d5a', 75, 165);
+scene.fog = new THREE.Fog('#c58d5a', 75, 1400);
 
 
 
@@ -288,7 +288,7 @@ function finishCinematic(){
   controlRoom.visible=false;cinematicCloud.visible=false;militaryWorld.visible=true;official.visible=false;avatar.visible=true;
   scene.children.forEach(o=>{if(o!==avatar&&!o.isLight&&o!==militaryWorld&&o!==controlRoom&&o!==cinematicCloud)o.visible=false;});
   avatar.position.set(-39,0,30);avatar.rotation.y=0;
-  scene.background=new THREE.Color('#b69a70');scene.fog=new THREE.Fog('#b69a70',35,100);
+  scene.background=new THREE.Color('#b69a70');scene.fog=new THREE.Fog('#b69a70',35,1400);
   camera.position.set(8,8,13);camera.lookAt(0,1,0);
   toast('Secteur Orion débloqué. La campagne continue.');
 }
@@ -402,7 +402,7 @@ function animate(){
    const mx=rightX*dx+forwardX*(-dz), mz=rightZ*dx+forwardZ*(-dz), len=Math.hypot(mx,mz);
    const vx=mx/len, vz=mz/len;
    avatar.position.x+=vx*7*dt;avatar.position.z+=vz*7*dt;
-   avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-58,58);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z,-58,58);
+   avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-58,58);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z,-58,1045);
    avatar.rotation.y=Math.atan2(vx,vz);
   }
   hero.update(dt,moving,7);
@@ -432,9 +432,9 @@ function drawMinimap(){
  const c=$('minimap'),ctx=c.getContext('2d'),w=c.width,h=c.height;
  ctx.clearRect(0,0,w,h);ctx.fillStyle='#18282a';ctx.fillRect(0,0,w,h);
  ctx.strokeStyle='#50645b';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(90,0);ctx.lineTo(90,130);ctx.moveTo(0,66);ctx.lineTo(180,66);ctx.stroke();
- const map=(x,z)=>({x:90+x*.92,y:65+z*.72});
+ const map=(x,z)=>({x:90+x*.55,y:8+(z+60)*.105});
  [[depot,'#a8c8c1'],[centrifugeBuilding,'#d4a45e'],[previewCase,'#e4c078']].forEach(([o,col])=>{const p=map(o.position.x,o.position.z);ctx.fillStyle=col;ctx.fillRect(p.x-4,p.y-4,8,8);});
- mineBlocks.forEach(b=>{if(b.active){const p=map(-36+b.mesh.position.x,-43+b.mesh.position.z);ctx.fillStyle='#c6a16b';ctx.fillRect(p.x-2,p.y-2,4,4);}});
+ mineBlocks.forEach(b=>{if(b.active){const p=map(-36+b.mesh.position.x,-43+b.mesh.position.z);ctx.fillStyle='#c6a16b';ctx.fillRect(p.x-2,p.y-2,4,4);}});\n const zero=map(28,-3);ctx.fillStyle='#e35d4f';ctx.beginPath();ctx.arc(zero.x,zero.y,4,0,Math.PI*2);ctx.fill();\n const bunker=map(28,997);ctx.fillStyle='#6fc8bb';ctx.fillRect(bunker.x-4,bunker.y-4,8,8);
  const p=map(avatar.position.x,avatar.position.z);ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);ctx.fill();
 }
 $('loading').classList.add('hidden');
