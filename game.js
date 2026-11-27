@@ -247,21 +247,7 @@ for(let i=0;i<8;i++){
 cylinder(cRotor,.28,.28,.38,0,0,0,mat('#344448',.4,.65),20);
 const cRotorCap=cylinder(cRotor,.46,.46,.12,0,.78,0,mat('#d9c18a',.3,.55),24);
 
-// Laboratoire rétro : vitrine avec maquette abstraite et scellée du projet Orion.
-// Objet purement visuel : aucune pièce ni fonction technique représentée.
-const previewCase=new THREE.Group();previewCase.position.set(-18,0,29);previewCase.scale.setScalar(.82);militaryWorld.add(previewCase);
-box(previewCase,4.8,.35,3.2,0,.2,0,mat('#343f40',.45,.45));
-const glassMat=new THREE.MeshStandardMaterial({color:'#9bc4c2',transparent:true,opacity:.2,metalness:.25,roughness:.15});
-box(previewCase,4.5,2.7,.12,0,1.65,-1.5,glassMat,false);
-box(previewCase,4.5,2.7,.12,0,1.65,1.5,glassMat,false);
-box(previewCase,.12,2.7,3, -2.2,1.65,0,glassMat,false);
-box(previewCase,.12,2.7,3, 2.2,1.65,0,glassMat,false);
-const exhibit=new THREE.Group();exhibit.position.set(0,1.55,0);previewCase.add(exhibit);
-const exhibitCore=new THREE.Mesh(new THREE.SphereGeometry(.72,24,16),new THREE.MeshStandardMaterial({color:'#b5a16d',metalness:.5,roughness:.25,emissive:'#49351b',emissiveIntensity:.45}));
-exhibit.add(exhibitCore);
-const exhibitRings=[];
-for(let i=0;i<3;i++){const ring=new THREE.Mesh(new THREE.TorusGeometry(1.05+i*.18,.045,8,48),mat(i===1?'#d6c18a':'#718d8b',.35,.65));ring.rotation.set(i*.8,.4+i*.55,0);exhibit.add(ring);exhibitRings.push(ring);}
-box(previewCase,2.4,.35,.12,0,.48,1.62,mat('#d2b879',.55,.2));
+// Vitrine Orion supprimée : le laboratoire reste un espace de recherche sans prototype exposé.
 
 
  // INTÉRIEUR DU LABORATOIRE — espace séparé, accessible par la porte.
@@ -488,12 +474,12 @@ let cinematicPhase='off',cinematicTime=0,countdownShown=5;
 let militaryPhase='off';
 function beginFinalCinematic(){
   if(militaryPhase!=='off'||!state.labVisited||state.researchStock<6){
-    toast('Le projet Orion est encore verrouillé : réseau actif et 6 unités de recherche requises.');
+    toast('Le dossier de recherche est verrouillé : réseau actif et 6 unités de ressources fictives requises.');
     return;
   }
   militaryPhase='cinematic';cinematicPhase='ready';cinematicTime=0;countdownShown=5;
   $('cinematic-ui').classList.remove('hidden');
-  $('cinematic-caption').textContent='SALLE DE CONTRÔLE · PROJET ORION';
+  $('cinematic-caption').textContent='SALLE DE CONTRÔLE · TRINITY';
   $('cinematic-instruction').textContent='Le dossier de recherche fictif est validé. La salle attend votre confirmation.';
   $('cinematic-action').textContent='APPUYER SUR LE BOUTON';$('cinematic-action').classList.remove('hidden');
   $('cinematic-countdown').textContent='';$('cinematic-glasses').classList.remove('on');$('cinematic-flash').classList.remove('active');
@@ -513,13 +499,13 @@ function startCinematic(){
 function finishCinematic(){
   cinematicPhase='off';militaryPhase='site';
   $('cinematic-ui').classList.add('hidden');$('military-site').classList.remove('hidden');
-  $('site-stock').textContent='PROJET ORION : ÉTAPE 1 VALIDÉE';
+  $('site-stock').textContent='TRINITY : ÉTAPE 1 VALIDÉE';
   controlRoom.visible=false;cinematicCloud.visible=false;militaryWorld.visible=true;official.visible=false;avatar.visible=true;
   scene.children.forEach(o=>{if(o!==avatar&&!o.isLight&&o!==militaryWorld&&o!==controlRoom&&o!==cinematicCloud)o.visible=false;});
   avatar.position.set(-39,0,30);avatar.rotation.y=0;
   scene.background=new THREE.Color('#b69a70');scene.fog=new THREE.Fog('#b69a70',35,5200);
   camera.position.set(8,8,13);camera.lookAt(0,1,0);
-  toast('Secteur Orion débloqué. La campagne continue.');
+  toast('Secteur Trinity débloqué. La campagne continue.');
 }
 
 
@@ -572,9 +558,9 @@ function updateUI(){
  if(!state.delivered){$('mission-title').textContent='La mine à ciel ouvert';$('mission-copy').textContent='Approche les blocs et presse E pour extraire 3 unités de minerai d’uranium fictif.';$('progress-label').textContent=state.materials+' / 3 BLOCS EXTRAITS';$('progress-bar').style.width=(state.materials/3*100)+'%';$('mission-reward').textContent='RÉCOMPENSE : 500 €';}
  else if(!state.centrifugeVisited){$('mission-title').textContent='Le bâtiment centrifugeuse';$('mission-copy').textContent='Rejoins le bâtiment de recherche et découvre son installation scénographique.';$('progress-label').textContent='VISITE À EFFECTUER';$('progress-bar').style.width='45%';$('mission-reward').textContent='ÉTAPE DE RECHERCHE';}
  else if(!state.labVisited){$('mission-title').textContent='Le laboratoire rétro';$('mission-copy').textContent='Entre dans le laboratoire et observe la maquette fictive exposée sous vitrine.';$('progress-label').textContent='MAQUETTE À OBSERVER';$('progress-bar').style.width='70%';$('mission-reward').textContent='ÉTAPE DE RECHERCHE';}
- else {$('mission-title').textContent='Dossier Orion';$('mission-copy').textContent='Continue à livrer des ressources fictives et consulte le terminal de recherche.';$('progress-label').textContent=Math.min(state.researchStock,6)+' / 6 RESSOURCES';$('progress-bar').style.width=(Math.min(state.researchStock,6)/6*100)+'%';$('mission-reward').textContent=state.researchStock>=6?'TERMINAL DÉBLOQUÉ':'OBJECTIF DE RECHERCHE';}
+ else {$('mission-title').textContent='Dossier énergétique';$('mission-copy').textContent='Continue à livrer des ressources fictives et consulte le terminal de recherche.';$('progress-label').textContent=Math.min(state.researchStock,6)+' / 6 RESSOURCES';$('progress-bar').style.width=(Math.min(state.researchStock,6)/6*100)+'%';$('mission-reward').textContent=state.researchStock>=6?'TERMINAL DÉBLOQUÉ':'OBJECTIF DE RECHERCHE';}
  $('research-stock').textContent=state.researchStock+' UNITÉS';
- $('objective-chip').innerHTML='<span class="pulse"></span> OBJECTIF <b>'+(!state.delivered?'EXTRAIRE LES BLOCS':!state.centrifugeVisited?'VISITER LA CENTRIFUGEUSE':!state.labVisited?'VISITER LE LABORATOIRE':state.researchStock>=6?'REJOINDRE LE TERMINAL':'PRÉPARER LE DOSSIER ORION')+'</b>';
+ $('objective-chip').innerHTML='<span class="pulse"></span> OBJECTIF <b>'+(!state.delivered?'EXTRAIRE LES BLOCS':!state.centrifugeVisited?'VISITER LA CENTRIFUGEUSE':!state.labVisited?'VISITER LE LABORATOIRE':state.researchStock>=6?'REJOINDRE LE TERMINAL':'PRÉPARER LE DOSSIER ÉNERGÉTIQUE')+'</b>';
 }
 function closestTarget(){
  if(insideBunker){
@@ -597,10 +583,10 @@ function closestTarget(){
  const bunkerEntranceDistance=avatar.position.distanceTo(new THREE.Vector3(SITE_LAYOUT.bunker.x,0,SITE_LAYOUT.bunker.z+4.5));
  if(bunkerEntranceDistance<2.5)return {type:'bunkerEntrance',label:'ENTRER DANS LE BUNKER'};
  for(const b of mineBlocks)if(b.active){const p=b.mesh.getWorldPosition(new THREE.Vector3());const d=avatar.position.distanceTo(p);if(d<3.5&&d<dist){dist=d;best={type:'mineBlock',obj:b,label:'PIOCHER LE BLOC'};}}
- for(const [type,obj,label] of [['depot',depot,'LIVRER LES MATÉRIAUX'],['centrifugeBuilding',centrifugeBuilding,'VISITER LE BÂTIMENT CENTRIFUGEUSE'],['previewCase',previewCase,'OBSERVER LE PROTOTYPE FICTIF']]){
+ for(const [type,obj,label] of [['depot',depot,'LIVRER LES MATÉRIAUX'],['centrifugeBuilding',centrifugeBuilding,'VISITER LE BÂTIMENT CENTRIFUGEUSE'],]){
   const d=avatar.position.distanceTo(obj.position);if(d<3.8&&d<dist+1){dist=d;best={type,obj,label};}
  }
- const researchLabel=state.labVisited&&state.researchStock>=6?'OUVRIR LE DOSSIER ORION':'TERMINAL DE RECHERCHE — VERROUILLÉ';
+ const researchLabel=state.labVisited&&state.researchStock>=6?'OUVRIR LE DOSSIER ÉNERGÉTIQUE':'TERMINAL DE RECHERCHE — VERROUILLÉ';
  const rd=avatar.position.distanceTo(researchConsole.position);
  if(rd<4&&rd<dist+1){dist=rd;best={type:'research',obj:researchConsole,label:researchLabel};}
  return best;
@@ -684,12 +670,12 @@ function animate(){
     const n=Math.max(0,5-Math.floor(cinematicTime));
     if(n!==countdownShown){countdownShown=n;$('cinematic-countdown').textContent=String(n);}
     if(cinematicTime>5.8){cinematicPhase='flash';cinematicTime=0;$('cinematic-flash').classList.add('active');cinematicCloud.visible=true;$('cinematic-instruction').textContent='Un éclat lumineux traverse l’horizon…';}
-  } else if(cinematicPhase==='flash'&&cinematicTime>1.25){cinematicPhase='cloud';cinematicTime=0;$('cinematic-flash').classList.remove('active');$('cinematic-instruction').textContent='Le spectacle se dessine au loin.';}
+  } else if(cinematicPhase==='flash'&&cinematicTime>1.25){cinematicPhase='cloud';cinematicTime=0;$('cinematic-flash').classList.remove('active');$('cinematic-instruction').textContent='La démonstration lumineuse se dessine au loin.';}
   else if(cinematicPhase==='cloud'){
     const grow=Math.min(1,cinematicTime/6);
     cinematicCloud.scale.setScalar(.12+grow*1.08);
     cinematicCloud.position.y=-1.8+grow*1.8;
-    if(cinematicTime>8){cinematicPhase='complete';$('cinematic-instruction').textContent='Séquence terminée. Le Secteur Orion vous attend.';$('cinematic-action').textContent='REJOINDRE LE SECTEUR ORION';$('cinematic-action').classList.remove('hidden');}
+    if(cinematicTime>8){cinematicPhase='complete';$('cinematic-instruction').textContent='Séquence terminée. Le secteur Trinity vous attend.';$('cinematic-action').textContent='REJOINDRE LE SECTEUR TRINITY';$('cinematic-action').classList.remove('hidden');}
   }
   if(cinematicPhase==='ready'||cinematicPhase==='glasses'||cinematicPhase==='countdown'){camera.position.x=Math.sin(time*.25)*.035;camera.position.y=2.8+Math.sin(time*.5)*.018;camera.lookAt(0,2.4,-8);}
  }
@@ -796,7 +782,7 @@ function animate(){
    const scale=.65+cycle*.22;p.mesh.scale.set(scale,scale*1.15,scale);
    p.mesh.material.opacity=Math.max(.025,.24-cycle*.035);
  });
- exhibit.rotation.y+=dt*.18; exhibitRings.forEach((r,i)=>{r.rotation.x+=dt*(.12+i*.04);r.rotation.y+=dt*(.18+i*.05);});
+ 
  nodes.forEach((n,i)=>{if(n.active){n.crystal.position.y=1.05+Math.sin(time*2+i)*.08;n.crystal.rotation.y=time*.65;}});
  markers.forEach((m,i)=>{m.material.opacity=.5+Math.sin(time*2+i)*.25;m.scale.setScalar(1+Math.sin(time*2+i)*.05);});
  if(militaryPhase!=='cinematic'){
@@ -820,7 +806,7 @@ function drawMinimap(){
  ctx.clearRect(0,0,w,h);ctx.fillStyle='#18282a';ctx.fillRect(0,0,w,h);
  ctx.strokeStyle='#50645b';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(90,0);ctx.lineTo(90,130);ctx.moveTo(0,66);ctx.lineTo(180,66);ctx.stroke();
  const map=(x,z)=>({x:90+x*.55,y:8+(z+60)*(114/4060)});
- [[depot,'#a8c8c1'],[centrifugeBuilding,'#d4a45e'],[previewCase,'#e4c078']].forEach(([o,col])=>{const p=map(o.position.x,o.position.z);ctx.fillStyle=col;ctx.fillRect(p.x-4,p.y-4,8,8);});
+ [[depot,'#a8c8c1'],[centrifugeBuilding,'#d4a45e']].forEach(([o,col])=>{const p=map(o.position.x,o.position.z);ctx.fillStyle=col;ctx.fillRect(p.x-4,p.y-4,8,8);});
  mineBlocks.forEach(b=>{if(b.active){const p=map(-36+b.mesh.position.x,-43+b.mesh.position.z);ctx.fillStyle='#c6a16b';ctx.fillRect(p.x-2,p.y-2,4,4);}});
  const zero=map(SITE_LAYOUT.pointZero.x,SITE_LAYOUT.pointZero.z);ctx.fillStyle='#e35d4f';ctx.beginPath();ctx.arc(zero.x,zero.y,4,0,Math.PI*2);ctx.fill();
  const bunker=map(SITE_LAYOUT.bunker.x,SITE_LAYOUT.bunker.z);ctx.fillStyle='#6fc8bb';ctx.fillRect(bunker.x-4,bunker.y-4,8,8);ctx.strokeStyle='#d9b66b';ctx.lineWidth=1.5;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(zero.x,zero.y);ctx.lineTo(bunker.x,bunker.y);ctx.stroke();ctx.setLineDash([]);
