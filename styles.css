@@ -96,3 +96,5 @@ body:has(#centrifuge-panel:not(.hidden)) .isotope-card{padding:10px}
 body:has(#centrifuge-panel:not(.hidden)) .isotope-card strong{font-size:24px;margin:4px 0 8px}
 body:has(#centrifuge-panel:not(.hidden)) .centrifuge-progress{margin-top:13px}
 body:has(#centrifuge-panel:not(.hidden)) .centrifuge-note{font-size:9px}
+
+body:has(#centrifuge-panel:not(.hidden)) #centrifuge-close{display:none}
