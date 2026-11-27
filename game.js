@@ -832,7 +832,7 @@ function drawMinimap(){
  const c=$('minimap'),ctx=c.getContext('2d'),w=c.width,h=c.height;
  ctx.clearRect(0,0,w,h);ctx.fillStyle='#18282a';ctx.fillRect(0,0,w,h);
  ctx.strokeStyle='#50645b';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(90,0);ctx.lineTo(90,130);ctx.moveTo(0,66);ctx.lineTo(180,66);ctx.stroke();
- const map=(x,z)=>({x:90+x*.55,y:8+(z+60)*.105});
+ const map=(x,z)=>({x:90+x*.55,y:8+(z+60)*.035});
  [[depot,'#a8c8c1'],[centrifugeBuilding,'#d4a45e'],[previewCase,'#e4c078']].forEach(([o,col])=>{const p=map(o.position.x,o.position.z);ctx.fillStyle=col;ctx.fillRect(p.x-4,p.y-4,8,8);});
  mineBlocks.forEach(b=>{if(b.active){const p=map(-36+b.mesh.position.x,-43+b.mesh.position.z);ctx.fillStyle='#c6a16b';ctx.fillRect(p.x-2,p.y-2,4,4);}});
  const zero=map(SITE_LAYOUT.pointZero.x,SITE_LAYOUT.pointZero.z);ctx.fillStyle='#e35d4f';ctx.beginPath();ctx.arc(zero.x,zero.y,4,0,Math.PI*2);ctx.fill();
