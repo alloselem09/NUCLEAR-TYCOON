@@ -53,7 +53,9 @@ export function createDesertLandscape(THREE, site, mat) {
   road(-7,-9,46,4,-.32);
   road(-1,7,4,35,.12);
   road(17,20,39,4,-.22);
-  road(4,38,28,3,.12);\n  // Longue piste de liaison vers le bunker, situé à 1 000 m du Point Zéro dans l'échelle du jeu.\n  road(28,497,4,1000,0);
+  road(4,38,28,3,.12);
+  // Longue piste de liaison vers le bunker, situé à 1 000 m du Point Zéro dans l'échelle du jeu.
+  road(28,497,4,1000,0);
 
   // ZONE INDUSTRIELLE / MINIÈRE — compacte, dans le quadrant supérieur gauche.
   const plant=new THREE.Group();plant.position.set(-28,0,-22);world.add(plant);
@@ -77,6 +79,23 @@ export function createDesertLandscape(THREE, site, mat) {
   box(plant,3.2,1.6,2.8,-9,.8,5,mat('#8a8c80'));
   box(plant,3.4,.2,3,-9,1.7,5,roof);
   for(const x of [-10,10])box(plant,.85,1.5,.85,x,.75,0,metal);
+
+
+  // Fumée décorative animée au-dessus des deux tours de la centrale.
+  const smokePuffs=[];
+  for(const sx of [-35,-30.5]){
+    for(let i=0;i<9;i++){
+      const puff=new THREE.Mesh(
+        new THREE.SphereGeometry(.55+(i%3)*.18,10,8),
+        new THREE.MeshStandardMaterial({color:'#8a8b86',transparent:true,opacity:.2,depthWrite:false,roughness:1})
+      );
+      puff.position.set(sx+(Math.random()-.5)*.45,4+i*1.35,-25.7+(Math.random()-.5)*.4);
+      puff.scale.set(1,1.15,1);
+      world.add(puff);
+      smokePuffs.push({mesh:puff,baseY:4+i*1.35,phase:i*.7+(sx+40)*.3,baseX:sx});
+    }
+  }
+  world.userData.smokePuffs=smokePuffs;
 
   // CARRIÈRE EN GRADINS — derrière la zone industrielle.
   const quarry=new THREE.Group();quarry.position.set(-34,0,-43);world.add(quarry);
@@ -156,7 +175,15 @@ export function createDesertLandscape(THREE, site, mat) {
     bag.rotation.z=Math.PI/2;bag.position.set(-3.8+i*1.25,.38,4.9);bunker.add(bag);
   }
 
-  // Falaises au fond de la vallée allongée, au-delà du bunker éloigné.\n  for(let i=0;i<18;i++){\n    const x=-78+i*9,z=1060+Math.sin(i*.7)*5;\n    const h=8+(i%4)*2.5,w=7+(i%3)*2;\n    const mesa=new THREE.Mesh(new THREE.CylinderGeometry(w*.7,w,h,5),i%2?rock:cliff);\n    mesa.position.set(x,h/2-1,z);mesa.scale.z=1.25;mesa.castShadow=true;world.add(mesa);\n  }\n\n  // Végétation très clairsemée, uniquement sur les marges de la carte.
+  // Falaises au fond de la vallée allongée, au-delà du bunker éloigné.
+  for(let i=0;i<18;i++){
+    const x=-78+i*9,z=1060+Math.sin(i*.7)*5;
+    const h=8+(i%4)*2.5,w=7+(i%3)*2;
+    const mesa=new THREE.Mesh(new THREE.CylinderGeometry(w*.7,w,h,5),i%2?rock:cliff);
+    mesa.position.set(x,h/2-1,z);mesa.scale.z=1.25;mesa.castShadow=true;world.add(mesa);
+  }
+
+  // Végétation très clairsemée, uniquement sur les marges de la carte.
   for(let i=0;i<48;i++){
     const x=(Math.random()-.5)*145,z=(Math.random()-.5)*120;
     if((x<-15&&x>-48&&z>-51&&z<35)||(x>0&&z>-38&&z<31))continue;
