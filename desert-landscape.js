@@ -20,8 +20,8 @@ export function createDesertLandscape(THREE, site, mat) {
   const metal=mat('#59615d',.62,.45), dark=mat('#252d2d',.78);
   const glass=new THREE.MeshStandardMaterial({color:'#8eaaa5',metalness:.2,roughness:.3});
 
-  const floor=new THREE.Mesh(new THREE.PlaneGeometry(180,160),sand);
-  floor.rotation.x=-Math.PI/2;floor.position.y=-.06;floor.receiveShadow=true;world.add(floor);
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(180,1250),sand);
+  floor.rotation.x=-Math.PI/2;floor.position.set(0,-.06,450);floor.receiveShadow=true;world.add(floor);
 
   // Relief rocheux en périphérie : falaises en strates, sans fermer le terrain jouable.
   for(let i=0;i<30;i++){
@@ -53,7 +53,7 @@ export function createDesertLandscape(THREE, site, mat) {
   road(-7,-9,46,4,-.32);
   road(-1,7,4,35,.12);
   road(17,20,39,4,-.22);
-  road(4,38,28,3,.12);
+  road(4,38,28,3,.12);\n  // Longue piste de liaison vers le bunker, situé à 1 000 m du Point Zéro dans l'échelle du jeu.\n  road(28,497,4,1000,0);
 
   // ZONE INDUSTRIELLE / MINIÈRE — compacte, dans le quadrant supérieur gauche.
   const plant=new THREE.Group();plant.position.set(-28,0,-22);world.add(plant);
@@ -145,7 +145,7 @@ export function createDesertLandscape(THREE, site, mat) {
   }
 
   // BUNKER D'OBSERVATION — au sud du plateau, visible depuis le laboratoire.
-  const bunker=new THREE.Group();bunker.position.set(4,0,43);world.add(bunker);
+  const bunker=new THREE.Group();bunker.position.set(28,0,997);world.add(bunker);
   box(bunker,12,.3,9,0,.15,0,mat('#6f716a'));
   box(bunker,11,2.5,8,0,1.4,0,concrete);
   box(bunker,11.5,.45,8.5,0,2.85,0,roof);
@@ -156,7 +156,7 @@ export function createDesertLandscape(THREE, site, mat) {
     bag.rotation.z=Math.PI/2;bag.position.set(-3.8+i*1.25,.38,4.9);bunker.add(bag);
   }
 
-  // Végétation très clairsemée, uniquement sur les marges de la carte.
+  // Falaises au fond de la vallée allongée, au-delà du bunker éloigné.\n  for(let i=0;i<18;i++){\n    const x=-78+i*9,z=1060+Math.sin(i*.7)*5;\n    const h=8+(i%4)*2.5,w=7+(i%3)*2;\n    const mesa=new THREE.Mesh(new THREE.CylinderGeometry(w*.7,w,h,5),i%2?rock:cliff);\n    mesa.position.set(x,h/2-1,z);mesa.scale.z=1.25;mesa.castShadow=true;world.add(mesa);\n  }\n\n  // Végétation très clairsemée, uniquement sur les marges de la carte.
   for(let i=0;i<48;i++){
     const x=(Math.random()-.5)*145,z=(Math.random()-.5)*120;
     if((x<-15&&x>-48&&z>-51&&z<35)||(x>0&&z>-38&&z<31))continue;
