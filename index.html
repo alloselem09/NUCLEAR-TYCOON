@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0c1518">
-  <title>NUCLEAR TYCOON — Valmont</title>
+  <title>NUCLEAR TYCOON — Campagne</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -17,7 +17,7 @@
       <div class="top-stats">
         <div class="stat"><span>CRÉDITS</span><strong id="money">0 €</strong></div>
         <div class="stat"><span>MATÉRIAUX</span><strong id="materials">0 / 3</strong></div>
-        <div class="stat"><span>ÉNERGIE</span><strong id="energy">0 MW</strong></div>
+        <div class="stat"><span>ÉNERGIE</span><strong id="energy">0 MW</strong></div><div class="stat"><span>STOCK RECHERCHE</span><strong id="research-stock">0 UNITÉS</strong></div>
       </div>
       <button class="icon-btn" id="pause-btn" aria-label="Pause">Ⅱ</button>
     </header>
@@ -49,9 +49,8 @@
         <div class="intro-kicker"><span></span> SIMULATION DE GESTION · 2026</div>
         <div class="intro-title">BÂTIS TON<br><em>EMPIRE</em><br>ÉNERGÉTIQUE.</div>
         <p>Une petite ville. Un premier contrat. Un immense projet.<br>Fais grandir ton réseau énergétique, installation après installation.</p>
-        <button class="primary-btn" id="start-btn">MODE CIVIL — ENTRER À VALMONT <span>↗</span></button>
-        <button class="secondary-btn" id="military-btn">DÉCOUVRIR LE MODE MILITAIRE <span>↗</span></button>
-        <div class="intro-meta"><span>MODE CIVIL</span><span>MONDE 3D</span><span>CHAPITRE 01 — LES DÉBUTS</span></div>
+        <button class="primary-btn" id="start-btn">COMMENCER LA CAMPAGNE <span>↗</span></button>
+        <div class="intro-meta"><span>MODE UNIQUE</span><span>MONDE 3D</span><span>UNE SEULE CAMPAGNE · VALMONT → ORION</span></div>
       </div>
       <div class="intro-side"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="intro-core">N<span>+</span></div><div class="side-caption">ÉNERGIE<br>POUR DEMAIN</div></div>
     </section>
@@ -63,8 +62,16 @@
     <section class="screen win-screen hidden" id="win-screen">
       <div class="pause-card"><div class="eyebrow">CONTRAT TERMINÉ</div><h2>VALMONT<br><em>EST ÉCLAIRÉE.</em></h2><p>Premier réseau activé. La suite de l'aventure commence ici.</p><button class="primary-btn" id="continue-btn">CONTINUER À DÉVELOPPER <span>↗</span></button></div>
     </section>
-    <section class="military-dialogue hidden" id="military-dialogue"><div class="scene-label">SÉQUENCE CINÉMATIQUE · VALMONT</div><div class="dialogue-card"><div class="speaker" id="dialogue-speaker">VISITEUR</div><p id="dialogue-text"></p><button class="primary-btn" id="dialogue-next">CONTINUER <span>↗</span></button></div></section>
-    <section class="military-site hidden" id="military-site"><div class="site-heading"><span class="scene-label">MODE MILITAIRE · NOUVEAU SITE</span><h2>SECTEUR <em>ORION</em></h2><p>Un laboratoire isolé, au milieu d’un terrain désertique. Le début d’une nouvelle histoire.</p><div class="site-status">SITE INITIAL · LABORATOIRE PROVISOIRE</div></div></section>
+    
+    <section class="cinematic-ui hidden" id="cinematic-ui">
+      <div class="cinematic-top"><span id="cinematic-caption">SALLE DE CONTRÔLE · SECTEUR ORION</span><span>ARCHIVE VISUELLE · SIMULATION FICTIVE</span></div>
+      <div class="cinematic-glasses" id="cinematic-glasses"><span></span><span></span><i></i></div>
+      <div class="cinematic-hands" aria-hidden="true"><span></span><span></span></div>
+      <div class="cinematic-countdown" id="cinematic-countdown"></div>
+      <div class="cinematic-bottom"><p id="cinematic-instruction">La salle est silencieuse.</p><button class="primary-btn" id="cinematic-action">APPUYER SUR LE BOUTON</button></div>
+      <div class="cinematic-flash" id="cinematic-flash"></div>
+    </section>
+    <section class="military-site hidden" id="military-site"><div class="site-heading"><span class="scene-label">CAMPAGNE · NOUVELLE ZONE DÉBLOQUÉE</span><h2>SECTEUR <em>ORION</em></h2><p>Une nouvelle zone de recherche rejoint ta campagne. Explore le site et développe tes installations.</p><div class="site-status">ÉTAPE SUIVANTE · LABORATOIRE ORION</div><div class="site-status" id="site-stock">STOCK DE RECHERCHE : 0 UNITÉ</div></div></section>
     <div class="loading" id="loading"><div class="loader"></div><span>CHARGEMENT DE VALMONT…</span></div>
   </div>
   <script type="module" src="./game.js"></script>
