@@ -133,8 +133,9 @@ trinityTower.position.set(SITE_LAYOUT.pointZero.x,0,SITE_LAYOUT.pointZero.z);
 militaryWorld.add(trinityTower);
 const towerSteel=mat('#59615f',.48,.78),towerDark=mat('#303b3b',.58,.72);
 const towerRust=mat('#8c6849',.82,.25),towerLampMat=new THREE.MeshStandardMaterial({color:'#e4b85e',emissive:'#d58a28',emissiveIntensity:1.6});
-const towerHeight=30,towerLevels=[0,5,10,15,20,25,30];
-const towerHalf=y=>3.15-(y/towerHeight)*1.25;
+// TOUR D'OBSERVATION TRINITY — échelle visuelle réduite.
+const towerHeight=10,towerLevels=[0,2,4,6,8,10];
+const towerHalf=y=>2.35-(y/towerHeight)*.8;
 function towerBeam(a,b,r,material){
  const va=new THREE.Vector3(...a),vb=new THREE.Vector3(...b),delta=new THREE.Vector3().subVectors(vb,va);
  const mesh=new THREE.Mesh(new THREE.CylinderGeometry(r*.78,r,delta.length(),8),material);
@@ -143,12 +144,12 @@ function towerBeam(a,b,r,material){
  mesh.castShadow=true;mesh.receiveShadow=true;trinityTower.add(mesh);return mesh;
 }
 for(const sx of [-1,1])for(const sz of [-1,1]){
- towerBeam([sx*3.15,0,sz*3.15],[sx*1.9,30,sz*1.9],.13,towerSteel);
+ towerBeam([sx*2.35,0,sz*2.35],[sx*1.55,10,sz*1.55],.095,towerSteel);
 }
 for(let i=0;i<towerLevels.length;i++){
  const y=towerLevels[i],h=towerHalf(y);
- box(trinityTower,h*2,.22,h*2,0,y,0,towerDark);
- for(const sx of [-1,1])for(const sz of [-1,1])box(trinityTower,.25,.25,.25,sx*h,y+.12,sz*h,towerRust);
+ box(trinityTower,h*2,.16,h*2,0,y,0,towerDark);
+ for(const sx of [-1,1])for(const sz of [-1,1])box(trinityTower,.19,.18,.19,sx*h,y+.09,sz*h,towerRust);
  if(i<towerLevels.length-1){
   const y2=towerLevels[i+1],h2=towerHalf(y2);
   for(const face of ['front','back','left','right']){
@@ -160,27 +161,26 @@ for(let i=0;i<towerLevels.length;i++){
     const sign=face==='right'?1:-1;
     a=[sign*h,y,-h];b=[sign*h,y,h];c=[sign*h2,y2,h2];d=[sign*h2,y2,-h2];
    }
-   towerBeam(a,c,.065,towerSteel);towerBeam(b,d,.065,towerSteel);
-   towerBeam(a,b,.045,towerRust);
+   towerBeam(a,c,.045,towerSteel);towerBeam(b,d,.045,towerSteel);
+   towerBeam(a,b,.035,towerRust);
   }
  }
 }
-for(let y=1;y<28;y+=.55)box(trinityTower,.72,.055,.07,-2.05,y,-1.92,towerRust,false);
-for(const x of [-2.42,-1.68])towerBeam([x,.5,-1.92],[x,29.8,-1.92],.045,towerRust);
-for(const sx of [-1,1])for(const sz of [-1,1])towerBeam([sx*1.9,30,sz*1.9],[sx*1.9,31,sz*1.9],.055,towerSteel);
+for(let y=.6;y<9.5;y+=.38)box(trinityTower,.55,.045,.06,-1.55,y,-1.42,towerRust,false);
+for(const x of [-1.85,-1.25])towerBeam([x,.4,-1.42],[x,9.9,-1.42],.035,towerRust);
+for(const sx of [-1,1])for(const sz of [-1,1])towerBeam([sx*1.55,10,sz*1.55],[sx*1.55,10.45,sz*1.55],.04,towerSteel);
 for(const side of [-1,1]){
- box(trinityTower,3.8,.08,.08,0,30.85,side*1.9,towerSteel,false);
- box(trinityTower,.08,.08,3.8,side*1.9,30.85,0,towerSteel,false);
+ box(trinityTower,3.1,.07,.07,0,10.32,side*1.55,towerSteel,false);
+ box(trinityTower,.07,.07,3.1,side*1.55,10.32,0,towerSteel,false);
 }
-box(trinityTower,4.1,.22,4.1,0,30.05,0,towerDark);
-const beacon=new THREE.Mesh(new THREE.SphereGeometry(.22,16,12),towerLampMat);
-beacon.position.set(0,31.25,0);trinityTower.add(beacon);
-const towerLight=new THREE.PointLight('#e4b85e',2.2,16);towerLight.position.set(0,31.4,0);trinityTower.add(towerLight);
+box(trinityTower,3.3,.16,3.3,0,10.05,0,towerDark);
+const beacon=new THREE.Mesh(new THREE.SphereGeometry(.15,12,10),towerLampMat);
+beacon.position.set(0,10.65,0);trinityTower.add(beacon);
+const towerLight=new THREE.PointLight('#e4b85e',1.2,10);towerLight.position.set(0,10.8,0);trinityTower.add(towerLight);
 for(let i=0;i<8;i++){
- const bolt=new THREE.Mesh(new THREE.SphereGeometry(.07,8,6),towerRust);
- const a=i*Math.PI/4;bolt.position.set(Math.cos(a)*2.65,5,Math.sin(a)*2.65);trinityTower.add(bolt);
+ const bolt=new THREE.Mesh(new THREE.SphereGeometry(.05,8,6),towerRust);
+ const a=i*Math.PI/4;bolt.position.set(Math.cos(a)*2,2,Math.sin(a)*2);trinityTower.add(bolt);
 }
-
 // Modules de recherche fictifs : accessoires visuels non fonctionnels.
 // Plateau central volontairement dégagé : pas de groupe d'objets superflu.
 // Nouveau décor principal : site désertique isolé, sans ville ni boulangerie.
