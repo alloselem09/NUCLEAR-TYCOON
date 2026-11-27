@@ -45,14 +45,14 @@ export function createDesertLandscape(THREE, site, mat) {
   for(let x=-6;x<=6;x+=3) box(hangar,1.4,.35,.5,x,6.78,0,metal);
 
   // Bunker d'observation, bas et semi-enterré, avec meurtrière panoramique.
-  const bunker=new THREE.Group(); bunker.position.set(23,0,-19); world.add(bunker);
-  box(bunker,12,2.8,8,0,1.4,0,concrete);
-  box(bunker,12.5,.5,8.5,0,2.95,0,roof);
-  box(bunker,7,1.05,.12,0,1.9,4.06,glass);
-  for(let x=-3.4;x<=3.41;x+=1.7) box(bunker,.12,1.2,.18,x,1.9,4.1,metal);
+  const bunker=new THREE.Group(); bunker.position.set(0,0,-48); world.add(bunker);
+  box(bunker,14,3.2,10,0,1.6,0,concrete);
+  box(bunker,14.5,.55,10.5,0,3.3,0,roof);
+  box(bunker,8,1.2,.12,0,2.0,5.06,glass);
+  for(let x=-3.8;x<=3.81;x+=1.9) box(bunker,.12,1.35,.18,x,2.0,5.1,metal);
   for(let i=0;i<8;i++){
     const bag= new THREE.Mesh(new THREE.CapsuleGeometry(.42,.7,4,8),mat('#9a865f',1));
-    bag.rotation.z=Math.PI/2; bag.position.set(-5.2+(i%4)*1.2,.45+Math.floor(i/4)*.48,4.9); bunker.add(bag);
+    bag.rotation.z=Math.PI/2; bag.position.set(-5.8+(i%4)*1.35,.45+Math.floor(i/4)*.48,6.0); bunker.add(bag);
   }
 
   // Repères lointains : mesas en silhouettes rocheuses.

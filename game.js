@@ -117,11 +117,11 @@ const lab=box(militaryWorld,9,4.2,7,0,2.1,0,labMat);lab.position.set(3,2.1,-1);
 box(militaryWorld,9.4,.3,7.4,3,4.35,-1,labDark);
 for(let i=0;i<3;i++){box(militaryWorld,.12,1.5,.08,.8+i*2,2.2,2.55,mat('#283b40'));box(militaryWorld,1.3,.08,.08,1.4+i*2,2.2,2.62,mat('#d4b76f'));}
 box(militaryWorld,2.2,2.5,.2,-1.2,1.25,2.62,labDark);
-for(let i=0;i<7;i++){const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(.45+Math.random()*.5,0),mat('#77684f'));rock.position.set(-10+Math.random()*27,.2,-10+Math.random()*20);militaryWorld.add(rock);}
+for(let i=0;i<7;i++){const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(.45+Math.random()*.5,0),mat('#77684f'));rock.position.set(-58+Math.random()*18,.2,-8+Math.random()*18);militaryWorld.add(rock);}
 
 // REPÈRE HISTORIQUE : tour stylisée inspirée de la silhouette de Trinity.
 // Monument de décor uniquement, sans fonction technique.
-const trinityTower=new THREE.Group();trinityTower.position.set(-13,0,-7);militaryWorld.add(trinityTower);
+const trinityTower=new THREE.Group();trinityTower.position.set(0,0,0);trinityTower.scale.set(1,30/9.2,1);militaryWorld.add(trinityTower);
 const towerMetal=mat('#555e5a',.62,.72), towerGold=mat('#9b895e',.7,.45);
 const towerLevels=[0,2.3,4.6,6.9,9.2];
 for(let level=0;level<towerLevels.length;level++){
@@ -178,6 +178,21 @@ scene.background = new THREE.Color('#c58d5a');
 scene.fog = new THREE.Fog('#c58d5a', 75, 165);
 
 
+
+
+// Liaison visuelle au sol entre le Point Zéro et le bunker.
+// Câbles de décor uniquement : aucune fonction de déclenchement simulée.
+const bunkerCableRun=new THREE.Group();militaryWorld.add(bunkerCableRun);
+for(const x of [-.38,.38]){
+ const cable=new THREE.Mesh(new THREE.CylinderGeometry(.045,.045,43,7),mat('#242b2b',.8,.5));
+ cable.rotation.x=Math.PI/2;
+ cable.position.set(x,.07,-21.5);
+ bunkerCableRun.add(cable);
+}
+for(let z=-4;z>=-40;z-=6){
+ const marker=new THREE.Mesh(new THREE.BoxGeometry(1.25,.12,.38),mat('#5d5748',1));
+ marker.position.set(0,.06,z);bunkerCableRun.add(marker);
+}
 
 // NOUVELLES INSTALLATIONS DU SITE : mine en blocs, bâtiment centrifugeuse et vitrine de prototype fictif.
 nodes.forEach(n=>{n.group.visible=false;});
