@@ -23,21 +23,7 @@ export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,
   const floor=new THREE.Mesh(new THREE.PlaneGeometry(180,1250),sand);
   floor.rotation.x=-Math.PI/2;floor.position.set(0,-.06,450);floor.receiveShadow=true;world.add(floor);
 
-  // Relief rocheux en périphérie : falaises en strates, sans fermer le terrain jouable.
-  for(let i=0;i<30;i++){
-    const side=i%2===0?-1:1;
-    const x=side*(70+Math.random()*8);
-    const h=10+Math.random()*13,w=7+Math.random()*10;
-    const mesa=new THREE.Mesh(new THREE.CylinderGeometry(w*.72,w,h,5),i%3?rock:cliff);
-    mesa.position.set(x,h/2-1,-72+i*4.9);
-    mesa.scale.z=1.35;mesa.castShadow=true;mesa.receiveShadow=true;world.add(mesa);
-  }
-  for(let i=0;i<18;i++){
-    const x=-78+i*9,z=-76+Math.sin(i*.7)*5;
-    const h=8+(i%4)*2.5,w=7+(i%3)*2;
-    const mesa=new THREE.Mesh(new THREE.CylinderGeometry(w*.7,w,h,5),i%2?rock:cliff);
-    mesa.position.set(x,h/2-1,z);mesa.scale.z=1.25;mesa.castShadow=true;world.add(mesa);
-  }
+  // Désert du Jornada del Muerto : horizon dégagé, sans falaises ni rochers.
   for(let i=0;i<125;i++){
     const x=(Math.random()-.5)*150,z=(Math.random()-.5)*130;
     const patch=new THREE.Mesh(new THREE.CircleGeometry(.35+Math.random()*1.1,6),i%5? pale:ochre);
@@ -62,11 +48,13 @@ export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,
   box(plant,27,.28,21,0,.12,0,mat('#77796f'));
   box(plant,27.5,.12,21.5,0,.27,0,mat('#9a9a89'));
   for(const x of [-7,-2.5]){
-    const tower=new THREE.Group();tower.position.set(x,0,-3.7);plant.add(tower);
-    const shell=new THREE.Mesh(new THREE.CylinderGeometry(1.15,1.55,4.0,20,true),concrete);
-    shell.position.y=2;shell.castShadow=true;tower.add(shell);
-    cyl(tower,1.2,1.2,.18,0,3.95,0,roof,20);
-    cyl(tower,.95,.95,.14,0,.15,0,dark,20);
+    const stack=new THREE.Group();stack.position.set(x,0,-3.7);plant.add(stack);
+    const shell=new THREE.Mesh(new THREE.CylinderGeometry(1.35,2.0,18,24,true),concrete);
+    shell.position.y=9;shell.castShadow=true;shell.receiveShadow=true;stack.add(shell);
+    cyl(stack,1.48,1.48,.3,0,18.05,0,roof,24);
+    cyl(stack,1.15,1.15,.22,0,.12,0,dark,24);
+    // Cerclages extérieurs décoratifs.
+    for(const y of [3,8,13,17.2]) cyl(stack,1.62-(y/18)*.55,1.68-(y/18)*.55,.16,0,y,0,metal,24);
   }
   const hall=new THREE.Group();hall.position.set(3.5,0,-3);plant.add(hall);
   box(hall,8,3,6,0,1.5,0,concrete);
@@ -89,33 +77,15 @@ export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,
         new THREE.SphereGeometry(.55+(i%3)*.18,10,8),
         new THREE.MeshStandardMaterial({color:'#8a8b86',transparent:true,opacity:.2,depthWrite:false,roughness:1})
       );
-      puff.position.set(sx+(Math.random()-.5)*.45,4+i*1.35,-25.7+(Math.random()-.5)*.4);
+      puff.position.set(sx+(Math.random()-.5)*.5,18.8+i*2.0,-25.7+(Math.random()-.5)*.5);
       puff.scale.set(1,1.15,1);
       world.add(puff);
-      smokePuffs.push({mesh:puff,baseY:4+i*1.35,phase:i*.7+(sx+40)*.3,baseX:sx});
+      smokePuffs.push({mesh:puff,baseY:18.8+i*2.0,phase:i*.7+(sx+40)*.3,baseX:sx});
     }
   }
   world.userData.smokePuffs=smokePuffs;
 
-  // CARRIÈRE EN GRADINS — derrière la zone industrielle.
-  const quarry=new THREE.Group();quarry.position.set(-34,0,-43);world.add(quarry);
-  for(let tier=0;tier<4;tier++){
-    const width=22-tier*3,depth=5;
-    const berm=box(quarry,width,1.15,depth,0,.55+tier*1.0,-tier*4.8,tier%2?rock:cliff);
-    berm.rotation.x=-.035;
-  }
-  for(let i=0;i<15;i++){
-    const stone=new THREE.Mesh(new THREE.DodecahedronGeometry(.55+Math.random()*.65,0),rock);
-    stone.position.set(-10+Math.random()*20,.35,-23-Math.random()*13);
-    stone.scale.set(1.5,.8,1);quarry.add(stone);
-  }
-  // Petits engins purement décoratifs, pour donner l'échelle de la carrière.
-  for(const [x,z] of [[-11,-9],[8,-10],[12,4],[-8,7]]){
-    const vehicle=new THREE.Group();vehicle.position.set(x,.15,z);quarry.add(vehicle);
-    box(vehicle,2.6,.75,1.35,0,.65,0,mat('#b58a43'));
-    box(vehicle,1.05,.65,1.1,-.25,1.3,0,mat('#6c7770'));
-    for(const wx of [-.8,.8])for(const wz of [-.55,.55])cyl(vehicle,.24,.24,.18,wx,.32,wz,dark,10);
-  }
+  // Le terrain minier jouable est géré séparément par game.js.
 
   // LABORATOIRE — quartier inférieur gauche, style béton années 1940-50.
   const lab=new THREE.Group();lab.position.set(-30,0,22);world.add(lab);
@@ -182,13 +152,7 @@ export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,
     bag.rotation.z=Math.PI/2;bag.position.set(-3.8+i*1.25,.38,4.9);bunker.add(bag);
   }
 
-  // Falaises au fond de la vallée allongée, au-delà du bunker éloigné.
-  for(let i=0;i<18;i++){
-    const x=-78+i*9,z=1060+Math.sin(i*.7)*5;
-    const h=8+(i%4)*2.5,w=7+(i%3)*2;
-    const mesa=new THREE.Mesh(new THREE.CylinderGeometry(w*.7,w,h,5),i%2?rock:cliff);
-    mesa.position.set(x,h/2-1,z);mesa.scale.z=1.25;mesa.castShadow=true;world.add(mesa);
-  }
+  // Aucun relief rocheux : le désert reste ouvert jusqu'à l'horizon.
 
   // Végétation très clairsemée, uniquement sur les marges de la carte.
   for(let i=0;i<48;i++){
@@ -200,8 +164,6 @@ export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,
       const twig=box(shrub,.055,.75,.055,0,.7,0,mat('#70533a'));
       twig.rotation.z=(j-1)*.65;
     }
-    const stone=new THREE.Mesh(new THREE.DodecahedronGeometry(.32+Math.random()*.32,0),rock);
-    stone.position.y=.16;stone.scale.set(1.5,.7,1);shrub.add(stone);
   }
   return world;
 }
