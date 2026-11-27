@@ -8,7 +8,7 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x9bb4b1);
 scene.fog = new THREE.Fog(0x9bb4b1, 38, 1450);
 
-const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 1650);
+const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 4200);
 camera.position.set(10, 10, 14);
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -120,13 +120,13 @@ const SITE_LAYOUT=Object.freeze({
   metersPerUnit:1,
   observationTower:{x:28,z:-3},
   pointZero:{x:28,z:-3},
-  bunker:{x:28,z:997}
+  bunker:{x:28,z:2997}
 });
 const trinityDistance=Math.hypot(
   SITE_LAYOUT.bunker.x-SITE_LAYOUT.observationTower.x,
   SITE_LAYOUT.bunker.z-SITE_LAYOUT.observationTower.z
 );
-if(Math.abs(trinityDistance-1000)>.001)throw new Error('La distance tour d’observation–bunker doit être exactement de 1 000 m.');
+if(Math.abs(trinityDistance-3000)>.001)throw new Error('La distance décorative tour–bunker doit être exactement de 3 000 unités de jeu.');
 const trinityTower=new THREE.Group();
 trinityTower.name='TrinityObservationTower';
 trinityTower.position.set(SITE_LAYOUT.pointZero.x,0,SITE_LAYOUT.pointZero.z);
@@ -185,6 +185,7 @@ for(let i=0;i<8;i++){
 // Plateau central volontairement dégagé : pas de groupe d'objets superflu.
 // Nouveau décor principal : site désertique isolé, sans ville ni boulangerie.
 const desertLandscape = createDesertLandscape(THREE, militaryWorld, mat, SITE_LAYOUT);
+const bunkerDoor=desertLandscape.userData.bunkerDoor;
 
  // Porte battante du laboratoire, alignée sur l'ouverture de la façade.
  const labDoorPivot=new THREE.Group();
@@ -206,7 +207,7 @@ scene.children.forEach((object) => {
   if (object.userData?.legacyTree || object.name === 'legacyRoad') object.visible = false;
 });
 scene.background = new THREE.Color('#c58d5a');
-scene.fog = new THREE.Fog('#c58d5a', 75, 1500);
+scene.fog = new THREE.Fog('#c58d5a', 1500, 3450);
 
 
 
@@ -370,6 +371,46 @@ box(previewCase,2.4,.35,.12,0,.48,1.62,mat('#d2b879',.55,.2));
  for(let i=0;i<5;i++){const led=new THREE.Mesh(new THREE.SphereGeometry(.09,10,8),new THREE.MeshBasicMaterial({color:i%2?'#d7b76c':'#72c6b0'}));led.position.set(-1.7+i*.85,2.05,-6.55);plantInterior.add(led);}
  for(const x of [-8.8,8.8])box(plantInterior,.12,.04,14,x,.035,0,pGold,false);
  let insideCentrifuge=false;
+ // Salle d'observation intérieure, décorative et non opérationnelle.
+ const bunkerInterior=new THREE.Group();bunkerInterior.position.set(SITE_LAYOUT.bunker.x,0,SITE_LAYOUT.bunker.z);scene.add(bunkerInterior);bunkerInterior.visible=false;
+ const bunkerWall=mat('#696b63',.95),bunkerFloor=mat('#514d43',.96),bunkerTrim=mat('#66523b',.92);
+ box(bunkerInterior,19,.3,15,0,-.15,0,bunkerFloor);
+ box(bunkerInterior,19,.28,15,0,4.65,0,mat('#333a38'));
+ box(bunkerInterior,19,4.8,.35,0,2.4,-7.32,bunkerWall);
+ box(bunkerInterior,.35,4.8,15,-9.32,2.4,0,bunkerWall);
+ box(bunkerInterior,.35,4.8,15,9.32,2.4,0,bunkerWall);
+ box(bunkerInterior,7.8,4.8,.35,-5.6,2.4,7.32,bunkerWall);
+ box(bunkerInterior,7.8,4.8,.35,5.6,2.4,7.32,bunkerWall);
+ box(bunkerInterior,3.9,1.25,.35,0,4.18,7.32,bunkerWall);
+ const bunkerPanorama=new THREE.Mesh(new THREE.BoxGeometry(10.8,2.25,.12),new THREE.MeshStandardMaterial({color:'#789b9a',metalness:.32,roughness:.16,transparent:true,opacity:.38}));
+ bunkerPanorama.position.set(0,2.75,-7.08);bunkerInterior.add(bunkerPanorama);
+ for(const x of [-5.55,-2.8,0,2.8,5.55])box(bunkerInterior,.12,2.55,.2,x,2.75,-6.96,bunkerTrim);
+ box(bunkerInterior,11.1,.14,.22,0,1.57,-6.96,bunkerTrim);box(bunkerInterior,11.1,.14,.22,0,3.93,-6.96,bunkerTrim);
+ const bunkerInteriorDoor=new THREE.Group();bunkerInteriorDoor.position.set(-1.85,0,7.35);bunkerInterior.add(bunkerInteriorDoor);
+ box(bunkerInteriorDoor,3.65,3.45,.16,1.825,1.725,0,mat('#4b4032',.92));
+ box(bunkerInteriorDoor,.12,3.25,.08,.18,1.72,.12,mat('#b69a67',.55,.35));
+ box(bunkerInterior,5.8,.45,1.0,0,.42,-3.9,mat('#51483a'));
+ box(bunkerInterior,4.2,.12,1.8,0,.95,-1.7,mat('#6a5942'));
+ for(const x of [-1.8,1.8])box(bunkerInterior,.12,.9,.12,x,.48,-1.7,bunkerTrim);
+ for(const x of [-6.5,6.5]){const lamp=new THREE.PointLight('#e4c28a',9,12);lamp.position.set(x,3.8,0);bunkerInterior.add(lamp);}
+ const bunkerCeilingLight=new THREE.PointLight('#e9d4ad',18,24);bunkerCeilingLight.position.set(0,4.2,1);bunkerInterior.add(bunkerCeilingLight);
+ let insideBunker=false;
+ function enterBunker(){
+   insideBunker=true;bunkerInterior.visible=true;militaryWorld.visible=false;
+   avatar.position.set(SITE_LAYOUT.bunker.x,0,SITE_LAYOUT.bunker.z+3.4);avatar.rotation.y=Math.PI;
+   bunkerDoor.rotation.y=-1.35;bunkerDoor.userData.open=true;
+   $('pause-btn').classList.add('hidden');
+   cameraYaw=0;cameraPitch=.18;cameraDistance=10;
+   toast('Bunker d’observation : intérieur accessible.');
+ }
+ function exitBunker(){
+   insideBunker=false;bunkerInterior.visible=false;militaryWorld.visible=true;
+   avatar.position.set(SITE_LAYOUT.bunker.x,0,SITE_LAYOUT.bunker.z+5.9);avatar.rotation.y=Math.PI;
+   bunkerDoor.rotation.y=0;bunkerDoor.userData.open=false;
+   $('pause-btn').classList.remove('hidden');
+   cameraYaw=Math.PI;cameraPitch=.38;cameraDistance=13;
+   toast('Tu as quitté le bunker.');
+ }
  function enterCentrifuge(){
    insideCentrifuge=true;plantInterior.visible=true;militaryWorld.visible=false;
    avatar.position.set(270,0,5.9);avatar.rotation.y=Math.PI;
@@ -546,6 +587,10 @@ function updateUI(){
  $('objective-chip').innerHTML='<span class="pulse"></span> OBJECTIF <b>'+(!state.delivered?'EXTRAIRE LES BLOCS':!state.centrifugeVisited?'VISITER LA CENTRIFUGEUSE':!state.labVisited?'VISITER LE LABORATOIRE':state.researchStock>=6?'REJOINDRE LE TERMINAL':'PRÉPARER LE DOSSIER ORION')+'</b>';
 }
 function closestTarget(){
+ if(insideBunker){
+   const exitDistance=avatar.position.distanceTo(new THREE.Vector3(SITE_LAYOUT.bunker.x,0,SITE_LAYOUT.bunker.z+4.4));
+   return exitDistance<1.6?{type:'exitBunker',label:'SORTIR DU BUNKER'}:null;
+ }
  if(insideCentrifuge){
    const exitDistance=avatar.position.distanceTo(new THREE.Vector3(270,0,8.0));
    if(exitDistance<1.45)return {type:'exitCentrifuge',label:'SORTIR DE LA CENTRALE'};
@@ -559,6 +604,8 @@ function closestTarget(){
  if(doorDistance<2.4)return {type:'labDoor',label:'ENTRER DANS LE LABORATOIRE'};
  const plantDoorDistance=avatar.position.distanceTo(new THREE.Vector3(-19,0,-16.3));
  if(plantDoorDistance<2.1)return {type:'centrifugeEntrance',label:'ENTRER DANS LA CENTRALE'};
+ const bunkerEntranceDistance=avatar.position.distanceTo(new THREE.Vector3(SITE_LAYOUT.bunker.x,0,SITE_LAYOUT.bunker.z+4.5));
+ if(bunkerEntranceDistance<2.5)return {type:'bunkerEntrance',label:'ENTRER DANS LE BUNKER'};
  for(const b of mineBlocks)if(b.active){const p=b.mesh.getWorldPosition(new THREE.Vector3());const d=avatar.position.distanceTo(p);if(d<3.5&&d<dist){dist=d;best={type:'mineBlock',obj:b,label:'PIOCHER LE BLOC'};}}
  for(const [type,obj,label] of [['depot',depot,'LIVRER LES MATÉRIAUX'],['centrifugeBuilding',centrifugeBuilding,'VISITER LE BÂTIMENT CENTRIFUGEUSE'],['previewCase',previewCase,'OBSERVER LE PROTOTYPE FICTIF']]){
   const d=avatar.position.distanceTo(obj.position);if(d<3.8&&d<dist+1){dist=d;best={type,obj,label};}
@@ -591,9 +638,11 @@ function updateCentrifugeUI(){
 }
 function interact(){
  if(!state.started||state.paused)return;
- if(!insideLab&&!insideCentrifuge&&!$('centrifuge-panel').classList.contains('hidden')){closeCentrifugePanel();return;}
+ if(!insideLab&&!insideCentrifuge&&!insideBunker&&!$('centrifuge-panel').classList.contains('hidden')){closeCentrifugePanel();return;}
  if(insideLab){exitLab();return;}
  const t=closestTarget();if(!t){toast('Aucune interaction à proximité.');return;}
+ if(t.type==='exitBunker'){exitBunker();return;}
+ if(t.type==='bunkerEntrance'){enterBunker();return;}
  if(t.type==='exitCentrifuge'){exitCentrifuge();return;}
  if(t.type==='centrifugeStart'){
    if(state.centrifugeRunning){toast('La simulation est déjà en cours.');return;}
@@ -665,7 +714,10 @@ function animate(){
    
    const oldX=avatar.position.x,oldZ=avatar.position.z;
    let nextX=oldX+vx*7*dt,nextZ=oldZ+vz*7*dt;
-   if(insideCentrifuge){
+   if(insideBunker){
+     nextX=THREE.MathUtils.clamp(nextX,SITE_LAYOUT.bunker.x-8.5,SITE_LAYOUT.bunker.x+8.5);
+     nextZ=THREE.MathUtils.clamp(nextZ,SITE_LAYOUT.bunker.z-6.5,SITE_LAYOUT.bunker.z+5.9);
+   }else if(insideCentrifuge){
      nextX=THREE.MathUtils.clamp(nextX,259.3,280.7);
      nextZ=THREE.MathUtils.clamp(nextZ,-8.4,8.1);
      const walls=[[259.0,281.0,-9.1,-8.75],[258.9,259.25,-8.7,8.7],[280.75,281.1,-8.7,8.7],[259.0,265.5,8.7,9.1],[274.5,281.0,8.7,9.1]];
@@ -679,7 +731,7 @@ function animate(){
      if(hit){nextX=avatar.position.x;nextZ=avatar.position.z;}
    }else{
      nextX=THREE.MathUtils.clamp(nextX,-84,84);
-     nextZ=THREE.MathUtils.clamp(nextZ,-160,1065);
+     nextZ=THREE.MathUtils.clamp(nextZ,-160,3065);
      // Collisions rectangulaires avec rayon du personnage : X puis Z pour glisser le long des murs.
      const playerRadius=.48;
      const siteWalls=[
@@ -753,7 +805,7 @@ function animate(){
  nodes.forEach((n,i)=>{if(n.active){n.crystal.position.y=1.05+Math.sin(time*2+i)*.08;n.crystal.rotation.y=time*.65;}});
  markers.forEach((m,i)=>{m.material.opacity=.5+Math.sin(time*2+i)*.25;m.scale.setScalar(1+Math.sin(time*2+i)*.05);});
  if(militaryPhase!=='cinematic'){
-  cameraTarget.set(avatar.position.x,(insideLab||insideCentrifuge)?1.5:1.35,avatar.position.z);
+  cameraTarget.set(avatar.position.x,(insideLab||insideCentrifuge||insideBunker)?1.5:1.35,avatar.position.z);
   const horizontal=Math.cos(cameraPitch)*cameraDistance;
   const desired=new THREE.Vector3(
    avatar.position.x+Math.sin(cameraYaw)*horizontal,
