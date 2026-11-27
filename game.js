@@ -216,6 +216,76 @@ const exhibitRings=[];
 for(let i=0;i<3;i++){const ring=new THREE.Mesh(new THREE.TorusGeometry(1.05+i*.18,.045,8,48),mat(i===1?'#d6c18a':'#718d8b',.35,.65));ring.rotation.set(i*.8,.4+i*.55,0);exhibit.add(ring);exhibitRings.push(ring);}
 box(previewCase,2.4,.35,.12,0,.48,1.62,mat('#d2b879',.55,.2));
 
+
+ // INTÉRIEUR DU LABORATOIRE — espace séparé, accessible par la porte.
+ const labInterior=new THREE.Group();labInterior.position.set(240,0,0);scene.add(labInterior);labInterior.visible=false;
+ const interiorFloor=box(labInterior,16,.22,13,0,-.12,0,mat('#77796d'));
+ box(labInterior,16,4.5,.25,0,2.15,-6.45,mat('#777f79'));
+ box(labInterior,.25,4.5,13,-7.9,2.15,0,mat('#777f79'));
+ box(labInterior,.25,4.5,13,7.9,2.15,0,mat('#777f79'));
+ box(labInterior,16,.25,13,0,4.45,0,mat('#343c3a'));
+ // Fenêtres hautes et poutres rétro.
+ for(const x of [-5.5,-2,2,5.5]){
+   box(labInterior,2.1,1.05,.08,x,3.35,-6.29,mat('#8caeaa',.35,.15),false);
+   box(labInterior,.08,1.08,.1,x,3.35,-6.2,mat('#354342'));
+ }
+ // Grand établi central.
+ box(labInterior,6.2,.22,2.1,0,1.15,-.6,mat('#454b45'));
+ for(const x of [-2.7,2.7])for(const z of [-1.35,.15])box(labInterior,.18,1.1,.18,x,.55,z,mat('#303a38'));
+ box(labInterior,5.9,.12,1.9,0,1.31,-.6,mat('#b3a17c',.65,.18));
+ // Armoires, étagères et boîtes de rangement.
+ for(const x of [-6.3,6.3]){
+   box(labInterior,1.1,3.2,1.4,x,1.6,-3.9,mat('#626d68'));
+   for(let y=.65;y<3;y+=.8)box(labInterior,1.12,.07,1.43,x,y,-3.9,mat('#c0b18c'));
+   for(let y=.95;y<3;y+=.8)for(let z=-4.35;z<-3.4;z+=.42)box(labInterior,.28,.3,.28,x+(Math.random()-.5)*.45,y,z,mat('#8a8f81'));
+ }
+ // Tableau noir, plans et écrans de recherche.
+ box(labInterior,4.2,1.7,.12,0,2.65,-6.22,mat('#263b3b'));
+ for(let i=0;i<5;i++)box(labInterior,.045,1.25,.025,-1.45+i*.72,2.68,-6.13,mat('#c9c19e'));
+ const labScreens=[];
+ for(const x of [-4.3,4.3]){
+   box(labInterior,2.2,1.45,.16,x,2.45,-5.3,mat('#273330'));
+   const screen=box(labInterior,1.85,1.08,.05,x,2.48,-5.18,mat('#17434a',.35,.2));
+   labScreens.push(screen);
+   for(let i=0;i<3;i++)box(labInterior,.38,.07,.06,x-.55+i*.55,2.1,-5.12,mat('#d5b66d'));
+ }
+ // Petits équipements purement décoratifs sur l'établi.
+ for(const [x,z] of [[-2,-.55],[0,-.55],[2,-.55]]){
+   cylinder(labInterior,.32,.38,.65,x,1.72,z,mat('#a3aaa0',.38,.55),16);
+   cylinder(labInterior,.36,.36,.08,x,2.08,z,mat('#d1b56f',.35,.45),16);
+ }
+ // Lampes suspendues.
+ for(const x of [-4,0,4]){
+   cylinder(labInterior,.08,.08,1.0,x,3.85,-.4,mat('#303b39'),8);
+   const lamp=new THREE.Mesh(new THREE.SphereGeometry(.22,12,8),new THREE.MeshBasicMaterial({color:'#f0d99b'}));
+   lamp.position.set(x,3.35,-.4);labInterior.add(lamp);
+ }
+ const interiorLight=new THREE.PointLight('#f0d9a3',18,24);interiorLight.position.set(0,3.6,0);labInterior.add(interiorLight);
+ const interiorDoor=new THREE.Group();interiorDoor.position.set(0,0,5.9);labInterior.add(interiorDoor);
+ box(interiorDoor,1.5,2.4,.16,0,1.2,0,mat('#48534c'));
+ // Position et configuration du laboratoire.
+ let insideLab=false;
+ let selectedLabComponents={console:'analogique',sensors:'standard',lighting:'warm'};
+ function enterLab(){
+   insideLab=true;labInterior.visible=true;militaryWorld.visible=false;
+   avatar.position.set(240,0,4.25);avatar.rotation.y=Math.PI;
+   labDoorPivot.rotation.y=-1.25;labDoorPivot.userData.open=true;
+   $('lab-customizer').classList.remove('hidden');
+   $('lab-customizer').setAttribute('aria-hidden','false');
+   $('pause-btn').classList.add('hidden');
+   cameraYaw=0;cameraPitch=.28;cameraDistance=10;
+   toast('Bienvenue dans le laboratoire. Configure les équipements décoratifs.');
+ }
+ function exitLab(){
+   insideLab=false;labInterior.visible=false;militaryWorld.visible=true;
+   avatar.position.set(-36.8,0,29.3);avatar.rotation.y=Math.PI;
+   $('lab-customizer').classList.add('hidden');
+   $('lab-customizer').setAttribute('aria-hidden','true');
+   $('pause-btn').classList.remove('hidden');
+   cameraYaw=Math.PI;cameraPitch=.42;cameraDistance=13;
+   toast('Tu es ressorti du laboratoire.');
+ }
+
 // CINÉMATIQUE FICTIVE : salle de contrôle et spectacle lumineux stylisé.
 const controlRoom=new THREE.Group();scene.add(controlRoom);
 const roomWall=mat('#17262c',.92), roomTrim=mat('#52636a',.48,.45);
@@ -313,6 +383,23 @@ const state={money:0,materials:0,energy:0,delivered:0,researchStock:savedResearc
 const keys={};
 window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase()))e.preventDefault();if(e.key.toLowerCase()==='e')interact();if(e.key==='Escape')togglePause();});
 window.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+
+$('lab-customizer').querySelectorAll('[data-component]').forEach(btn=>{
+ btn.addEventListener('click',()=>{
+   const type=btn.dataset.component,choice=btn.dataset.choice;
+   selectedLabComponents[type]=choice;
+   $('lab-customizer').querySelectorAll('[data-component="'+type+'"]').forEach(el=>el.classList.toggle('selected',el===btn));
+   $('lab-selection-summary').textContent='Sélection : '+Object.values(selectedLabComponents).join(' · ');
+ });
+});
+$('lab-apply').addEventListener('click',()=>{
+   const screenColor=selectedLabComponents.console==='digital'?'#247d83':'#17434a';
+   labScreens.forEach(screen=>screen.material.color.set(screenColor));
+   interiorLight.intensity=selectedLabComponents.lighting==='bright'?24:18;
+   toast('Configuration décorative enregistrée dans le laboratoire.');
+});
+$('lab-close').addEventListener('click',()=>{$('lab-customizer').classList.add('hidden');});
+
 $('start-btn').addEventListener('click',()=>{state.started=true;state.paused=false;$('intro-screen').classList.add('hidden');toast('Bienvenue dans la campagne. Commence par explorer les gisements.');});
 $('cinematic-action').addEventListener('click',()=>{if(cinematicPhase==='complete')finishCinematic();else startCinematic();});
 $('pause-btn').addEventListener('click',togglePause);
@@ -331,7 +418,10 @@ function updateUI(){
  $('objective-chip').innerHTML='<span class="pulse"></span> OBJECTIF <b>'+(!state.delivered?'EXTRAIRE LES BLOCS':!state.centrifugeVisited?'VISITER LA CENTRIFUGEUSE':!state.labVisited?'VISITER LE LABORATOIRE':state.researchStock>=6?'REJOINDRE LE TERMINAL':'PRÉPARER LE DOSSIER ORION')+'</b>';
 }
 function closestTarget(){
+ if(insideLab)return {type:'exitLab',label:'SORTIR DU LABORATOIRE'};
  let best=null,dist=3.1;
+ const doorDistance=avatar.position.distanceTo(new THREE.Vector3(-36.8,0,26.2));
+ if(doorDistance<4.2)return {type:'labDoor',label:'ENTRER DANS LE LABORATOIRE'};
  for(const b of mineBlocks)if(b.active){const p=b.mesh.getWorldPosition(new THREE.Vector3());const d=avatar.position.distanceTo(p);if(d<3.5&&d<dist){dist=d;best={type:'mineBlock',obj:b,label:'PIOCHER LE BLOC'};}}
  for(const [type,obj,label] of [['depot',depot,'LIVRER LES MATÉRIAUX'],['centrifugeBuilding',centrifugeBuilding,'VISITER LE BÂTIMENT CENTRIFUGEUSE'],['previewCase',previewCase,'OBSERVER LE PROTOTYPE FICTIF']]){
   const d=avatar.position.distanceTo(obj.position);if(d<3.8&&d<dist+1){dist=d;best={type,obj,label};}
@@ -343,7 +433,9 @@ function closestTarget(){
 }
 function interact(){
  if(!state.started||state.paused)return;
+ if(insideLab){exitLab();return;}
  const t=closestTarget();if(!t){toast('Aucune interaction à proximité.');return;}
+ if(t.type==='labDoor'){enterLab();state.labVisited=true;updateUI();return;}
  if(t.type==='mineBlock'){
   if(state.materials>=3){toast('Sac plein. Va déposer tes blocs au dépôt.');return;}
   t.obj.active=false;t.obj.mesh.visible=false;state.materials++;hero.setCarrying(state.materials);state.mineTime=.85;updateUI();toast('Bloc extrait : +1 minerai fictif.');return;
@@ -401,19 +493,44 @@ function animate(){
    const forwardX=-Math.sin(cameraYaw),forwardZ=-Math.cos(cameraYaw),rightX=Math.cos(cameraYaw),rightZ=-Math.sin(cameraYaw);
    const mx=rightX*dx+forwardX*(-dz), mz=rightZ*dx+forwardZ*(-dz), len=Math.hypot(mx,mz);
    const vx=mx/len, vz=mz/len;
-   avatar.position.x+=vx*7*dt;avatar.position.z+=vz*7*dt;
-   avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-58,58);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z,-58,1045);
+   
+   const oldX=avatar.position.x,oldZ=avatar.position.z;
+   let nextX=oldX+vx*7*dt,nextZ=oldZ+vz*7*dt;
+   if(insideLab){
+     nextX=THREE.MathUtils.clamp(nextX,234,246);
+     nextZ=THREE.MathUtils.clamp(nextZ,-5.7,4.6);
+   }else{
+     nextX=THREE.MathUtils.clamp(nextX,-58,58);
+     nextZ=THREE.MathUtils.clamp(nextZ,-58,1045);
+     const blocked=(x,z,minX,maxX,minZ,maxZ)=>x>minX&&x<maxX&&z>minZ&&z<maxZ;
+     // Empreinte des bâtiments : le personnage ne traverse plus les murs.
+     const buildingRects=[
+       [-38.4,-25.6,17.7,26.3], // laboratoire principal
+       [-41.8,-14.2,-32.8,-11.2], // centrale / hall industriel
+       [22,34,38,48] // bunker d'observation
+     ];
+     for(const r of buildingRects){if(blocked(nextX,nextZ,...r)){nextX=oldX;nextZ=oldZ;break;}}
+   }
+   avatar.position.x=nextX;avatar.position.z=nextZ;
    avatar.rotation.y=Math.atan2(vx,vz);
   }
   hero.update(dt,moving,7);
  }
  if(state.mineTime>0){if(!mineAnim&&!hero.isBusy()){hero.play('mine');mineAnim=true;}state.mineTime=Math.max(0,state.mineTime-dt);}else mineAnim=false;
  rotor.rotation.y+=dt*1.8;
+ const smokePuffs=desertLandscape.userData.smokePuffs||[];
+ smokePuffs.forEach((p,i)=>{
+   const cycle=(time*.42+p.phase)%5;
+   p.mesh.position.y=p.baseY+cycle*.9;
+   p.mesh.position.x=p.baseX+Math.sin(time*.35+p.phase)*.42+cycle*.08;
+   const scale=.65+cycle*.22;p.mesh.scale.set(scale,scale*1.15,scale);
+   p.mesh.material.opacity=Math.max(.025,.24-cycle*.035);
+ });
  exhibit.rotation.y+=dt*.18; exhibitRings.forEach((r,i)=>{r.rotation.x+=dt*(.12+i*.04);r.rotation.y+=dt*(.18+i*.05);});
  nodes.forEach((n,i)=>{if(n.active){n.crystal.position.y=1.05+Math.sin(time*2+i)*.08;n.crystal.rotation.y=time*.65;}});
  markers.forEach((m,i)=>{m.material.opacity=.5+Math.sin(time*2+i)*.25;m.scale.setScalar(1+Math.sin(time*2+i)*.05);});
  if(militaryPhase!=='cinematic'){
-  cameraTarget.set(avatar.position.x,1.35,avatar.position.z);
+  cameraTarget.set(avatar.position.x,insideLab?1.5:1.35,avatar.position.z);
   const horizontal=Math.cos(cameraPitch)*cameraDistance;
   const desired=new THREE.Vector3(
    avatar.position.x+Math.sin(cameraYaw)*horizontal,
@@ -434,7 +551,9 @@ function drawMinimap(){
  ctx.strokeStyle='#50645b';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(90,0);ctx.lineTo(90,130);ctx.moveTo(0,66);ctx.lineTo(180,66);ctx.stroke();
  const map=(x,z)=>({x:90+x*.55,y:8+(z+60)*.105});
  [[depot,'#a8c8c1'],[centrifugeBuilding,'#d4a45e'],[previewCase,'#e4c078']].forEach(([o,col])=>{const p=map(o.position.x,o.position.z);ctx.fillStyle=col;ctx.fillRect(p.x-4,p.y-4,8,8);});
- mineBlocks.forEach(b=>{if(b.active){const p=map(-36+b.mesh.position.x,-43+b.mesh.position.z);ctx.fillStyle='#c6a16b';ctx.fillRect(p.x-2,p.y-2,4,4);}});\n const zero=map(28,-3);ctx.fillStyle='#e35d4f';ctx.beginPath();ctx.arc(zero.x,zero.y,4,0,Math.PI*2);ctx.fill();\n const bunker=map(28,997);ctx.fillStyle='#6fc8bb';ctx.fillRect(bunker.x-4,bunker.y-4,8,8);
+ mineBlocks.forEach(b=>{if(b.active){const p=map(-36+b.mesh.position.x,-43+b.mesh.position.z);ctx.fillStyle='#c6a16b';ctx.fillRect(p.x-2,p.y-2,4,4);}});
+ const zero=map(28,-3);ctx.fillStyle='#e35d4f';ctx.beginPath();ctx.arc(zero.x,zero.y,4,0,Math.PI*2);ctx.fill();
+ const bunker=map(28,997);ctx.fillStyle='#6fc8bb';ctx.fillRect(bunker.x-4,bunker.y-4,8,8);
  const p=map(avatar.position.x,avatar.position.z);ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);ctx.fill();
 }
 $('loading').classList.add('hidden');
