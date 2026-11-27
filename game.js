@@ -591,7 +591,7 @@ function updateCentrifugeUI(){
 }
 function interact(){
  if(!state.started||state.paused)return;
- if(!insideLab&&!$('centrifuge-panel').classList.contains('hidden')){closeCentrifugePanel();return;}
+ if(!insideLab&&!insideCentrifuge&&!$('centrifuge-panel').classList.contains('hidden')){closeCentrifugePanel();return;}
  if(insideLab){exitLab();return;}
  const t=closestTarget();if(!t){toast('Aucune interaction à proximité.');return;}
  if(t.type==='exitCentrifuge'){exitCentrifuge();return;}
