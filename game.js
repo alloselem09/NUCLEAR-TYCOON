@@ -96,7 +96,7 @@ for(const [x,z] of nodePositions){
 const avatar=new THREE.Group();scene.add(avatar);
 const hero=createCharacter(THREE,{scale:1.5});
 avatar.add(hero.root);
-avatar.position.set(-30,0,29);
+avatar.position.set(-39,0,30);
 let mineAnim=false;
 
 // MODE MILITAIRE : personnage officiel en costume, avec mallette.
@@ -112,12 +112,8 @@ for(const side of [-1,1]){const leg=new THREE.Mesh(new THREE.CylinderGeometry(.1
 official.position.set(15,0,9);official.rotation.y=-1.1;official.visible=false;
 const militaryWorld=new THREE.Group();scene.add(militaryWorld);
 const desertMat=mat('#a18a64'), desertFloor=new THREE.Mesh(new THREE.PlaneGeometry(150,150),desertMat);desertFloor.rotation.x=-Math.PI/2;desertFloor.position.y=-.025;desertFloor.receiveShadow=true;militaryWorld.add(desertFloor);
-const labMat=mat('#9a9b8d'), labDark=mat('#343e3e');
-const lab=box(militaryWorld,9,4.2,7,0,2.1,0,labMat);lab.position.set(3,2.1,-1);
-box(militaryWorld,9.4,.3,7.4,3,4.35,-1,labDark);
-for(let i=0;i<3;i++){box(militaryWorld,.12,1.5,.08,.8+i*2,2.2,2.55,mat('#283b40'));box(militaryWorld,1.3,.08,.08,1.4+i*2,2.2,2.62,mat('#d4b76f'));}
-box(militaryWorld,2.2,2.5,.2,-1.2,1.25,2.62,labDark);
-for(let i=0;i<7;i++){const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(.45+Math.random()*.5,0),mat('#77684f'));rock.position.set(-58+Math.random()*18,.2,-8+Math.random()*18);militaryWorld.add(rock);}
+// Le laboratoire principal est construit dans desert-landscape.js.
+ // On évite de créer un second bâtiment au milieu du plateau.
 
 // REPÈRE HISTORIQUE : tour stylisée inspirée de la silhouette de Trinity.
 // Monument de décor uniquement, sans fonction technique.
@@ -152,16 +148,7 @@ for(let level=0;level<4;level++){
 cylinder(trinityTower,.18,.18,.3,0,.15,0,towerMetal,12);
 
 // Modules de recherche fictifs : accessoires visuels non fonctionnels.
-const displayCapsules=new THREE.Group();displayCapsules.position.set(8,0,8);militaryWorld.add(displayCapsules);
-const capsuleColors=['#78a7a0','#c4a66a','#8c91ad'];
-capsuleColors.forEach((color,i)=>{
-  const pod=new THREE.Group();pod.position.set(i*1.8,0,0);displayCapsules.add(pod);
-  cylinder(pod,.42,.42,1.5,0,1.05,0,mat('#414d50',.38,.55),16);
-  cylinder(pod,.45,.45,.18,0,1.82,0,mat(color,.3,.35),16);
-  const dome=new THREE.Mesh(new THREE.SphereGeometry(.42,16,10,0,Math.PI*2,0,Math.PI/2),mat(color,.3,.35));
-  dome.position.y=1.9;pod.add(dome);
-  box(pod,.9,.12,.9,0,.25,0,labDark);
-});
+// Plateau central volontairement dégagé : pas de groupe d'objets superflu.
 // Nouveau décor principal : site désertique isolé, sans ville ni boulangerie.
 const desertLandscape = createDesertLandscape(THREE, militaryWorld, mat);
 militaryWorld.visible = true;
@@ -182,17 +169,9 @@ scene.fog = new THREE.Fog('#c58d5a', 75, 165);
 
 // Liaison visuelle au sol entre le Point Zéro et le bunker.
 // Câbles de décor uniquement : aucune fonction de déclenchement simulée.
-const bunkerCableRun=new THREE.Group();militaryWorld.add(bunkerCableRun);
-for(const x of [-.38,.38]){
- const cable=new THREE.Mesh(new THREE.CylinderGeometry(.045,.045,43,7),mat('#242b2b',.8,.5));
- cable.rotation.x=Math.PI/2;
- cable.position.set(x,.07,-21.5);
- bunkerCableRun.add(cable);
-}
-for(let z=-4;z>=-40;z-=6){
- const marker=new THREE.Mesh(new THREE.BoxGeometry(1.25,.12,.38),mat('#5d5748',1));
- marker.position.set(0,.06,z);bunkerCableRun.add(marker);
-}
+const bunkerCableRun=new THREE.Group();
+bunkerCableRun.name='DecorativeSiteDetails';
+militaryWorld.add(bunkerCableRun);
 
 // NOUVELLES INSTALLATIONS DU SITE : mine en blocs, bâtiment centrifugeuse et vitrine de prototype fictif.
 nodes.forEach(n=>{n.group.visible=false;});
@@ -209,7 +188,7 @@ for(let x=-7;x<=7;x+=2) for(let z=-5;z<=5;z+=2){
 for(const [x,z] of [[-9,-7],[9,-7],[-9,7],[9,7]]) box(mineGroup,.7,2.2,.7,x,1.1,z,mat('#6b5545'));
 
 // Bâtiment de centrifugeuse : équipement scénographique, non fonctionnel.
-const centrifugeBuilding=new THREE.Group();centrifugeBuilding.position.set(-20,0,-22);centrifugeBuilding.scale.setScalar(.72);militaryWorld.add(centrifugeBuilding);
+const centrifugeBuilding=new THREE.Group();centrifugeBuilding.position.set(-19,0,-19);centrifugeBuilding.scale.setScalar(.48);militaryWorld.add(centrifugeBuilding);
 box(centrifugeBuilding,13,5.8,11,0,2.9,0,mat('#777970'));
 box(centrifugeBuilding,13.5,.35,11.5,0,5.85,0,mat('#303b3a'));
 box(centrifugeBuilding,5.8,3.5,.16,0,2.45,5.58,mat('#29383a'));
@@ -223,7 +202,7 @@ const cGlow=new THREE.PointLight('#d5b66c',2,8);cGlow.position.set(0,3.6,0);cMac
 
 // Laboratoire rétro : vitrine avec maquette abstraite et scellée du projet Orion.
 // Objet purement visuel : aucune pièce ni fonction technique représentée.
-const previewCase=new THREE.Group();previewCase.position.set(-30,0,22);militaryWorld.add(previewCase);
+const previewCase=new THREE.Group();previewCase.position.set(-18,0,29);previewCase.scale.setScalar(.82);militaryWorld.add(previewCase);
 box(previewCase,4.8,.35,3.2,0,.2,0,mat('#343f40',.45,.45));
 const glassMat=new THREE.MeshStandardMaterial({color:'#9bc4c2',transparent:true,opacity:.2,metalness:.25,roughness:.15});
 box(previewCase,4.5,2.7,.12,0,1.65,-1.5,glassMat,false);
@@ -308,7 +287,7 @@ function finishCinematic(){
   $('site-stock').textContent='PROJET ORION : ÉTAPE 1 VALIDÉE';
   controlRoom.visible=false;cinematicCloud.visible=false;militaryWorld.visible=true;official.visible=false;avatar.visible=true;
   scene.children.forEach(o=>{if(o!==avatar&&!o.isLight&&o!==militaryWorld&&o!==controlRoom&&o!==cinematicCloud)o.visible=false;});
-  avatar.position.set(-30,0,29);avatar.rotation.y=0;
+  avatar.position.set(-39,0,30);avatar.rotation.y=0;
   scene.background=new THREE.Color('#b69a70');scene.fog=new THREE.Fog('#b69a70',35,100);
   camera.position.set(8,8,13);camera.lookAt(0,1,0);
   toast('Secteur Orion débloqué. La campagne continue.');
@@ -316,7 +295,7 @@ function finishCinematic(){
 
 
 // Console de progression : débloque l'événement final après les objectifs de campagne.
-const researchConsole=new THREE.Group();researchConsole.position.set(-12,0,22);scene.add(researchConsole);
+const researchConsole=new THREE.Group();researchConsole.position.set(-10,0,31);scene.add(researchConsole);
 const consoleBody=mat('#26383b',.42,.55),consoleScreen=new THREE.MeshStandardMaterial({color:'#1a4650',emissive:'#1a9a9d',emissiveIntensity:1.25,metalness:.25,roughness:.3});
 box(researchConsole,2.2,1.35,1.25,0,.68,0,consoleBody);
 box(researchConsole,1.55,.78,.08,0,1.55,.63,consoleScreen,false);
