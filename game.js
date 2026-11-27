@@ -465,7 +465,7 @@ let toastTimer;
 function toast(msg){const el=$('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2600);}
 function updateUI(){
  $('money').textContent=state.money.toLocaleString('fr-FR')+' €';$('materials').textContent=state.materials+' / 3';$('energy').textContent=state.energy+' MW';
- if(!state.delivered){$('mission-title').textContent='La mine à ciel ouvert';$('mission-copy').textContent='Approche les blocs et presse E pour extraire 3 unités de minerai fictif.';$('progress-label').textContent=state.materials+' / 3 BLOCS EXTRAITS';$('progress-bar').style.width=(state.materials/3*100)+'%';$('mission-reward').textContent='RÉCOMPENSE : 500 €';}
+ if(!state.delivered){$('mission-title').textContent='La mine à ciel ouvert';$('mission-copy').textContent='Approche les blocs et presse E pour extraire 3 unités de minerai d’uranium fictif.';$('progress-label').textContent=state.materials+' / 3 BLOCS EXTRAITS';$('progress-bar').style.width=(state.materials/3*100)+'%';$('mission-reward').textContent='RÉCOMPENSE : 500 €';}
  else if(!state.centrifugeVisited){$('mission-title').textContent='Le bâtiment centrifugeuse';$('mission-copy').textContent='Rejoins le bâtiment de recherche et découvre son installation scénographique.';$('progress-label').textContent='VISITE À EFFECTUER';$('progress-bar').style.width='45%';$('mission-reward').textContent='ÉTAPE DE RECHERCHE';}
  else if(!state.labVisited){$('mission-title').textContent='Le laboratoire rétro';$('mission-copy').textContent='Entre dans le laboratoire et observe la maquette fictive exposée sous vitrine.';$('progress-label').textContent='MAQUETTE À OBSERVER';$('progress-bar').style.width='70%';$('mission-reward').textContent='ÉTAPE DE RECHERCHE';}
  else {$('mission-title').textContent='Dossier Orion';$('mission-copy').textContent='Continue à livrer des ressources fictives et consulte le terminal de recherche.';$('progress-label').textContent=Math.min(state.researchStock,6)+' / 6 RESSOURCES';$('progress-bar').style.width=(Math.min(state.researchStock,6)/6*100)+'%';$('mission-reward').textContent=state.researchStock>=6?'TERMINAL DÉBLOQUÉ':'OBJECTIF DE RECHERCHE';}
@@ -515,17 +515,17 @@ function interact(){
  if(t.type==='labDoor'){enterLab();state.labVisited=true;updateUI();return;}
  if(t.type==='mineBlock'){
   if(state.materials>=3){toast('Sac plein. Va déposer tes blocs au dépôt.');return;}
-  t.obj.active=false;t.obj.mesh.visible=false;state.materials++;hero.setCarrying(state.materials);state.mineTime=.85;updateUI();toast('Bloc extrait : +1 minerai fictif.');return;
+  t.obj.active=false;t.obj.mesh.visible=false;state.materials++;hero.setCarrying(state.materials);state.mineTime=.85;updateUI();toast('Bloc extrait : +1 minerai d’uranium fictif.');return;
  }
  if(t.type==='node'){
   if(state.materials>=3){toast('Tu as assez de minerai. Livre-le au dépôt.');return;}
-  t.obj.active=false;t.obj.group.visible=false;state.materials++;hero.setCarrying(state.materials);state.mineTime=.72;updateUI();toast('Extraction terminée : +1 unité de minerai fictif. '+state.materials+'/3.');return;
+  t.obj.active=false;t.obj.group.visible=false;state.materials++;hero.setCarrying(state.materials);state.mineTime=.72;updateUI();toast('Extraction terminée : +1 unité de minerai d’uranium fictif. '+state.materials+'/3.');return;
  }
  if(t.type==='centrifugeBuilding'){
   state.centrifugeVisited=true;
   if(state.centrifugeRunning){openCentrifugePanel();toast('La simulation est déjà en cours.');return;}
-  if(state.materials<=0){updateUI();toast('Extrais d’abord du minerai fictif, puis apporte-le ici.');return;}
-  state.centrifugeBatch=state.materials;state.materials=0;hero.setCarrying(0);
+  if(state.materials<=0){updateUI();toast('Extrais d’abord du minerai d’uranium fictif, puis apporte-le ici.');return;}
+  state.centrifugeBatch=state.materials;state.delivered+=state.centrifugeBatch;state.materials=0;hero.setCarrying(0);
   state.centrifugeProgress=0;state.centrifugeRunning=true;
   openCentrifugePanel();updateUI();
   toast('Charge fictive transférée : simulation lancée.');
