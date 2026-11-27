@@ -144,6 +144,38 @@ const pickHead=box(pickaxe,.72,.095,.12,0,.4,0,mat('#687579',.38,.65));
 const pickTip=new THREE.Mesh(new THREE.ConeGeometry(.09,.28,8),mat('#687579',.38,.65));pickTip.rotation.z=Math.PI/2;pickTip.position.x=.43;pickaxe.add(pickTip);
 avatar.position.set(-5,0,7);
 
+// MODE MILITAIRE : personnage officiel en costume, avec mallette.
+const official = new THREE.Group(); scene.add(official);
+const suitMat=mat('#202a30',.72), shirtMat=mat('#d9ddd7',.7), tieMat=mat('#8d342c',.55), caseMat=mat('#6a4930',.6);
+box(official,.72,.92,.42,0,1.35,0,suitMat);
+box(official,.34,.62,.045,0,1.42,.235,shirtMat);
+box(official,.09,.48,.055,0,1.38,.27,tieMat);
+const officialHead=new THREE.Mesh(new THREE.SphereGeometry(.27,16,12),mat('#b98262'));officialHead.position.y=2.05;official.add(officialHead);
+const hair=new THREE.Mesh(new THREE.SphereGeometry(.28,16,8,0,Math.PI*2,0,Math.PI*.48),mat('#292321'));hair.position.set(0,2.15,0);official.add(hair);
+const briefcase=box(official,.48,.34,.14,.48,.85,.12,caseMat);box(official,.2,.045,.035,.48,1.05,.2,mat('#c2a36b'));
+for(const side of [-1,1]){const leg=new THREE.Mesh(new THREE.CylinderGeometry(.12,.13,.78,10),suitMat);leg.position.set(side*.19,.39,0);official.add(leg);const arm=new THREE.Mesh(new THREE.CylinderGeometry(.09,.11,.66,10),suitMat);arm.position.set(side*.43,1.35,0);arm.rotation.z=side*.12;official.add(arm);}
+official.position.set(15,0,9);official.rotation.y=-1.1;official.visible=false;
+const militaryWorld=new THREE.Group();scene.add(militaryWorld);
+const desertMat=mat('#a18a64'), desertFloor=new THREE.Mesh(new THREE.PlaneGeometry(150,150),desertMat);desertFloor.rotation.x=-Math.PI/2;desertFloor.position.y=-.025;desertFloor.receiveShadow=true;militaryWorld.add(desertFloor);
+const labMat=mat('#9a9b8d'), labDark=mat('#343e3e');
+const lab=box(militaryWorld,9,4.2,7,0,2.1,0,labMat);lab.position.set(3,2.1,-1);
+box(militaryWorld,9.4,.3,7.4,3,4.35,-1,labDark);
+for(let i=0;i<3;i++){box(militaryWorld,.12,1.5,.08,.8+i*2,2.2,2.55,mat('#283b40'));box(militaryWorld,1.3,.08,.08,1.4+i*2,2.2,2.62,mat('#d4b76f'));}
+box(militaryWorld,2.2,2.5,.2,-1.2,1.25,2.62,labDark);
+for(let i=0;i<7;i++){const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(.45+Math.random()*.5,0),mat('#77684f'));rock.position.set(-10+Math.random()*27,.2,-10+Math.random()*20);militaryWorld.add(rock);}
+militaryWorld.visible=false;
+let militaryPhase='off', dialogueIndex=0, officialWalk=0;
+const dialogueLines=[
+ ['VISITEUR','Bonsoir. Je représente un service de l’État. Nous avons suivi votre travail à Valmont.'],
+ ['LE VISITEUR','Nous vous proposons de prendre la direction d’un petit site expérimental isolé. Vous aurez votre propre laboratoire et une équipe réduite.'],
+ ['VOUS','Et qu’attendez-vous de moi ?'],
+ ['LE VISITEUR','Explorer un programme de recherche entièrement fictif. Les résultats de vos essais détermineront la suite de votre financement. Alors, vous acceptez ?']
+];
+function showDialogue(){const line=dialogueLines[dialogueIndex];$('dialogue-speaker').textContent=line[0];$('dialogue-text').textContent=line[1];$('dialogue-next').innerHTML=(dialogueIndex===dialogueLines.length-1?'ACCEPTER LA PROPOSITION':'CONTINUER')+' <span>↗</span>';}
+function beginMilitary(){state.started=true;state.paused=false;militaryPhase='arrival';official.visible=true;officialWalk=0;avatar.position.set(-5,0,7);$('intro-screen').classList.add('hidden');$('military-dialogue').classList.remove('hidden');$('dialogue-card');$('dialogue-next').disabled=true;$('dialogue-speaker').textContent='';$('dialogue-text').textContent='Un homme en costume arrive sur le site de Valmont…';}
+function acceptMilitary(){militaryPhase='site';$('military-dialogue').classList.add('hidden');scene.children.forEach(o=>{if(o!==avatar&&o!==official&&!o.isLight&&o!==militaryWorld)o.visible=false;});militaryWorld.visible=true;official.visible=true;official.position.set(-5,0,5);official.rotation.y=Math.PI;avatar.position.set(-8,0,5);avatar.rotation.y=0;scene.background=new THREE.Color('#b69a70');scene.fog=new THREE.Fog('#b69a70',35,100);camera.position.set(3,9,16);camera.lookAt(0,1,0);$('military-site').classList.remove('hidden');$('pause-btn').classList.add('hidden');}
+
+
 const markers=[];
 function marker(x,z,color=0xe1bd69){const ring=new THREE.Mesh(new THREE.TorusGeometry(1.05,.055,8,32),new THREE.MeshBasicMaterial({color,transparent:true,opacity:.9}));ring.rotation.x=-Math.PI/2;ring.position.set(x,.08,z);scene.add(ring);markers.push(ring);return ring;}
 marker(0,1,0x8bd0c8);marker(-11,-7,0xe1bd69);marker(12,-7,0xd4a85e);
@@ -153,6 +185,8 @@ const keys={};
 window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase()))e.preventDefault();if(e.key.toLowerCase()==='e')interact();if(e.key==='Escape')togglePause();});
 window.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 $('start-btn').addEventListener('click',()=>{state.started=true;state.paused=false;$('intro-screen').classList.add('hidden');toast('Bienvenue à Valmont. Ton premier contrat commence.');});
+$('military-btn').addEventListener('click',beginMilitary);
+$('dialogue-next').addEventListener('click',()=>{if(militaryPhase!=='dialogue')return;if(dialogueIndex<dialogueLines.length-1){dialogueIndex++;showDialogue();}else acceptMilitary();});
 $('pause-btn').addEventListener('click',togglePause);
 $('resume-btn').addEventListener('click',togglePause);
 $('continue-btn').addEventListener('click',()=>{$('win-screen').classList.add('hidden');state.won=false;toast('Tu peux continuer à développer ton réseau.');});
@@ -208,7 +242,8 @@ let walkTime=0;
 function animate(){
  requestAnimationFrame(animate);
  const dt=Math.min(clock.getDelta(),.04),time=clock.elapsedTime;
- if(state.started&&!state.paused){
+ if(militaryPhase==='arrival'){officialWalk=Math.min(1,officialWalk+dt*.22);official.position.x=15-(20*officialWalk);official.position.z=9-(2*officialWalk);official.rotation.y=-1.1+officialWalk*.7;if(officialWalk>=1){militaryPhase='dialogue';$('dialogue-next').disabled=false;dialogueIndex=0;showDialogue();}}
+ if(state.started&&!state.paused&&militaryPhase!=='site'){
   let dx=0,dz=0;
   if(keys.arrowup)dz-=1;if(keys.arrowdown)dz+=1;if(keys.arrowleft)dx-=1;if(keys.arrowright)dx+=1;
   const moving=dx!==0||dz!==0;
@@ -220,8 +255,8 @@ function animate(){
  rotor.rotation.y+=dt*1.8;
  nodes.forEach((n,i)=>{if(n.active){n.crystal.position.y=1.05+Math.sin(time*2+i)*.08;n.crystal.rotation.y=time*.65;}});
  markers.forEach((m,i)=>{m.material.opacity=.5+Math.sin(time*2+i)*.25;m.scale.setScalar(1+Math.sin(time*2+i)*.05);});
- const desired=avatar.position.clone().add(camOffset);
- camera.position.lerp(desired,.07);camera.lookAt(avatar.position.x,1.15,avatar.position.z);
+ const desired=militaryPhase==='site'?new THREE.Vector3(8,8,13):avatar.position.clone().add(camOffset);
+ camera.position.lerp(desired,.07);camera.lookAt(militaryPhase==='site'?new THREE.Vector3(0,1,0):new THREE.Vector3(avatar.position.x,1.15,avatar.position.z));
  const target=closestTarget();
  $('interaction').classList.toggle('visible',!!target&&state.started&&!state.paused);
  if(target)$('interaction-label').textContent=target.label;
