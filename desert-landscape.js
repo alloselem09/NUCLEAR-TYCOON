@@ -125,7 +125,9 @@ export function createDesertLandscape(THREE, site, mat) {
   box(mainLab,12.5,.32,8.5,0,3.95,0,roof);
   box(mainLab,6.4,2,.12,0,2.05,4.08,glass,false);
   for(let x=-2.8;x<=2.81;x+=1.4)box(mainLab,.1,2.05,.18,x,2.05,4.16,dark);
-  box(mainLab,1.45,2.35,.18,-4.8,1.18,4.16,dark);
+  box(mainLab,1.55,.18,.24,-4.8,.12,4.16,dark);
+  box(mainLab,.16,2.4,.22,-5.55,1.2,4.16,roof);
+  box(mainLab,.16,2.4,.22,-4.05,1.2,4.16,roof);
   const annexLab=new THREE.Group();annexLab.position.set(6,0,-4);lab.add(annexLab);
   box(annexLab,6,2.7,5,0,1.35,0,mat('#8c9187'));
   box(annexLab,6.3,.25,5.3,0,2.78,0,roof);
