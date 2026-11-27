@@ -49,7 +49,8 @@
         <div class="intro-kicker"><span></span> SIMULATION DE GESTION · 2026</div>
         <div class="intro-title">BÂTIS TON<br><em>EMPIRE</em><br>ÉNERGÉTIQUE.</div>
         <p>Une petite ville. Un premier contrat. Un immense projet.<br>Fais grandir ton réseau énergétique, installation après installation.</p>
-        <button class="primary-btn" id="start-btn">ENTRER À VALMONT <span>↗</span></button>
+        <button class="primary-btn" id="start-btn">MODE CIVIL — ENTRER À VALMONT <span>↗</span></button>
+        <button class="secondary-btn" id="military-btn">DÉCOUVRIR LE MODE MILITAIRE <span>↗</span></button>
         <div class="intro-meta"><span>MODE CIVIL</span><span>MONDE 3D</span><span>CHAPITRE 01 — LES DÉBUTS</span></div>
       </div>
       <div class="intro-side"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="intro-core">N<span>+</span></div><div class="side-caption">ÉNERGIE<br>POUR DEMAIN</div></div>
@@ -62,6 +63,8 @@
     <section class="screen win-screen hidden" id="win-screen">
       <div class="pause-card"><div class="eyebrow">CONTRAT TERMINÉ</div><h2>VALMONT<br><em>EST ÉCLAIRÉE.</em></h2><p>Premier réseau activé. La suite de l'aventure commence ici.</p><button class="primary-btn" id="continue-btn">CONTINUER À DÉVELOPPER <span>↗</span></button></div>
     </section>
+    <section class="military-dialogue hidden" id="military-dialogue"><div class="scene-label">SÉQUENCE CINÉMATIQUE · VALMONT</div><div class="dialogue-card"><div class="speaker" id="dialogue-speaker">VISITEUR</div><p id="dialogue-text"></p><button class="primary-btn" id="dialogue-next">CONTINUER <span>↗</span></button></div></section>
+    <section class="military-site hidden" id="military-site"><div class="site-heading"><span class="scene-label">MODE MILITAIRE · NOUVEAU SITE</span><h2>SECTEUR <em>ORION</em></h2><p>Un laboratoire isolé, au milieu d’un terrain désertique. Le début d’une nouvelle histoire.</p><div class="site-status">SITE INITIAL · LABORATOIRE PROVISOIRE</div></div></section>
     <div class="loading" id="loading"><div class="loader"></div><span>CHARGEMENT DE VALMONT…</span></div>
   </div>
   <script type="module" src="./game.js"></script>
