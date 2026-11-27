@@ -121,7 +121,12 @@ export function createDesertLandscape(THREE, site, mat) {
   const lab=new THREE.Group();lab.position.set(-30,0,22);world.add(lab);
   box(lab,19,.12,17,0,.06,0,mat('#77776c'));
   const mainLab=new THREE.Group();mainLab.position.set(-2,0,0);lab.add(mainLab);
-  box(mainLab,12,3.8,8,0,1.9,0,concrete);
+  // Murs séparés avec une véritable ouverture pour la porte d'entrée.
+  box(mainLab,12,3.8,.22,0,1.9,-3.9,concrete);
+  box(mainLab,.22,3.8,8,-5.9,1.9,0,concrete);
+  box(mainLab,.22,3.8,8,5.9,1.9,0,concrete);
+  box(mainLab,.48,3.8,.22,-5.76,1.9,3.9,concrete);
+  box(mainLab,10.02,3.8,.22,.99,1.9,3.9,concrete);
   box(mainLab,12.5,.32,8.5,0,3.95,0,roof);
   box(mainLab,6.4,2,.12,0,2.05,4.08,glass,false);
   for(let x=-2.8;x<=2.81;x+=1.4)box(mainLab,.1,2.05,.18,x,2.05,4.16,dark);
