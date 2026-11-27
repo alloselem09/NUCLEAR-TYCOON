@@ -208,6 +208,42 @@ capsuleColors.forEach((color,i)=>{
   box(pod,.9,.12,.9,0,.25,0,labDark);
 });
 militaryWorld.visible=false;
+
+// CINÉMATIQUE FICTIVE : salle de contrôle et spectacle lumineux stylisé.
+const controlRoom=new THREE.Group();scene.add(controlRoom);
+const roomWall=mat('#17262c',.92), roomTrim=mat('#52636a',.48,.45);
+box(controlRoom,20,.35,18,0,-.2,0,mat('#111b20'));
+box(controlRoom,20,8,.35,0,3.8,-8.8,roomWall);
+box(controlRoom,.35,8,18,-10,3.8,0,roomWall);
+box(controlRoom,.35,8,18,10,3.8,0,roomWall);
+box(controlRoom,20,.25,18,0,7.8,0,roomWall);
+for(let i=0;i<5;i++){
+  const screenMat=new THREE.MeshStandardMaterial({color:'#163a43',emissive:'#1c8792',emissiveIntensity:1.2,roughness:.3});
+  box(controlRoom,2.45,1.45,.12,-5+i*2.5,4.8,-8.55,screenMat,false);
+  box(controlRoom,2.5,.08,.18,-5+i*2.5,3.98,-8.45,roomTrim,false);
+}
+box(controlRoom,12,.55,2.2,0,1.05,2.0,roomTrim);
+box(controlRoom,12,.16,2.3,0,1.42,2.0,mat('#26383d',.38,.45));
+const controlButton=new THREE.Group();controlButton.position.set(0,1.54,2.15);controlRoom.add(controlButton);
+cylinder(controlButton,.48,.52,.22,0,0,0,mat('#313d40',.4,.55),24);
+cylinder(controlButton,.31,.36,.34,0,.25,0,mat('#a72c24',.32,.35),24);
+cylinder(controlButton,.23,.27,.09,0,.46,0,mat('#f06b50',.24,.2),24);
+for(let i=0;i<4;i++){
+  const lamp=new THREE.Mesh(new THREE.SphereGeometry(.11,12,8),new THREE.MeshBasicMaterial({color:i%2?'#e2b45d':'#72d6c4'}));
+  lamp.position.set(-4.5+i*3,1.58,1.1);controlRoom.add(lamp);
+}
+const roomLight=new THREE.PointLight(0x75aeb6,18,24);roomLight.position.set(0,6,1);controlRoom.add(roomLight);
+const cinematicCloud=new THREE.Group();cinematicCloud.position.set(0,0,-43);scene.add(cinematicCloud);
+const smokeMat=new THREE.MeshStandardMaterial({color:'#777d80',roughness:1,transparent:true,opacity:.92});
+const cloudCore=new THREE.Mesh(new THREE.CylinderGeometry(1.15,1.5,5.5,18),smokeMat);cloudCore.position.y=3.2;cinematicCloud.add(cloudCore);
+const cloudPuffs=[
+ [-2.2,5.4,0,2.1],[-.7,6.1,.3,2.4],[1.1,6.4,0,2.5],[2.5,5.5,-.1,2.0],
+ [-1.8,8,.1,2.2],[0,8.5,0,2.5],[1.9,8,.1,2.2],[-.8,10,.1,1.8],[.9,10.2,0,1.8],
+ [-.1,11.5,0,1.35]
+];
+cloudPuffs.forEach(([x,y,z,r])=>{const puff=new THREE.Mesh(new THREE.SphereGeometry(r,18,14),smokeMat);puff.position.set(x,y,z);puff.scale.y=.72;cinematicCloud.add(puff);});
+cinematicCloud.visible=false;controlRoom.visible=false;
+let cinematicPhase='off',cinematicTime=0,countdownShown=5;
 let militaryPhase='off', dialogueIndex=0, officialWalk=0;
 const dialogueLines=[
  ['VISITEUR','Bonsoir. Je représente un service de l’État. Nous avons suivi votre travail à Valmont.'],
@@ -217,7 +253,37 @@ const dialogueLines=[
 ];
 function showDialogue(){const line=dialogueLines[dialogueIndex];$('dialogue-speaker').textContent=line[0];$('dialogue-text').textContent=line[1];$('dialogue-next').innerHTML=(dialogueIndex===dialogueLines.length-1?'ACCEPTER LA PROPOSITION':'CONTINUER')+' <span>↗</span>';}
 function beginMilitary(){state.started=true;state.paused=false;militaryPhase='arrival';official.visible=true;officialWalk=0;avatar.position.set(-5,0,7);$('intro-screen').classList.add('hidden');$('military-dialogue').classList.remove('hidden');$('dialogue-card');$('dialogue-next').disabled=true;$('dialogue-speaker').textContent='';$('dialogue-text').textContent='Un homme en costume arrive sur le site de Valmont…';}
-function acceptMilitary(){militaryPhase='site';$('site-stock').textContent='STOCK DE RECHERCHE : '+state.researchStock+' UNITÉ(S)';$('military-dialogue').classList.add('hidden');['.topbar','.mission-panel','.objective-chip','.interaction','.bottom-left','.bottom-right','.vignette'].forEach(sel=>{const el=document.querySelector(sel);if(el)el.classList.add('hidden');});scene.children.forEach(o=>{if(o!==avatar&&o!==official&&!o.isLight&&o!==militaryWorld)o.visible=false;});militaryWorld.visible=true;official.visible=true;official.position.set(-5,0,5);official.rotation.y=Math.PI;avatar.position.set(-8,0,5);avatar.rotation.y=0;scene.background=new THREE.Color('#b69a70');scene.fog=new THREE.Fog('#b69a70',35,100);camera.position.set(3,9,16);camera.lookAt(0,1,0);$('military-site').classList.remove('hidden');$('pause-btn').classList.add('hidden');}
+function acceptMilitary(){
+  $('military-dialogue').classList.add('hidden');
+  ['.topbar','.mission-panel','.objective-chip','.interaction','.bottom-left','.bottom-right','.vignette'].forEach(sel=>{const el=document.querySelector(sel);if(el)el.classList.add('hidden');});
+  militaryPhase='cinematic';cinematicPhase='ready';cinematicTime=0;
+  $('cinematic-ui').classList.remove('hidden');$('cinematic-caption').textContent='SALLE DE CONTRÔLE · SECTEUR ORION';
+  $('cinematic-instruction').textContent='La salle est silencieuse. Une dernière vérification avant le lancement de la séquence fictive.';
+  $('cinematic-action').textContent='APPUYER SUR LE BOUTON';$('cinematic-action').classList.remove('hidden');
+  $('cinematic-countdown').textContent='';$('cinematic-glasses').classList.remove('on');$('cinematic-flash').classList.remove('active');
+  scene.children.forEach(o=>{if(o!==controlRoom&&o!==cinematicCloud&&!o.isLight)o.visible=false;});
+  controlRoom.visible=true;cinematicCloud.visible=false;official.visible=false;avatar.visible=false;
+  scene.background=new THREE.Color('#071116');scene.fog=new THREE.Fog('#071116',30,100);
+  camera.position.set(0,2.8,7.2);camera.lookAt(0,2.4,-8);
+  $('pause-btn').classList.add('hidden');
+}
+function startCinematic(){
+  if(cinematicPhase!=='ready')return;
+  cinematicPhase='glasses';cinematicTime=0;
+  $('cinematic-action').classList.add('hidden');
+  $('cinematic-instruction').textContent='Le personnage ajuste ses lunettes de protection.';
+  $('cinematic-glasses').classList.add('on');
+}
+function finishCinematic(){
+  cinematicPhase='off';militaryPhase='site';
+  $('cinematic-ui').classList.add('hidden');$('military-site').classList.remove('hidden');
+  $('site-stock').textContent='STOCK DE RECHERCHE : '+state.researchStock+' UNITÉ(S)';
+  controlRoom.visible=false;cinematicCloud.visible=false;militaryWorld.visible=true;official.visible=true;avatar.visible=true;
+  scene.children.forEach(o=>{if(o!==avatar&&o!==official&&!o.isLight&&o!==militaryWorld&&o!==controlRoom&&o!==cinematicCloud)o.visible=false;});
+  official.position.set(-5,0,5);official.rotation.y=Math.PI;avatar.position.set(-8,0,5);avatar.rotation.y=0;
+  scene.background=new THREE.Color('#b69a70');scene.fog=new THREE.Fog('#b69a70',35,100);
+  camera.position.set(8,8,13);camera.lookAt(0,1,0);
+}
 
 
 const markers=[];
@@ -233,6 +299,7 @@ window.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 $('start-btn').addEventListener('click',()=>{state.started=true;state.paused=false;$('intro-screen').classList.add('hidden');toast('Bienvenue à Valmont. Ton premier contrat commence.');});
 $('military-btn').addEventListener('click',beginMilitary);
 $('dialogue-next').addEventListener('click',()=>{if(militaryPhase!=='dialogue')return;if(dialogueIndex<dialogueLines.length-1){dialogueIndex++;showDialogue();}else acceptMilitary();});
+$('cinematic-action').addEventListener('click',()=>{if(cinematicPhase==='complete')finishCinematic();else startCinematic();});
 $('pause-btn').addEventListener('click',togglePause);
 $('resume-btn').addEventListener('click',togglePause);
 $('continue-btn').addEventListener('click',()=>{$('win-screen').classList.add('hidden');state.won=false;toast('Tu peux continuer à développer ton réseau.');});
@@ -289,6 +356,23 @@ function animate(){
  requestAnimationFrame(animate);
  const dt=Math.min(clock.getDelta(),.04),time=clock.elapsedTime;
  if(militaryPhase==='arrival'){officialWalk=Math.min(1,officialWalk+dt*.22);official.position.x=15-(20*officialWalk);official.position.z=9-(2*officialWalk);official.rotation.y=-1.1+officialWalk*.7;if(officialWalk>=1){militaryPhase='dialogue';$('dialogue-next').disabled=false;dialogueIndex=0;showDialogue();}}
+ if(cinematicPhase==='complete'&&cinematicCloud.visible){cinematicCloud.scale.setScalar(1.2+Math.sin(time*.35)*.025);}
+ if(militaryPhase==='cinematic'){
+  cinematicTime+=dt;
+  if(cinematicPhase==='glasses'&&cinematicTime>2.1){cinematicPhase='countdown';cinematicTime=0;$('cinematic-glasses').classList.add('on');$('cinematic-countdown').textContent='5';$('cinematic-instruction').textContent='Compte à rebours';}
+  else if(cinematicPhase==='countdown'){
+    const n=Math.max(0,5-Math.floor(cinematicTime));
+    if(n!==countdownShown){countdownShown=n;$('cinematic-countdown').textContent=String(n);}
+    if(cinematicTime>5.8){cinematicPhase='flash';cinematicTime=0;$('cinematic-flash').classList.add('active');cinematicCloud.visible=true;$('cinematic-instruction').textContent='Un éclat lumineux traverse l’horizon…';}
+  } else if(cinematicPhase==='flash'&&cinematicTime>1.25){cinematicPhase='cloud';cinematicTime=0;$('cinematic-flash').classList.remove('active');$('cinematic-instruction').textContent='Le spectacle se dessine au loin.';}
+  else if(cinematicPhase==='cloud'){
+    const grow=Math.min(1,cinematicTime/6);
+    cinematicCloud.scale.setScalar(.12+grow*1.08);
+    cinematicCloud.position.y=-1.8+grow*1.8;
+    if(cinematicTime>8){cinematicPhase='complete';$('cinematic-instruction').textContent='Séquence terminée. Le Secteur Orion vous attend.';$('cinematic-action').textContent='REJOINDRE LE SECTEUR ORION';$('cinematic-action').classList.remove('hidden');}
+  }
+  if(cinematicPhase==='ready'||cinematicPhase==='glasses'||cinematicPhase==='countdown'){camera.position.x=Math.sin(time*.25)*.035;camera.position.y=2.8+Math.sin(time*.5)*.018;camera.lookAt(0,2.4,-8);}
+ }
  if(state.started&&!state.paused&&militaryPhase==='off'){
   let dx=0,dz=0;
   if(keys.arrowup)dz-=1;if(keys.arrowdown)dz+=1;if(keys.arrowleft)dx-=1;if(keys.arrowright)dx+=1;
@@ -301,8 +385,7 @@ function animate(){
  rotor.rotation.y+=dt*1.8;
  nodes.forEach((n,i)=>{if(n.active){n.crystal.position.y=1.05+Math.sin(time*2+i)*.08;n.crystal.rotation.y=time*.65;}});
  markers.forEach((m,i)=>{m.material.opacity=.5+Math.sin(time*2+i)*.25;m.scale.setScalar(1+Math.sin(time*2+i)*.05);});
- const desired=militaryPhase==='site'?new THREE.Vector3(8,8,13):avatar.position.clone().add(camOffset);
- camera.position.lerp(desired,.07);camera.lookAt(militaryPhase==='site'?new THREE.Vector3(0,1,0):new THREE.Vector3(avatar.position.x,1.15,avatar.position.z));
+ if(militaryPhase!=='cinematic'){const desired=militaryPhase==='site'?new THREE.Vector3(8,8,13):avatar.position.clone().add(camOffset);camera.position.lerp(desired,.07);camera.lookAt(militaryPhase==='site'?new THREE.Vector3(0,1,0):new THREE.Vector3(avatar.position.x,1.15,avatar.position.z));}
  const target=closestTarget();
  $('interaction').classList.toggle('visible',!!target&&state.started&&!state.paused);
  if(target)$('interaction-label').textContent=target.label;
