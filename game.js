@@ -372,7 +372,7 @@ box(previewCase,2.4,.35,.12,0,.48,1.62,mat('#d2b879',.55,.2));
  let insideCentrifuge=false;
  function enterCentrifuge(){
    insideCentrifuge=true;plantInterior.visible=true;militaryWorld.visible=false;
-   avatar.position.set(270,0,6.75);avatar.rotation.y=Math.PI;
+   avatar.position.set(270,0,5.9);avatar.rotation.y=Math.PI;
    plantDoor.rotation.y=-1.25;plantDoor.userData.open=true;
    $('pause-btn').classList.add('hidden');
    $('centrifuge-panel').classList.remove('hidden');
@@ -546,7 +546,13 @@ function updateUI(){
  $('objective-chip').innerHTML='<span class="pulse"></span> OBJECTIF <b>'+(!state.delivered?'EXTRAIRE LES BLOCS':!state.centrifugeVisited?'VISITER LA CENTRIFUGEUSE':!state.labVisited?'VISITER LE LABORATOIRE':state.researchStock>=6?'REJOINDRE LE TERMINAL':'PRÉPARER LE DOSSIER ORION')+'</b>';
 }
 function closestTarget(){
- if(insideCentrifuge){const exitDistance=avatar.position.distanceTo(new THREE.Vector3(270,0,7.8));return exitDistance<1.8?{type:'exitCentrifuge',label:'SORTIR DE LA CENTRALE'}:null;}
+ if(insideCentrifuge){
+   const exitDistance=avatar.position.distanceTo(new THREE.Vector3(270,0,8.0));
+   if(exitDistance<1.45)return {type:'exitCentrifuge',label:'SORTIR DE LA CENTRALE'};
+   const consoleDistance=avatar.position.distanceTo(new THREE.Vector3(270,0,-5.2));
+   if(consoleDistance<2.8)return {type:'centrifugeStart',label:'LANCER LA SIMULATION'};
+   return null;
+ }
  if(insideLab){const exitDistance=avatar.position.distanceTo(new THREE.Vector3(240,0,5.8));return exitDistance<1.0?{type:'exitLab',label:'SORTIR DU LABORATOIRE'}:null;}
  let best=null,dist=3.1;
  const doorDistance=avatar.position.distanceTo(new THREE.Vector3(-36.8,0,26.2));
@@ -586,9 +592,16 @@ function updateCentrifugeUI(){
 function interact(){
  if(!state.started||state.paused)return;
  if(!insideLab&&!$('centrifuge-panel').classList.contains('hidden')){closeCentrifugePanel();return;}
- if(insideCentrifuge){exitCentrifuge();return;}
  if(insideLab){exitLab();return;}
  const t=closestTarget();if(!t){toast('Aucune interaction à proximité.');return;}
+ if(t.type==='exitCentrifuge'){exitCentrifuge();return;}
+ if(t.type==='centrifugeStart'){
+   if(state.centrifugeRunning){toast('La simulation est déjà en cours.');return;}
+   if(state.materials<=0){toast('Aucune ressource disponible : retourne extraire du minerai fictif.');return;}
+   state.centrifugeBatch=state.materials;state.delivered+=state.centrifugeBatch;
+   state.materials=0;hero.setCarrying(0);state.centrifugeProgress=0;state.centrifugeRunning=true;
+   updateCentrifugeUI();updateUI();toast('Simulation lancée sur la centrifugeuse 3D.');return;
+ }
  if(t.type==='labDoor'){enterLab();state.labVisited=true;updateUI();return;}
  if(t.type==='centrifugeEntrance'){state.centrifugeVisited=true;enterCentrifuge();updateUI();return;}
  if(t.type==='exitCentrifuge'){exitCentrifuge();return;}
