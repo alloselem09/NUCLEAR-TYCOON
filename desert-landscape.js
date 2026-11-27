@@ -20,8 +20,8 @@ export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,
   const metal=mat('#59615d',.62,.45), dark=mat('#252d2d',.78);
   const glass=new THREE.MeshStandardMaterial({color:'#8eaaa5',metalness:.2,roughness:.3});
 
-  const floor=new THREE.Mesh(new THREE.PlaneGeometry(180,1250),sand);
-  floor.rotation.x=-Math.PI/2;floor.position.set(0,-.06,450);floor.receiveShadow=true;world.add(floor);
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(220,1350),sand);
+  floor.rotation.x=-Math.PI/2;floor.position.set(0,-.06,497);floor.receiveShadow=true;world.add(floor);
 
   // Désert du Jornada del Muerto : horizon dégagé, sans falaises ni rochers.
   for(let i=0;i<125;i++){
@@ -40,8 +40,10 @@ export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,
   road(-1,7,4,35,.12);
   road(17,20,39,4,-.22);
   road(4,38,28,3,.12);
-  // Longue piste de liaison vers le bunker, situé à 1 000 m du Point Zéro dans l'échelle du jeu.
-  road(layout.pointZero.x,(layout.pointZero.z+layout.bunker.z)/2,4,Math.hypot(layout.bunker.x-layout.pointZero.x,layout.bunker.z-layout.pointZero.z),Math.atan2(layout.bunker.x-layout.pointZero.x,layout.bunker.z-layout.pointZero.z));
+  // Liaison piétonne visible : axe mesuré du centre de la tour au centre du bunker.
+  const siteDistance=Math.hypot(layout.bunker.x-layout.pointZero.x,layout.bunker.z-layout.pointZero.z);
+  if(Math.abs(siteDistance-1000)>.001)throw new Error('Tour et bunker doivent être séparés de 1 000 mètres.');
+  road(layout.pointZero.x,(layout.pointZero.z+layout.bunker.z)/2,6,siteDistance,Math.atan2(layout.bunker.x-layout.pointZero.x,layout.bunker.z-layout.pointZero.z));
 
   // ZONE INDUSTRIELLE / MINIÈRE — compacte, dans le quadrant supérieur gauche.
   const plant=new THREE.Group();plant.position.set(-28,0,-22);world.add(plant);
@@ -140,17 +142,21 @@ export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,
     for(const wx of [-.8,.8])for(const wz of [-.48,.48])cyl(wreck,.2,.2,.16,wx,.28,wz,dark,10);
   }
 
-  // BUNKER D'OBSERVATION — au sud du plateau, visible depuis le laboratoire.
+  // BUNKER D'OBSERVATION — implanté exactement à 1 000 m du centre de la tour.
   const bunker=new THREE.Group();bunker.position.set(layout.bunker.x,0,layout.bunker.z);world.add(bunker);
-  box(bunker,12,.3,9,0,.15,0,mat('#6f716a'));
-  box(bunker,11,2.5,8,0,1.4,0,concrete);
-  box(bunker,11.5,.45,8.5,0,2.85,0,roof);
-  box(bunker,6.2,1.05,.12,0,1.75,4.06,glass,false);
-  for(let x=-3;x<=3.01;x+=1.5)box(bunker,.1,1.2,.16,x,1.75,4.12,metal);
-  for(let i=0;i<6;i++){
+  bunker.name='ObservationBunker_1000m';
+  box(bunker,14,.3,11,0,.15,0,mat('#6f716a'));
+  box(bunker,12.5,2.5,9.5,0,1.4,0,concrete);
+  box(bunker,13,.45,10,0,2.85,0,roof);
+  box(bunker,6.2,1.05,.12,0,1.75,4.81,glass,false);
+  for(let x=-3;x<=3.01;x+=1.5)box(bunker,.1,1.2,.16,x,1.75,4.87,metal);
+  for(let i=0;i<8;i++){
     const bag=new THREE.Mesh(new THREE.CapsuleGeometry(.34,.55,4,8),mat('#9a865f',1));
-    bag.rotation.z=Math.PI/2;bag.position.set(-3.8+i*1.25,.38,4.9);bunker.add(bag);
+    bag.rotation.z=Math.PI/2;bag.position.set(-4.3+i*1.23,.38,5.55);bunker.add(bag);
   }
+  // Repère lisible à l'arrivée, purement visuel.
+  const marker=box(bunker,2.8,.65,.16,0,3.5,-5.1,mat('#343e3b'));
+  box(bunker,1.8,.12,.18,0,3.5,-5,mat('#d6b36c'));
 
   // Aucun relief rocheux : le désert reste ouvert jusqu'à l'horizon.
 
