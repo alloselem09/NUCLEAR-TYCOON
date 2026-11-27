@@ -163,6 +163,50 @@ box(militaryWorld,9.4,.3,7.4,3,4.35,-1,labDark);
 for(let i=0;i<3;i++){box(militaryWorld,.12,1.5,.08,.8+i*2,2.2,2.55,mat('#283b40'));box(militaryWorld,1.3,.08,.08,1.4+i*2,2.2,2.62,mat('#d4b76f'));}
 box(militaryWorld,2.2,2.5,.2,-1.2,1.25,2.62,labDark);
 for(let i=0;i<7;i++){const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(.45+Math.random()*.5,0),mat('#77684f'));rock.position.set(-10+Math.random()*27,.2,-10+Math.random()*20);militaryWorld.add(rock);}
+
+// REPÈRE HISTORIQUE : tour stylisée inspirée de la silhouette de Trinity.
+// Monument de décor uniquement, sans fonction technique.
+const trinityTower=new THREE.Group();trinityTower.position.set(-13,0,-7);militaryWorld.add(trinityTower);
+const towerMetal=mat('#555e5a',.62,.72), towerGold=mat('#9b895e',.7,.45);
+const towerLevels=[0,2.3,4.6,6.9,9.2];
+for(let level=0;level<towerLevels.length;level++){
+  const y=towerLevels[level], half=2.15-level*.22;
+  for(const sx of [-1,1]) for(const sz of [-1,1]){
+    const post=cylinder(trinityTower,.055,.075,2.3, sx*half,y+1.15,sz*half,towerMetal,8);
+    post.rotation.z=sx*.025;
+  }
+  if(level>0){
+    const prev=2.15-(level-1)*.22;
+    for(const side of [-1,1]){
+      const brace=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,Math.hypot(2.3,Math.SQRT2*(prev-half)),8),towerGold);
+      brace.position.set(side*(prev+half)/2,y-1.15,0);
+      brace.rotation.z=Math.atan2(2.3,2*(prev-half));trinityTower.add(brace);
+    }
+  }
+  const deck=box(trinityTower,half*2,.12,half*2,0,y,0,towerMetal,false);
+  if(level===towerLevels.length-1) box(trinityTower,1.5,.45,1.5,0,y+.28,0,towerGold);
+}
+// Petites traverses décoratives sur les quatre faces.
+for(let level=0;level<4;level++){
+  const y=towerLevels[level]+1.15, half=2.15-level*.22, next=2.15-(level+1)*.22;
+  for(const side of [-1,1]){
+    const bar=box(trinityTower,half+next,.07,.07,0,y,side*(half+next)/2,towerMetal,false);
+    const bar2=box(trinityTower,.07,.07,half+next,side*(half+next)/2,y,0,towerMetal,false);
+  }
+}
+cylinder(trinityTower,.18,.18,.3,0,.15,0,towerMetal,12);
+
+// Modules de recherche fictifs : accessoires visuels non fonctionnels.
+const displayCapsules=new THREE.Group();displayCapsules.position.set(8,0,8);militaryWorld.add(displayCapsules);
+const capsuleColors=['#78a7a0','#c4a66a','#8c91ad'];
+capsuleColors.forEach((color,i)=>{
+  const pod=new THREE.Group();pod.position.set(i*1.8,0,0);displayCapsules.add(pod);
+  cylinder(pod,.42,.42,1.5,0,1.05,0,mat('#414d50',.38,.55),16);
+  cylinder(pod,.45,.45,.18,0,1.82,0,mat(color,.3,.35),16);
+  const dome=new THREE.Mesh(new THREE.SphereGeometry(.42,16,10,0,Math.PI*2,0,Math.PI/2),mat(color,.3,.35));
+  dome.position.y=1.9;pod.add(dome);
+  box(pod,.9,.12,.9,0,.25,0,labDark);
+});
 militaryWorld.visible=false;
 let militaryPhase='off', dialogueIndex=0, officialWalk=0;
 const dialogueLines=[
@@ -173,14 +217,16 @@ const dialogueLines=[
 ];
 function showDialogue(){const line=dialogueLines[dialogueIndex];$('dialogue-speaker').textContent=line[0];$('dialogue-text').textContent=line[1];$('dialogue-next').innerHTML=(dialogueIndex===dialogueLines.length-1?'ACCEPTER LA PROPOSITION':'CONTINUER')+' <span>↗</span>';}
 function beginMilitary(){state.started=true;state.paused=false;militaryPhase='arrival';official.visible=true;officialWalk=0;avatar.position.set(-5,0,7);$('intro-screen').classList.add('hidden');$('military-dialogue').classList.remove('hidden');$('dialogue-card');$('dialogue-next').disabled=true;$('dialogue-speaker').textContent='';$('dialogue-text').textContent='Un homme en costume arrive sur le site de Valmont…';}
-function acceptMilitary(){militaryPhase='site';$('military-dialogue').classList.add('hidden');['.topbar','.mission-panel','.objective-chip','.interaction','.bottom-left','.bottom-right','.vignette'].forEach(sel=>{const el=document.querySelector(sel);if(el)el.classList.add('hidden');});scene.children.forEach(o=>{if(o!==avatar&&o!==official&&!o.isLight&&o!==militaryWorld)o.visible=false;});militaryWorld.visible=true;official.visible=true;official.position.set(-5,0,5);official.rotation.y=Math.PI;avatar.position.set(-8,0,5);avatar.rotation.y=0;scene.background=new THREE.Color('#b69a70');scene.fog=new THREE.Fog('#b69a70',35,100);camera.position.set(3,9,16);camera.lookAt(0,1,0);$('military-site').classList.remove('hidden');$('pause-btn').classList.add('hidden');}
+function acceptMilitary(){militaryPhase='site';$('site-stock').textContent='STOCK DE RECHERCHE : '+state.researchStock+' UNITÉ(S)';$('military-dialogue').classList.add('hidden');['.topbar','.mission-panel','.objective-chip','.interaction','.bottom-left','.bottom-right','.vignette'].forEach(sel=>{const el=document.querySelector(sel);if(el)el.classList.add('hidden');});scene.children.forEach(o=>{if(o!==avatar&&o!==official&&!o.isLight&&o!==militaryWorld)o.visible=false;});militaryWorld.visible=true;official.visible=true;official.position.set(-5,0,5);official.rotation.y=Math.PI;avatar.position.set(-8,0,5);avatar.rotation.y=0;scene.background=new THREE.Color('#b69a70');scene.fog=new THREE.Fog('#b69a70',35,100);camera.position.set(3,9,16);camera.lookAt(0,1,0);$('military-site').classList.remove('hidden');$('pause-btn').classList.add('hidden');}
 
 
 const markers=[];
 function marker(x,z,color=0xe1bd69){const ring=new THREE.Mesh(new THREE.TorusGeometry(1.05,.055,8,32),new THREE.MeshBasicMaterial({color,transparent:true,opacity:.9}));ring.rotation.x=-Math.PI/2;ring.position.set(x,.08,z);scene.add(ring);markers.push(ring);return ring;}
 marker(0,1,0x8bd0c8);marker(-11,-7,0xe1bd69);marker(12,-7,0xd4a85e);
 
-const state={money:0,materials:0,energy:0,delivered:0,bakeryOn:false,villageOn:false,paused:true,started:false,won:false,near:null,mineTime:0};
+let savedResearchStock=0;
+try{savedResearchStock=Number(localStorage.getItem('nt-research-stock')||0)||0;}catch(e){}
+const state={money:0,materials:0,energy:0,delivered:0,researchStock:savedResearchStock,bakeryOn:false,villageOn:false,paused:true,started:false,won:false,near:null,mineTime:0};
 const keys={};
 window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase()))e.preventDefault();if(e.key.toLowerCase()==='e')interact();if(e.key==='Escape')togglePause();});
 window.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
@@ -218,7 +264,7 @@ function interact(){
  }
  if(t.type==='depot'){
   if(state.materials===0){toast('Va d’abord extraire du minerai sur le petit gisement.');return;}
-  const count=state.materials;state.materials=0;state.delivered+=count;state.money+=500;updateUI();toast('Livraison validée : +500 €. Bon travail !');return;
+  const count=state.materials;state.materials=0;state.delivered+=count;state.researchStock+=count;try{localStorage.setItem('nt-research-stock',String(state.researchStock));}catch(e){}state.money+=500;updateUI();toast('Livraison validée : +500 €. Bon travail !');return;
  }
  if(t.type==='bakery'){
   if(state.bakeryOn){toast('La boulangerie est déjà alimentée.');return;}
