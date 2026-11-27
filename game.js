@@ -96,7 +96,7 @@ for(const [x,z] of nodePositions){
 const avatar=new THREE.Group();scene.add(avatar);
 const hero=createCharacter(THREE,{scale:1.5});
 avatar.add(hero.root);
-avatar.position.set(-5,0,7);
+avatar.position.set(-30,0,29);
 let mineAnim=false;
 
 // MODE MILITAIRE : personnage officiel en costume, avec mallette.
@@ -121,7 +121,7 @@ for(let i=0;i<7;i++){const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(.4
 
 // REPÈRE HISTORIQUE : tour stylisée inspirée de la silhouette de Trinity.
 // Monument de décor uniquement, sans fonction technique.
-const trinityTower=new THREE.Group();trinityTower.position.set(0,0,0);trinityTower.scale.set(1,30/9.2,1);militaryWorld.add(trinityTower);
+const trinityTower=new THREE.Group();trinityTower.position.set(28,0,-3);trinityTower.scale.set(.72,.72,.72);militaryWorld.add(trinityTower);
 const towerMetal=mat('#555e5a',.62,.72), towerGold=mat('#9b895e',.7,.45);
 const towerLevels=[0,2.3,4.6,6.9,9.2];
 for(let level=0;level<towerLevels.length;level++){
@@ -197,7 +197,7 @@ for(let z=-4;z>=-40;z-=6){
 // NOUVELLES INSTALLATIONS DU SITE : mine en blocs, bâtiment centrifugeuse et vitrine de prototype fictif.
 nodes.forEach(n=>{n.group.visible=false;});
 const mineBlocks=[];
-const mineGroup=new THREE.Group();mineGroup.position.set(-30,0,-12);militaryWorld.add(mineGroup);
+const mineGroup=new THREE.Group();mineGroup.position.set(-36,0,-43);militaryWorld.add(mineGroup);
 const pitFloor=box(mineGroup,18,.35,14,0,-.12,0,mat('#6d4935'));
 for(let x=-7;x<=7;x+=2) for(let z=-5;z<=5;z+=2){
   const blockMat=mat(['#8b6045','#9b704d','#76513e'][(Math.abs(x+z)/2)%3|0],1);
@@ -209,7 +209,7 @@ for(let x=-7;x<=7;x+=2) for(let z=-5;z<=5;z+=2){
 for(const [x,z] of [[-9,-7],[9,-7],[-9,7],[9,7]]) box(mineGroup,.7,2.2,.7,x,1.1,z,mat('#6b5545'));
 
 // Bâtiment de centrifugeuse : équipement scénographique, non fonctionnel.
-const centrifugeBuilding=new THREE.Group();centrifugeBuilding.position.set(5,0,-17);militaryWorld.add(centrifugeBuilding);
+const centrifugeBuilding=new THREE.Group();centrifugeBuilding.position.set(-20,0,-22);centrifugeBuilding.scale.setScalar(.72);militaryWorld.add(centrifugeBuilding);
 box(centrifugeBuilding,13,5.8,11,0,2.9,0,mat('#777970'));
 box(centrifugeBuilding,13.5,.35,11.5,0,5.85,0,mat('#303b3a'));
 box(centrifugeBuilding,5.8,3.5,.16,0,2.45,5.58,mat('#29383a'));
@@ -223,7 +223,7 @@ const cGlow=new THREE.PointLight('#d5b66c',2,8);cGlow.position.set(0,3.6,0);cMac
 
 // Laboratoire rétro : vitrine avec maquette abstraite et scellée du projet Orion.
 // Objet purement visuel : aucune pièce ni fonction technique représentée.
-const previewCase=new THREE.Group();previewCase.position.set(17,0,12);militaryWorld.add(previewCase);
+const previewCase=new THREE.Group();previewCase.position.set(-30,0,22);militaryWorld.add(previewCase);
 box(previewCase,4.8,.35,3.2,0,.2,0,mat('#343f40',.45,.45));
 const glassMat=new THREE.MeshStandardMaterial({color:'#9bc4c2',transparent:true,opacity:.2,metalness:.25,roughness:.15});
 box(previewCase,4.5,2.7,.12,0,1.65,-1.5,glassMat,false);
@@ -308,7 +308,7 @@ function finishCinematic(){
   $('site-stock').textContent='PROJET ORION : ÉTAPE 1 VALIDÉE';
   controlRoom.visible=false;cinematicCloud.visible=false;militaryWorld.visible=true;official.visible=false;avatar.visible=true;
   scene.children.forEach(o=>{if(o!==avatar&&!o.isLight&&o!==militaryWorld&&o!==controlRoom&&o!==cinematicCloud)o.visible=false;});
-  avatar.position.set(-8,0,5);avatar.rotation.y=0;
+  avatar.position.set(-30,0,29);avatar.rotation.y=0;
   scene.background=new THREE.Color('#b69a70');scene.fog=new THREE.Fog('#b69a70',35,100);
   camera.position.set(8,8,13);camera.lookAt(0,1,0);
   toast('Secteur Orion débloqué. La campagne continue.');
@@ -316,7 +316,7 @@ function finishCinematic(){
 
 
 // Console de progression : débloque l'événement final après les objectifs de campagne.
-const researchConsole=new THREE.Group();researchConsole.position.set(18,0,-1);scene.add(researchConsole);
+const researchConsole=new THREE.Group();researchConsole.position.set(-12,0,22);scene.add(researchConsole);
 const consoleBody=mat('#26383b',.42,.55),consoleScreen=new THREE.MeshStandardMaterial({color:'#1a4650',emissive:'#1a9a9d',emissiveIntensity:1.25,metalness:.25,roughness:.3});
 box(researchConsole,2.2,1.35,1.25,0,.68,0,consoleBody);
 box(researchConsole,1.55,.78,.08,0,1.55,.63,consoleScreen,false);
@@ -326,7 +326,7 @@ const consoleLamp=new THREE.Mesh(new THREE.SphereGeometry(.11,12,8),new THREE.Me
 consoleLamp.position.set(.65,1.5,.72);researchConsole.add(consoleLamp);
 const markers=[];
 function marker(x,z,color=0xe1bd69){const ring=new THREE.Mesh(new THREE.TorusGeometry(1.05,.055,8,32),new THREE.MeshBasicMaterial({color,transparent:true,opacity:.9}));ring.rotation.x=-Math.PI/2;ring.position.set(x,.08,z);scene.add(ring);markers.push(ring);return ring;}
-marker(0,1,0x8bd0c8);marker(-11,-7,0xe1bd69);marker(12,-7,0xd4a85e);marker(18,-1,0x6ed5c4);
+marker(-36,-43,0xe1bd69);marker(-20,-22,0xd4a85e);marker(-30,22,0xe4c078);marker(-12,22,0x6ed5c4);
 
 let savedResearchStock=0;
 try{savedResearchStock=Number(localStorage.getItem('nt-research-stock')||0)||0;}catch(e){}
