@@ -1,4 +1,5 @@
 import { createCharacter } from './character.js';
+import { createDesertLandscape } from './desert-landscape.js';
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js';
 
 const $ = (id) => document.getElementById(id);
@@ -55,7 +56,7 @@ const workshop = makeBuilding(12, -7, 6, 4.8, 6, '#8a9893', '#3c5353','ATELIER')
 const village = makeBuilding(-13, 12, 5, 3.1, 4.5, '#c2b99f', '#8c6045','VILLAGE');
 
 function makeTree(x,z,s=1) {
-  const g=new THREE.Group(); g.position.set(x,0,z); scene.add(g);
+  const g=new THREE.Group(); g.userData.legacyTree=true; g.position.set(x,0,z); scene.add(g);
   cylinder(g,0.16*s,0.23*s,1.5*s,0,0.75*s,0,mat('#66523c'),9);
   const crown=new THREE.Mesh(new THREE.ConeGeometry(1.0*s,2.4*s,8),mat('#385c48'));
   crown.position.y=2.35*s; crown.castShadow=true; g.add(crown);
@@ -64,7 +65,7 @@ for(let i=0;i<44;i++){ const x=(Math.random()-.5)*66,z=(Math.random()-.5)*58; if
 
 function road(x,z,w,d) {
   const m=new THREE.Mesh(new THREE.BoxGeometry(w,.06,d),mat('#555d5a'));
-  m.position.set(x,-.015,z); m.receiveShadow=true; scene.add(m);
+  m.name='legacyRoad'; m.position.set(x,-.015,z); m.receiveShadow=true; scene.add(m);
   const dashMat=mat('#d6c9a4');
   if(w>d) for(let xx=-w/2+2;xx<w/2;xx+=4) box(scene,.9,.025,.09,x+xx,.03,z,dashMat,false);
   else for(let zz=-d/2+2;zz<d/2;zz+=4) box(scene,.09,.025,.9,x,.03,z+zz,dashMat,false);
@@ -161,7 +162,21 @@ capsuleColors.forEach((color,i)=>{
   dome.position.y=1.9;pod.add(dome);
   box(pod,.9,.12,.9,0,.25,0,labDark);
 });
-militaryWorld.visible=false;
+// Nouveau décor principal : site désertique isolé, sans ville ni boulangerie.
+const desertLandscape = createDesertLandscape(THREE, militaryWorld, mat);
+militaryWorld.visible = true;
+ground.visible = false;
+grid.visible = false;
+bakery.visible = false;
+village.visible = false;
+workshop.visible = false;
+centrifuge.visible = false;
+scene.children.forEach((object) => {
+  if (object.userData?.legacyTree || object.name === 'legacyRoad') object.visible = false;
+});
+scene.background = new THREE.Color('#c58d5a');
+scene.fog = new THREE.Fog('#c58d5a', 75, 165);
+
 
 // CINÉMATIQUE FICTIVE : salle de contrôle et spectacle lumineux stylisé.
 const controlRoom=new THREE.Group();scene.add(controlRoom);
