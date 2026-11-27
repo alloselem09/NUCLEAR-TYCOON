@@ -173,7 +173,7 @@ const dialogueLines=[
 ];
 function showDialogue(){const line=dialogueLines[dialogueIndex];$('dialogue-speaker').textContent=line[0];$('dialogue-text').textContent=line[1];$('dialogue-next').innerHTML=(dialogueIndex===dialogueLines.length-1?'ACCEPTER LA PROPOSITION':'CONTINUER')+' <span>↗</span>';}
 function beginMilitary(){state.started=true;state.paused=false;militaryPhase='arrival';official.visible=true;officialWalk=0;avatar.position.set(-5,0,7);$('intro-screen').classList.add('hidden');$('military-dialogue').classList.remove('hidden');$('dialogue-card');$('dialogue-next').disabled=true;$('dialogue-speaker').textContent='';$('dialogue-text').textContent='Un homme en costume arrive sur le site de Valmont…';}
-function acceptMilitary(){militaryPhase='site';$('military-dialogue').classList.add('hidden');scene.children.forEach(o=>{if(o!==avatar&&o!==official&&!o.isLight&&o!==militaryWorld)o.visible=false;});militaryWorld.visible=true;official.visible=true;official.position.set(-5,0,5);official.rotation.y=Math.PI;avatar.position.set(-8,0,5);avatar.rotation.y=0;scene.background=new THREE.Color('#b69a70');scene.fog=new THREE.Fog('#b69a70',35,100);camera.position.set(3,9,16);camera.lookAt(0,1,0);$('military-site').classList.remove('hidden');$('pause-btn').classList.add('hidden');}
+function acceptMilitary(){militaryPhase='site';$('military-dialogue').classList.add('hidden');['.topbar','.mission-panel','.objective-chip','.interaction','.bottom-left','.bottom-right','.vignette'].forEach(sel=>{const el=document.querySelector(sel);if(el)el.classList.add('hidden');});scene.children.forEach(o=>{if(o!==avatar&&o!==official&&!o.isLight&&o!==militaryWorld)o.visible=false;});militaryWorld.visible=true;official.visible=true;official.position.set(-5,0,5);official.rotation.y=Math.PI;avatar.position.set(-8,0,5);avatar.rotation.y=0;scene.background=new THREE.Color('#b69a70');scene.fog=new THREE.Fog('#b69a70',35,100);camera.position.set(3,9,16);camera.lookAt(0,1,0);$('military-site').classList.remove('hidden');$('pause-btn').classList.add('hidden');}
 
 
 const markers=[];
@@ -243,7 +243,7 @@ function animate(){
  requestAnimationFrame(animate);
  const dt=Math.min(clock.getDelta(),.04),time=clock.elapsedTime;
  if(militaryPhase==='arrival'){officialWalk=Math.min(1,officialWalk+dt*.22);official.position.x=15-(20*officialWalk);official.position.z=9-(2*officialWalk);official.rotation.y=-1.1+officialWalk*.7;if(officialWalk>=1){militaryPhase='dialogue';$('dialogue-next').disabled=false;dialogueIndex=0;showDialogue();}}
- if(state.started&&!state.paused&&militaryPhase!=='site'){
+ if(state.started&&!state.paused&&militaryPhase==='off'){
   let dx=0,dz=0;
   if(keys.arrowup)dz-=1;if(keys.arrowdown)dz+=1;if(keys.arrowleft)dx-=1;if(keys.arrowright)dx+=1;
   const moving=dx!==0||dz!==0;
