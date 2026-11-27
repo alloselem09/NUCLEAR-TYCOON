@@ -151,6 +151,16 @@ cylinder(trinityTower,.18,.18,.3,0,.15,0,towerMetal,12);
 // Plateau central volontairement dégagé : pas de groupe d'objets superflu.
 // Nouveau décor principal : site désertique isolé, sans ville ni boulangerie.
 const desertLandscape = createDesertLandscape(THREE, militaryWorld, mat);
+
+ // Porte battante du laboratoire, alignée sur l'ouverture de la façade.
+ const labDoorPivot=new THREE.Group();
+ labDoorPivot.position.set(-37.45,0,26.16);
+ militaryWorld.add(labDoorPivot);
+ box(labDoorPivot,1.3,2.3,.16,.65,1.15,0,mat('#46534d',.72,.18));
+ box(labDoorPivot,.13,2.2,.08,.15,1.15,.1,mat('#b69a67',.5,.4));
+ cylinder(labDoorPivot,.045,.045,.12,1.08,1.08,.12,mat('#d7bd80',.35,.55),10);
+ labDoorPivot.userData.open=false;
+
 militaryWorld.visible = true;
 ground.visible = false;
 grid.visible = false;
@@ -421,7 +431,7 @@ function closestTarget(){
  if(insideLab)return {type:'exitLab',label:'SORTIR DU LABORATOIRE'};
  let best=null,dist=3.1;
  const doorDistance=avatar.position.distanceTo(new THREE.Vector3(-36.8,0,26.2));
- if(doorDistance<4.2)return {type:'labDoor',label:'ENTRER DANS LE LABORATOIRE'};
+ if(doorDistance<5.2)return {type:'labDoor',label:'ENTRER DANS LE LABORATOIRE'};
  for(const b of mineBlocks)if(b.active){const p=b.mesh.getWorldPosition(new THREE.Vector3());const d=avatar.position.distanceTo(p);if(d<3.5&&d<dist){dist=d;best={type:'mineBlock',obj:b,label:'PIOCHER LE BLOC'};}}
  for(const [type,obj,label] of [['depot',depot,'LIVRER LES MATÉRIAUX'],['centrifugeBuilding',centrifugeBuilding,'VISITER LE BÂTIMENT CENTRIFUGEUSE'],['previewCase',previewCase,'OBSERVER LE PROTOTYPE FICTIF']]){
   const d=avatar.position.distanceTo(obj.position);if(d<3.8&&d<dist+1){dist=d;best={type,obj,label};}
@@ -507,7 +517,7 @@ function animate(){
      const buildingRects=[
        [-38.4,-25.6,17.7,26.3], // laboratoire principal
        [-41.8,-14.2,-32.8,-11.2], // centrale / hall industriel
-       [22,34,38,48] // bunker d'observation
+       [22,34,992,1002] // bunker d'observation
      ];
      for(const r of buildingRects){if(blocked(nextX,nextZ,...r)){nextX=oldX;nextZ=oldZ;break;}}
    }
