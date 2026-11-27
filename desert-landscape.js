@@ -20,8 +20,8 @@ export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,
   const metal=mat('#59615d',.62,.45), dark=mat('#252d2d',.78);
   const glass=new THREE.MeshStandardMaterial({color:'#8eaaa5',metalness:.2,roughness:.3});
 
-  const floor=new THREE.Mesh(new THREE.PlaneGeometry(220,1350),sand);
-  floor.rotation.x=-Math.PI/2;floor.position.set(0,-.06,497);floor.receiveShadow=true;world.add(floor);
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(220,3150),sand);
+  floor.rotation.x=-Math.PI/2;floor.position.set(0,-.06,1497);floor.receiveShadow=true;world.add(floor);
 
   // Désert du Jornada del Muerto : horizon dégagé, sans falaises ni rochers.
   for(let i=0;i<125;i++){
@@ -149,6 +149,19 @@ export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,
   for(let x=-5.0;x<=5.01;x+=1.0)box(bunker,.09,1.0,.2,x,2.12,4.28,bunkerTimber);
   // Entrée centrale et quelques renforts visuels en bois, sans détail technique.
   box(bunker,2.25,1.85,.22,0,.95,4.3,mat('#202522',.95));
+  const bunkerDoor=new THREE.Group();bunkerDoor.position.set(-1.1,.05,4.38);bunker.add(bunkerDoor);
+  box(bunkerDoor,2.15,1.82,.16,1.075,.91,0,mat('#4b4032',.92));
+  box(bunkerDoor,.12,1.72,.08,.18,.91,.12,mat('#b69a67',.55,.35));
+  cyl(bunkerDoor,.055,.055,.12,1.88,.92,.16,mat('#d1b477',.35,.55),10);
+  bunkerDoor.userData.open=false;
+  // Grande vitre d'observation orientée vers la tour (face arrière, -Z).
+  box(bunker,10.2,2.35,.34,0,2.25,-4.48,bunkerConcrete);
+  const bunkerGlass=new THREE.Mesh(new THREE.BoxGeometry(8.7,1.55,.12),new THREE.MeshStandardMaterial({color:'#789b9a',metalness:.28,roughness:.18,transparent:true,opacity:.48}));
+  bunkerGlass.position.set(0,2.35,-4.28);bunker.add(bunkerGlass);
+  for(const x of [-4.45,0,4.45])box(bunker,.12,1.78,.2,x,2.35,-4.18,bunkerTimber);
+  box(bunker,8.95,.12,.22,0,1.53,-4.18,bunkerTimber);
+  box(bunker,8.95,.12,.22,0,3.17,-4.18,bunkerTimber);
+  bunker.userData.door=bunkerDoor;
   for(const x of [-4.7,-2.8,2.8,4.7])box(bunker,.24,2.55,.3,x,1.35,4.42,bunkerTimber);
   const brace=(x,y,angle)=>{
     const part=box(bunker,.28,3.15,.32,x,y,4.48,bunkerTimber);
@@ -172,5 +185,7 @@ export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,
       twig.rotation.z=(j-1)*.65;
     }
   }
+  world.userData.bunkerDoor=bunker.userData.bunkerDoor;
+  world.userData.bunker=bunker;
   return world;
 }
