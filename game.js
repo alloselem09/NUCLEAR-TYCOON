@@ -516,6 +516,7 @@ function animate(){
      // Empreinte des bâtiments : le personnage ne traverse plus les murs.
      const buildingRects=[
        [-38.4,-25.6,17.7,26.3], // laboratoire principal
+       [-22.3,-15.7,-22.2,-15.8], // bâtiment de recherche
        [-41.8,-14.2,-32.8,-11.2], // centrale / hall industriel
        [22,34,992,1002] // bunker d'observation
      ];
