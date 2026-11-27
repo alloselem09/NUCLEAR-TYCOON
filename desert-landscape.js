@@ -1,145 +1,173 @@
-// Grande map du site fictif : centrale compacte à l'ouest, laboratoire au sud-ouest,
-// vaste terrain d'essai décoratif à l'est et bunker d'observation au sud.
+// Carte 3D du complexe désertique : zone industrielle compacte au nord-ouest,
+// laboratoire au sud-ouest, grand plateau ouvert à l'est et bunker au sud.
+// Les éléments sont des décors de jeu fictifs, sans fonctions opérationnelles.
 export function createDesertLandscape(THREE, site, mat) {
   const world = new THREE.Group();
   world.name = 'DesertResearchSite';
   site.add(world);
 
-  const box = (p,w,h,d,x,y,z,m,cast=true) => {
+  const box=(p,w,h,d,x,y,z,m,cast=true)=>{
     const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);
-    o.position.set(x,y,z); o.castShadow=cast; o.receiveShadow=true; p.add(o); return o;
+    o.position.set(x,y,z);o.castShadow=cast;o.receiveShadow=true;p.add(o);return o;
   };
-  const cyl = (p,rTop,rBottom,h,x,y,z,m,n=16) => {
-    const o=new THREE.Mesh(new THREE.CylinderGeometry(rTop,rBottom,h,n),m);
-    o.position.set(x,y,z); o.castShadow=true; o.receiveShadow=true; p.add(o); return o;
+  const cyl=(p,rt,rb,h,x,y,z,m,n=16)=>{
+    const o=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,n),m);
+    o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;p.add(o);return o;
   };
-  const sand=mat('#c99a62',1), pale=mat('#d8b47d',1), rock=mat('#89543d',1);
-  const cliff=mat('#704536',1), concrete=mat('#777970',.92), roof=mat('#343b3a',.8);
+  const sand=mat('#c99a62',1), pale=mat('#dfbd89',1), ochre=mat('#b98553',1);
+  const rock=mat('#89543d',1), cliff=mat('#704536',1);
+  const concrete=mat('#777970',.92), roof=mat('#343b3a',.8);
   const metal=mat('#59615d',.62,.45), dark=mat('#252d2d',.78);
   const glass=new THREE.MeshStandardMaterial({color:'#8eaaa5',metalness:.2,roughness:.3});
-  const worldFloor=new THREE.Mesh(new THREE.PlaneGeometry(180,160),sand);
-  worldFloor.rotation.x=-Math.PI/2; worldFloor.position.y=-.06; worldFloor.receiveShadow=true; world.add(worldFloor);
 
-  // Relief désertique en bordure de carte.
-  for(let i=0;i<24;i++){
-    const side=i%2===0?-1:1, x=side*(72+Math.random()*12);
-    const h=9+Math.random()*15, w=7+Math.random()*12;
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(180,160),sand);
+  floor.rotation.x=-Math.PI/2;floor.position.y=-.06;floor.receiveShadow=true;world.add(floor);
+
+  // Relief rocheux en périphérie : falaises en strates, sans fermer le terrain jouable.
+  for(let i=0;i<30;i++){
+    const side=i%2===0?-1:1;
+    const x=side*(70+Math.random()*8);
+    const h=10+Math.random()*13,w=7+Math.random()*10;
     const mesa=new THREE.Mesh(new THREE.CylinderGeometry(w*.72,w,h,5),i%3?rock:cliff);
-    mesa.position.set(x,h/2-1,-68+i*5.5); mesa.scale.z=1.5; mesa.castShadow=true; world.add(mesa);
+    mesa.position.set(x,h/2-1,-72+i*4.9);
+    mesa.scale.z=1.35;mesa.castShadow=true;mesa.receiveShadow=true;world.add(mesa);
   }
-  for(let i=0;i<100;i++){
-    const x=(Math.random()-.5)*145,z=(Math.random()-.5)*125;
-    const patch=new THREE.Mesh(new THREE.CircleGeometry(.3+Math.random()*1.1,6),i%4? pale:rock);
-    patch.rotation.x=-Math.PI/2; patch.position.set(x,.002,z); patch.scale.set(1.8,.7,.6); world.add(patch);
+  for(let i=0;i<18;i++){
+    const x=-78+i*9,z=-76+Math.sin(i*.7)*5;
+    const h=8+(i%4)*2.5,w=7+(i%3)*2;
+    const mesa=new THREE.Mesh(new THREE.CylinderGeometry(w*.7,w,h,5),i%2?rock:cliff);
+    mesa.position.set(x,h/2-1,z);mesa.scale.z=1.25;mesa.castShadow=true;world.add(mesa);
   }
-
-  // ZONE INDUSTRIELLE / MINIÈRE — à gauche, avec une centrale volontairement compacte.
-  const plant=new THREE.Group(); plant.position.set(-28,0,-22); world.add(plant);
-  const pad=box(plant,29,.28,23,0,.12,0,mat('#77796f'));
-  box(plant,29.5,.12,23.5,0,.27,0,mat('#9a9a89'));
-  // Deux petites tours de refroidissement stylisées, éléments de décor non fonctionnels.
-  for(const x of [-8, -2]){
-    const tower=new THREE.Group(); tower.position.set(x,0,-4); plant.add(tower);
-    const shell=new THREE.Mesh(new THREE.CylinderGeometry(1.45,2.0,5.0,20,true),concrete);
-    shell.position.y=2.5; shell.castShadow=true; tower.add(shell);
-    cyl(tower,1.48,1.48,.22,0,4.95,0,roof,20);
-    cyl(tower,1.15,1.15,.16,0,.18,0,dark,20);
-  }
-  // Bâtiments bas de la centrale, échelle réduite par rapport à l'ancienne version.
-  const reactorHall=new THREE.Group(); reactorHall.position.set(4,0,-3); plant.add(reactorHall);
-  box(reactorHall,10,3.5,7,0,1.75,0,concrete);
-  box(reactorHall,10.5,.3,7.5,0,3.65,0,roof);
-  box(reactorHall,4.2,1.65,.12,0,2.05,3.58,glass,false);
-  for(let x=-1.8;x<=1.81;x+=1.2) box(reactorHall,.08,1.75,.16,x,2.05,3.66,dark);
-  const annex= new THREE.Group(); annex.position.set(4,0,6); plant.add(annex);
-  box(annex,6,2.5,5,0,1.25,0,mat('#8a8c80'));
-  box(annex,6.3,.25,5.3,0,2.62,0,roof);
-  for(const x of [-10,10]) box(plant,1.1,1.8,1.1,x,.9,0,metal);
-
-  // Carrière en gradins, derrière la centrale : formes rocheuses uniquement.
-  const quarry=new THREE.Group(); quarry.position.set(-34,0,-43); world.add(quarry);
-  for(let tier=0;tier<4;tier++){
-    const width=22-tier*3, depth=5.5;
-    const berm=box(quarry,width,1.1,depth,0,.55+tier*1.05,-tier*5, tier%2?rock:cliff);
-    berm.rotation.x=-.04;
-  }
-  for(let i=0;i<8;i++){
-    const stone=new THREE.Mesh(new THREE.DodecahedronGeometry(.7+Math.random()*.7,0),rock);
-    stone.position.set(-10+Math.random()*20,.4,-25-Math.random()*13);
-    stone.scale.set(1.5,.8,1); quarry.add(stone);
+  for(let i=0;i<125;i++){
+    const x=(Math.random()-.5)*150,z=(Math.random()-.5)*130;
+    const patch=new THREE.Mesh(new THREE.CircleGeometry(.35+Math.random()*1.1,6),i%5? pale:ochre);
+    patch.rotation.x=-Math.PI/2;patch.position.set(x,.002,z);
+    patch.scale.set(1.8,.7,.6);world.add(patch);
   }
 
-  // LABORATOIRE — secteur inférieur gauche, architecture rétro.
-  const lab=new THREE.Group(); lab.position.set(-30,0,22); world.add(lab);
-  box(lab,15,4.1,9,0,2.05,0,concrete);
-  box(lab,15.5,.35,9.5,0,4.25,0,roof);
-  box(lab,7,2.15,.12,0,2.25,4.58,glass,false);
-  for(let x=-3.2;x<=3.21;x+=1.6) box(lab,.1,2.2,.18,x,2.25,4.66,dark);
-  box(lab,1.5,2.5,.18,-5,1.25,4.66,dark);
-  const labAnnex=new THREE.Group(); labAnnex.position.set(12,0,4); lab.add(labAnnex);
-  box(labAnnex,7,3.1,6,0,1.55,0,mat('#8c9187'));
-  box(labAnnex,7.4,.3,6.4,0,3.2,0,roof);
-  // Petite cour et bâtiments annexes.
-  box(lab,22,.12,18,7,.06,-1,mat('#77776c'));
-  for(const [x,z] of [[-8,-5],[8,-5],[-8,7],[8,7]]){
-    box(lab,2.2,1.4,2,x,.7,z,mat('#77796f'));
-  }
-
-  // TERRAIN D'ESSAI — grande plaine dégagée à droite, repères circulaires abstraits.
-  const testGround=new THREE.Group(); testGround.position.set(28,0,-3); world.add(testGround);
-  const disc=new THREE.Mesh(new THREE.CircleGeometry(29,80),mat('#d2a36b',1));
-  disc.rotation.x=-Math.PI/2; disc.position.y=.015; testGround.add(disc);
-  for(const radius of [10,19,28]){
-    const ring=new THREE.Mesh(new THREE.RingGeometry(radius-.07,radius+.07,96),mat('#9a7955',1));
-    ring.rotation.x=-Math.PI/2; ring.position.y=.045; testGround.add(ring);
-  }
-  // Bornes et petits abris lointains : décor de jeu, sans équipement opérationnel.
-  for(let i=0;i<20;i++){
-    const a=i/20*Math.PI*2, r=31;
-    const post=cyl(testGround,.09,.12,1.8,Math.cos(a)*r,.9,Math.sin(a)*r,metal,8);
-    const marker=box(testGround,.55,.35,.12,Math.cos(a)*r,1.95,Math.sin(a)*r,mat('#d0b47e'));
-    marker.rotation.y=-a;
-  }
-  const shelter=(x,z,rot=0)=>{
-    const g=new THREE.Group(); g.position.set(x,0,z); g.rotation.y=rot; testGround.add(g);
-    box(g,6,3.2,8,0,1.6,0,mat('#777c75'));
-    const cap=new THREE.Mesh(new THREE.CylinderGeometry(3.1,3.1,8,12,1,false,0,Math.PI),mat('#59635f'));
-    cap.rotation.x=Math.PI/2; cap.position.set(0,3.1,0); g.add(cap);
-    box(g,2.2,2,.12,0,1.1,4.05,dark);
-  };
-  shelter(22,-26,.4); shelter(48,18,-.5); shelter(45,-24,.2);
-
-  // BUNKER D'OBSERVATION — au sud, séparé de la zone centrale.
-  const bunker=new THREE.Group(); bunker.position.set(4,0,43); world.add(bunker);
-  box(bunker,13,2.8,10,0,1.4,0,concrete);
-  box(bunker,13.6,.5,10.6,0,2.95,0,roof);
-  box(bunker,7,1.1,.12,0,1.85,5.06,glass,false);
-  for(let x=-3.5;x<=3.51;x+=1.75) box(bunker,.1,1.25,.16,x,1.85,5.12,metal);
-  for(let i=0;i<7;i++){
-    const bag=new THREE.Mesh(new THREE.CapsuleGeometry(.38,.62,4,8),mat('#9a865f',1));
-    bag.rotation.z=Math.PI/2; bag.position.set(-4.8+i*1.35,.4,5.9); bunker.add(bag);
-  }
-  // Route de liaison courbe et pistes secondaires.
-  const roadMat=mat('#9b805f',1);
+  // ROUTES : pistes sableuses larges et courbes entre les quartiers.
+  const roadMat=mat('#a98259',1);
   const road=(x,z,w,d,angle=0)=>{
-    const r=box(world,w,.035,d,x,.005,z,roadMat,false); r.rotation.y=angle;
+    const r=box(world,w,.045,d,x,.006,z,roadMat,false);r.rotation.y=angle;
   };
-  road(-9,1,34,3.2,-.35);
-  road(1,14,3.2,29,.12);
-  road(12,29,27,3.2,-.3);
+  road(-7,-9,46,4,-.32);
+  road(-1,7,4,35,.12);
+  road(17,20,39,4,-.22);
+  road(4,38,28,3,.12);
 
-  // Végétation rare et épaves décoratives pour donner l'échelle.
-  for(let i=0;i<52;i++){
-    const x=(Math.random()-.5)*145,z=(Math.random()-.5)*115;
-    if((x<-14&&x>-48&&z>-48&&z<34)||(x>0&&z>-34&&z<28)) continue;
-    const shrub=new THREE.Group(); shrub.position.set(x,0,z); world.add(shrub);
-    const stem=cyl(shrub,.045,.07,.9,0,.45,0,mat('#70533a'),6);
+  // ZONE INDUSTRIELLE / MINIÈRE — compacte, dans le quadrant supérieur gauche.
+  const plant=new THREE.Group();plant.position.set(-28,0,-22);world.add(plant);
+  box(plant,27,.28,21,0,.12,0,mat('#77796f'));
+  box(plant,27.5,.12,21.5,0,.27,0,mat('#9a9a89'));
+  for(const x of [-7,-2.5]){
+    const tower=new THREE.Group();tower.position.set(x,0,-3.7);plant.add(tower);
+    const shell=new THREE.Mesh(new THREE.CylinderGeometry(1.15,1.55,4.0,20,true),concrete);
+    shell.position.y=2;shell.castShadow=true;tower.add(shell);
+    cyl(tower,1.2,1.2,.18,0,3.95,0,roof,20);
+    cyl(tower,.95,.95,.14,0,.15,0,dark,20);
+  }
+  const hall=new THREE.Group();hall.position.set(3.5,0,-3);plant.add(hall);
+  box(hall,8,3,6,0,1.5,0,concrete);
+  box(hall,8.4,.28,6.4,0,3.14,0,roof);
+  box(hall,3.6,1.4,.12,0,1.9,3.08,glass,false);
+  for(let x=-1.5;x<=1.51;x+=1)box(hall,.08,1.5,.16,x,1.9,3.16,dark);
+  const annex=new THREE.Group();annex.position.set(4,0,5.5);plant.add(annex);
+  box(annex,5.5,2.2,4.5,0,1.1,0,mat('#8a8c80'));
+  box(annex,5.8,.22,4.8,0,2.3,0,roof);
+  box(plant,3.2,1.6,2.8,-9,.8,5,mat('#8a8c80'));
+  box(plant,3.4,.2,3,-9,1.7,5,roof);
+  for(const x of [-10,10])box(plant,.85,1.5,.85,x,.75,0,metal);
+
+  // CARRIÈRE EN GRADINS — derrière la zone industrielle.
+  const quarry=new THREE.Group();quarry.position.set(-34,0,-43);world.add(quarry);
+  for(let tier=0;tier<4;tier++){
+    const width=22-tier*3,depth=5;
+    const berm=box(quarry,width,1.15,depth,0,.55+tier*1.0,-tier*4.8,tier%2?rock:cliff);
+    berm.rotation.x=-.035;
+  }
+  for(let i=0;i<15;i++){
+    const stone=new THREE.Mesh(new THREE.DodecahedronGeometry(.55+Math.random()*.65,0),rock);
+    stone.position.set(-10+Math.random()*20,.35,-23-Math.random()*13);
+    stone.scale.set(1.5,.8,1);quarry.add(stone);
+  }
+  // Petits engins purement décoratifs, pour donner l'échelle de la carrière.
+  for(const [x,z] of [[-11,-9],[8,-10],[12,4],[-8,7]]){
+    const vehicle=new THREE.Group();vehicle.position.set(x,.15,z);quarry.add(vehicle);
+    box(vehicle,2.6,.75,1.35,0,.65,0,mat('#b58a43'));
+    box(vehicle,1.05,.65,1.1,-.25,1.3,0,mat('#6c7770'));
+    for(const wx of [-.8,.8])for(const wz of [-.55,.55])cyl(vehicle,.24,.24,.18,wx,.32,wz,dark,10);
+  }
+
+  // LABORATOIRE — quartier inférieur gauche, style béton années 1940-50.
+  const lab=new THREE.Group();lab.position.set(-30,0,22);world.add(lab);
+  box(lab,19,.12,17,0,.06,0,mat('#77776c'));
+  const mainLab=new THREE.Group();mainLab.position.set(-2,0,0);lab.add(mainLab);
+  box(mainLab,12,3.8,8,0,1.9,0,concrete);
+  box(mainLab,12.5,.32,8.5,0,3.95,0,roof);
+  box(mainLab,6.4,2,.12,0,2.05,4.08,glass,false);
+  for(let x=-2.8;x<=2.81;x+=1.4)box(mainLab,.1,2.05,.18,x,2.05,4.16,dark);
+  box(mainLab,1.45,2.35,.18,-4.8,1.18,4.16,dark);
+  const annexLab=new THREE.Group();annexLab.position.set(6,0,-4);lab.add(annexLab);
+  box(annexLab,6,2.7,5,0,1.35,0,mat('#8c9187'));
+  box(annexLab,6.3,.25,5.3,0,2.78,0,roof);
+  const service=new THREE.Group();service.position.set(5,0,5);lab.add(service);
+  box(service,5,2.4,4,0,1.2,0,mat('#8c9187'));
+  box(service,5.3,.25,4.3,0,2.52,0,roof);
+  for(const [x,z] of [[-8,-5],[8,-5],[-8,6],[8,6]]){
+    box(lab,1.7,1.1,1.6,x,.55,z,mat('#77796f'));
+  }
+
+  // GRAND PLATEAU EST : espace de jeu largement dégagé, avec seulement quelques repères.
+  const plateau=new THREE.Group();plateau.position.set(28,0,-3);world.add(plateau);
+  const plateauFloor=new THREE.Mesh(new THREE.CircleGeometry(34,80),mat('#d2a36b',1));
+  plateauFloor.rotation.x=-Math.PI/2;plateauFloor.position.y=.012;plateau.add(plateauFloor);
+  // Petits repères irréguliers et discrets en bordure, sans cercles concentriques ni mesures.
+  for(let i=0;i<12;i++){
+    const a=i/12*Math.PI*2,r=33;
+    const post=cyl(plateau,.07,.1,1.15,Math.cos(a)*r,.58,Math.sin(a)*r,metal,8);
+    const cap=box(plateau,.38,.24,.1,Math.cos(a)*r,1.22,Math.sin(a)*r,mat('#c4a879'));
+    cap.rotation.y=-a;
+  }
+  // Quelques abris de service visuellement sobres, repoussés vers les bords.
+  const shelter=(x,z,rot=0)=>{
+    const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rot;plateau.add(g);
+    box(g,4.5,2.6,6,0,1.3,0,mat('#777c75'));
+    const cap=new THREE.Mesh(new THREE.CylinderGeometry(2.3,2.3,6,12,1,false,0,Math.PI),mat('#59635f'));
+    cap.rotation.x=Math.PI/2;cap.position.set(0,2.5,0);g.add(cap);
+    box(g,1.8,1.7,.12,0,.95,3.05,dark);
+  };
+  shelter(-7,-27,.4);shelter(20,24,-.5);shelter(29,-23,.2);
+  for(const [x,z] of [[-25,10],[24,11],[0,-29]]){
+    const wreck=new THREE.Group();wreck.position.set(x,0,z);plateau.add(wreck);
+    box(wreck,2.5,.65,1.25,0,.55,0,mat('#6d705f'));
+    box(wreck,1.1,.5,1.1,-.2,1.05,0,mat('#858778'));
+    for(const wx of [-.8,.8])for(const wz of [-.48,.48])cyl(wreck,.2,.2,.16,wx,.28,wz,dark,10);
+  }
+
+  // BUNKER D'OBSERVATION — au sud du plateau, visible depuis le laboratoire.
+  const bunker=new THREE.Group();bunker.position.set(4,0,43);world.add(bunker);
+  box(bunker,12,.3,9,0,.15,0,mat('#6f716a'));
+  box(bunker,11,2.5,8,0,1.4,0,concrete);
+  box(bunker,11.5,.45,8.5,0,2.85,0,roof);
+  box(bunker,6.2,1.05,.12,0,1.75,4.06,glass,false);
+  for(let x=-3;x<=3.01;x+=1.5)box(bunker,.1,1.2,.16,x,1.75,4.12,metal);
+  for(let i=0;i<6;i++){
+    const bag=new THREE.Mesh(new THREE.CapsuleGeometry(.34,.55,4,8),mat('#9a865f',1));
+    bag.rotation.z=Math.PI/2;bag.position.set(-3.8+i*1.25,.38,4.9);bunker.add(bag);
+  }
+
+  // Végétation très clairsemée, uniquement sur les marges de la carte.
+  for(let i=0;i<48;i++){
+    const x=(Math.random()-.5)*145,z=(Math.random()-.5)*120;
+    if((x<-15&&x>-48&&z>-51&&z<35)||(x>0&&z>-38&&z<31))continue;
+    const shrub=new THREE.Group();shrub.position.set(x,0,z);world.add(shrub);
+    cyl(shrub,.045,.07,.8,0,.4,0,mat('#70533a'),6);
     for(let j=0;j<3;j++){
-      const twig=box(shrub,.06,.9,.06,0,.8,0,mat('#70533a'));
+      const twig=box(shrub,.055,.75,.055,0,.7,0,mat('#70533a'));
       twig.rotation.z=(j-1)*.65;
     }
-    const stone=new THREE.Mesh(new THREE.DodecahedronGeometry(.35+Math.random()*.4,0),rock);
-    stone.position.y=.18; stone.scale.set(1.5,.7,1); shrub.add(stone);
+    const stone=new THREE.Mesh(new THREE.DodecahedronGeometry(.32+Math.random()*.32,0),rock);
+    stone.position.y=.16;stone.scale.set(1.5,.7,1);shrub.add(stone);
   }
   return world;
 }
