@@ -704,9 +704,7 @@ function animate(){
        [-26.9,-21.1,-19.0,-14.0],
        [SITE_LAYOUT.pointZero.x-3.4,SITE_LAYOUT.pointZero.x+3.4,SITE_LAYOUT.pointZero.z-3.4,SITE_LAYOUT.pointZero.z+3.4],
        [SITE_LAYOUT.bunker.x-5.8,SITE_LAYOUT.bunker.x+5.8,SITE_LAYOUT.bunker.z-4.3,SITE_LAYOUT.bunker.z+4.3],
-       [18.5,23.5,-33.5,-26.5],
-       [45.5,50.5,17.5,24.5],
-       [54.5,59.5,-29.5,-22.5]
+       // Les anciens abris du plateau ont été supprimés : aucune collision fantôme.
      ];
      const overlaps=(x,z)=>siteWalls.some(([x1,x2,z1,z2])=>
        x+playerRadius>x1&&x-playerRadius<x2&&z+playerRadius>z1&&z-playerRadius<z2
