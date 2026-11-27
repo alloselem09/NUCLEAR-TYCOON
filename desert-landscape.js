@@ -136,9 +136,9 @@ export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,
   const bunkerSand=mat('#b88a59',1), bunkerEarth=mat('#9d704b',1), bunkerTimber=mat('#624a35',.95), bunkerConcrete=mat('#77776d',.92);
   // Talus bas et large qui donne au bunker son aspect semi-enterré.
   const berm=new THREE.Mesh(new THREE.SphereGeometry(1,10,7),bunkerSand);
-  berm.scale.set(10.5,3.8,8.2);berm.position.set(0,1.8,-1.0);berm.castShadow=true;berm.receiveShadow=true;bunker.add(berm);
+  berm.scale.set(10.5,3.8,4.2);berm.position.set(0,1.8,0);berm.castShadow=true;berm.receiveShadow=true;bunker.add(berm);
   const bermSide=new THREE.Mesh(new THREE.SphereGeometry(1,8,6),bunkerEarth);
-  bermSide.scale.set(8.7,2.8,6.8);bermSide.position.set(0,1.25,-1.2);bermSide.castShadow=true;bunker.add(bermSide);
+  bermSide.scale.set(8.7,2.8,3.5);bermSide.position.set(0,1.25,.1);bermSide.castShadow=true;bunker.add(bermSide);
   // Façade frontale simple, inspirée de la photo : béton, bois et une grande ouverture sombre.
   box(bunker,12,.32,1.0,0,.16,4.0,bunkerConcrete);
   box(bunker,12,.38,.35,0,3.05,4.05,bunkerTimber);
@@ -155,7 +155,10 @@ export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,
   cyl(bunkerDoor,.055,.055,.12,1.88,.92,.16,mat('#d1b477',.35,.55),10);
   bunkerDoor.userData.open=false;
   // Grande vitre d'observation orientée vers la tour (face arrière, -Z).
-  box(bunker,10.2,2.35,.34,0,2.25,-4.48,bunkerConcrete);
+  box(bunker,5.1,2.35,.34,-7.55,2.25,-4.48,bunkerConcrete);
+  box(bunker,5.1,2.35,.34,7.55,2.25,-4.48,bunkerConcrete);
+  box(bunker,10.2,.38,.34,0,.92,-4.48,bunkerConcrete);
+  box(bunker,10.2,.38,.34,0,3.58,-4.48,bunkerConcrete);
   const bunkerGlass=new THREE.Mesh(new THREE.BoxGeometry(8.7,1.55,.12),new THREE.MeshStandardMaterial({color:'#789b9a',metalness:.28,roughness:.18,transparent:true,opacity:.48}));
   bunkerGlass.position.set(0,2.35,-4.28);bunker.add(bunkerGlass);
   for(const x of [-4.45,0,4.45])box(bunker,.12,1.78,.2,x,2.35,-4.18,bunkerTimber);
