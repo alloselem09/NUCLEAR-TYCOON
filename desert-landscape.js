@@ -1,7 +1,7 @@
 // Carte 3D du complexe désertique : zone industrielle compacte au nord-ouest,
 // laboratoire au sud-ouest, grand plateau ouvert à l'est et bunker au sud.
 // Les éléments sont des décors de jeu fictifs, sans fonctions opérationnelles.
-export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,z:-3},bunker:{x:28,z:997}}) {
+export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,z:-3},bunker:{x:28,z:2997}}) {
   const world = new THREE.Group();
   world.name = 'DesertResearchSite';
   site.add(world);
@@ -42,7 +42,7 @@ export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,
   road(4,38,28,3,.12);
   // Liaison piétonne visible : axe mesuré du centre de la tour au centre du bunker.
   const siteDistance=Math.hypot(layout.bunker.x-layout.pointZero.x,layout.bunker.z-layout.pointZero.z);
-  if(Math.abs(siteDistance-1000)>.001)throw new Error('Tour et bunker doivent être séparés de 1 000 mètres.');
+  if(Math.abs(siteDistance-3000)>.001)throw new Error('Tour et bunker doivent être séparés de 3 000 mètres.');
   road(layout.pointZero.x,(layout.pointZero.z+layout.bunker.z)/2,6,siteDistance,Math.atan2(layout.bunker.x-layout.pointZero.x,layout.bunker.z-layout.pointZero.z));
 
   // ZONE INDUSTRIELLE / MINIÈRE — compacte, dans le quadrant supérieur gauche.
