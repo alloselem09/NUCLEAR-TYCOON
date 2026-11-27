@@ -118,14 +118,15 @@ const desertMat=mat('#a18a64'), desertFloor=new THREE.Mesh(new THREE.PlaneGeomet
 // TOUR DE TRINITY — monument historique stylisé, décor uniquement.
 const SITE_LAYOUT=Object.freeze({
   metersPerUnit:1,
+  observationTower:{x:28,z:-3},
   pointZero:{x:28,z:-3},
   bunker:{x:28,z:997}
 });
 const trinityDistance=Math.hypot(
-  SITE_LAYOUT.bunker.x-SITE_LAYOUT.pointZero.x,
-  SITE_LAYOUT.bunker.z-SITE_LAYOUT.pointZero.z
+  SITE_LAYOUT.bunker.x-SITE_LAYOUT.observationTower.x,
+  SITE_LAYOUT.bunker.z-SITE_LAYOUT.observationTower.z
 );
-if(Math.abs(trinityDistance-1000)>.001)throw new Error('La distance Trinity–bunker doit être exactement de 1 000 m.');
+if(Math.abs(trinityDistance-1000)>.001)throw new Error('La distance tour d’observation–bunker doit être exactement de 1 000 m.');
 const trinityTower=new THREE.Group();
 trinityTower.name='TrinityObservationTower';
 trinityTower.position.set(SITE_LAYOUT.pointZero.x,0,SITE_LAYOUT.pointZero.z);
@@ -242,6 +243,14 @@ box(cMachine,3.8,.45,3.8,0,.25,0,mat('#252f31',.5,.4));
 const cShell=cylinder(cMachine,1.05,1.2,2.6,0,1.75,0,mat('#87918b',.35,.55),24);
 cylinder(cMachine,1.13,1.13,.16,0,3.08,0,mat('#d0ad62',.35,.45),24);
 const cGlow=new THREE.PointLight('#d5b66c',2,8);cGlow.position.set(0,3.6,0);cMachine.add(cGlow);
+const cRotor=new THREE.Group();cRotor.position.y=1.75;cMachine.add(cRotor);
+for(let i=0;i<8;i++){
+  const a=i*Math.PI/4;
+  const fin=box(cRotor,.16,1.45,.22,Math.cos(a)*.58,0,Math.sin(a)*.58,mat('#d2b56f',.35,.55));
+  fin.rotation.y=-a;
+}
+cylinder(cRotor,.28,.28,.38,0,0,0,mat('#344448',.4,.65),20);
+const cRotorCap=cylinder(cRotor,.46,.46,.12,0,.78,0,mat('#d9c18a',.3,.55),24);
 
 // Laboratoire rétro : vitrine avec maquette abstraite et scellée du projet Orion.
 // Objet purement visuel : aucune pièce ni fonction technique représentée.
@@ -425,7 +434,7 @@ marker(-36,-43,0xe1bd69);marker(-20,-22,0xd4a85e);marker(-30,22,0xe4c078);marker
 
 let savedResearchStock=0;
 try{savedResearchStock=Number(localStorage.getItem('nt-research-stock')||0)||0;}catch(e){}
-const state={money:0,materials:0,energy:0,delivered:0,researchStock:savedResearchStock,centrifugeVisited:false,labVisited:false,paused:true,started:false,won:false,near:null,mineTime:0};
+const state={money:0,materials:0,energy:0,delivered:0,researchStock:savedResearchStock,centrifugeVisited:false,centrifugeRunning:false,centrifugeProgress:0,centrifugeBatch:0,labVisited:false,paused:true,started:false,won:false,near:null,mineTime:0};
 const keys={};
 window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase()))e.preventDefault();if(e.key.toLowerCase()==='e')interact();if(e.key==='Escape')togglePause();});
 window.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
@@ -477,8 +486,30 @@ function closestTarget(){
  if(rd<4&&rd<dist+1){dist=rd;best={type:'research',obj:researchConsole,label:researchLabel};}
  return best;
 }
+function openCentrifugePanel(){
+ $('centrifuge-panel').classList.remove('hidden');
+ $('centrifuge-panel').setAttribute('aria-hidden','false');
+ updateCentrifugeUI();
+}
+function closeCentrifugePanel(){
+ $('centrifuge-panel').classList.add('hidden');
+ $('centrifuge-panel').setAttribute('aria-hidden','true');
+}
+$('centrifuge-close').addEventListener('click',closeCentrifugePanel);
+function updateCentrifugeUI(){
+ const p=Math.min(1,state.centrifugeProgress);
+ const u235=Math.round(7+p*5),u238=100-u235;
+ $('u235-value').textContent=String(u235).padStart(2,'0');
+ $('u238-value').textContent=String(u238).padStart(2,'0');
+ $('u235-bar').style.width=u235+'%';$('u238-bar').style.width=u238+'%';
+ $('centrifuge-percent').textContent=Math.round(p*100)+' %';
+ $('centrifuge-progress-bar').style.width=(p*100)+'%';
+ $('centrifuge-status').textContent=state.centrifugeRunning?'SIMULATION EN COURS':'CYCLE TERMINÉ';
+ $('centrifuge-batch').textContent=state.centrifugeBatch+' UNITÉ(S) · CHARGE FICTIVE';
+}
 function interact(){
  if(!state.started||state.paused)return;
+ if(!insideLab&&!$('centrifuge-panel').classList.contains('hidden')){closeCentrifugePanel();return;}
  if(insideLab){exitLab();return;}
  const t=closestTarget();if(!t){toast('Aucune interaction à proximité.');return;}
  if(t.type==='labDoor'){enterLab();state.labVisited=true;updateUI();return;}
@@ -490,7 +521,16 @@ function interact(){
   if(state.materials>=3){toast('Tu as assez de minerai. Livre-le au dépôt.');return;}
   t.obj.active=false;t.obj.group.visible=false;state.materials++;hero.setCarrying(state.materials);state.mineTime=.72;updateUI();toast('Extraction terminée : +1 unité de minerai fictif. '+state.materials+'/3.');return;
  }
- if(t.type==='centrifugeBuilding'){state.centrifugeVisited=true;updateUI();toast('Bâtiment centrifugeuse découvert. Installation décorative enregistrée.');return;}
+ if(t.type==='centrifugeBuilding'){
+  state.centrifugeVisited=true;
+  if(state.centrifugeRunning){openCentrifugePanel();toast('La simulation est déjà en cours.');return;}
+  if(state.materials<=0){updateUI();toast('Extrais d’abord du minerai fictif, puis apporte-le ici.');return;}
+  state.centrifugeBatch=state.materials;state.materials=0;hero.setCarrying(0);
+  state.centrifugeProgress=0;state.centrifugeRunning=true;
+  openCentrifugePanel();updateUI();
+  toast('Charge fictive transférée : simulation lancée.');
+  return;
+ }
  if(t.type==='previewCase'){state.labVisited=true;updateUI();toast('Laboratoire découvert : maquette fictive ajoutée au dossier.');return;}
  if(t.type==='depot'){
   if(state.materials===0){toast('Va d’abord extraire du minerai sur le petit gisement.');return;}
@@ -601,6 +641,18 @@ function animate(){
  }
  if(state.mineTime>0){if(!mineAnim&&!hero.isBusy()){hero.play('mine');mineAnim=true;}state.mineTime=Math.max(0,state.mineTime-dt);}else mineAnim=false;
  rotor.rotation.y+=dt*1.8;
+ cRotor.rotation.y+=dt*(state.centrifugeRunning?8.5:1.4);
+ if(state.centrifugeRunning){
+   state.centrifugeProgress=Math.min(1,state.centrifugeProgress+dt/24);
+   updateCentrifugeUI();
+   if(state.centrifugeProgress>=1){
+     state.centrifugeRunning=false;
+     state.researchStock+=state.centrifugeBatch;
+     try{localStorage.setItem('nt-research-stock',String(state.researchStock));}catch(e){}
+     updateCentrifugeUI();updateUI();
+     toast('Simulation terminée : ressources fictives ajoutées au stock de recherche.');
+   }
+ }
  const smokePuffs=desertLandscape.userData.smokePuffs||[];
  smokePuffs.forEach((p,i)=>{
    const cycle=(time*.42+p.phase)%5;
