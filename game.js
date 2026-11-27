@@ -1,3 +1,4 @@
+import { createCharacter } from './character.js';
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js';
 
 const $ = (id) => document.getElementById(id);
@@ -90,59 +91,12 @@ for(const [x,z] of nodePositions){
  nodes.push({group:g,crystal:vein,rock,active:true});
 }
 
-// PERSONNAGE PRINCIPAL — modèle 3D inspiré de la référence fournie
+// PERSONNAGE PRINCIPAL — modèle articulé détaillé fourni dans character.js
 const avatar=new THREE.Group();scene.add(avatar);
-const orange=mat('#e87516',.72), orangeDark=mat('#a9470e',.78), navy=mat('#101b20',.82), bootMat=mat('#080d10',.8), gloveMat=mat('#171c1e',.8);
-const skin=mat('#56372a',.9), helmetMat=mat('#f18a18',.48), yellow=mat('#f5c84c',.48), reflective=mat('#d7e1d9',.32,.18);
-const lens=new THREE.MeshStandardMaterial({color:'#101b20',metalness:.5,roughness:.2});
-const jacket=new THREE.Group(); jacket.position.y=1.42; avatar.add(jacket);
-const torso=box(jacket,.86,.88,.48,0,0,0,orange);
-box(jacket,.9,.13,.505,0,.19,0,yellow);
-box(jacket,.9,.055,.51,0,.11,0,reflective);
-box(jacket,.9,.13,.505,0,-.18,0,yellow);
-box(jacket,.9,.05,.51,0,-.25,0,reflective);
-box(jacket,.12,.82,.025,-.25,0,.252,yellow);
-box(jacket,.12,.82,.025,.25,0,.252,yellow);
-box(jacket,.08,.82,.03,0,0,.26,orangeDark);
-box(jacket,.22,.12,.035,0,.34,.27,orangeDark);
-for(const x of [-.34,.34]){const button=cylinder(jacket,.035,.035,.025,x,.31,.27,gloveMat,10);button.rotation.x=Math.PI/2;}
-const neck=cylinder(avatar,.16,.17,.18,0,1.94,0,skin,12);
-const head=new THREE.Group();head.position.set(0,2.18,.015);avatar.add(head);
-const faceShape=new THREE.Mesh(new THREE.SphereGeometry(.32,18,14),skin);faceShape.scale.set(1,.98,.86);faceShape.castShadow=true;head.add(faceShape);
-const faceMask=box(head,.43,.23,.12,0,-.045,.255,gloveMat);
-const goggleFrame=box(head,.48,.16,.09,0,.055,.285,orangeDark);
-box(head,.19,.105,.025,-.12,.055,.34,lens);
-box(head,.19,.105,.025,.12,.055,.34,lens);
-box(head,.06,.055,.035,0,.055,.345,mat('#e7a33c'));
-const helmet=new THREE.Mesh(new THREE.SphereGeometry(.39,20,14,0,Math.PI*2,0,Math.PI*.52),helmetMat);
-helmet.position.y=.22;helmet.scale.set(1.08,.82,1);helmet.castShadow=true;head.add(helmet);
-box(head,.92,.075,.48,0,.12,.015,helmetMat);
-box(head,.16,.08,.08,0,.02,.37,yellow);
-const packGroup=new THREE.Group();packGroup.position.set(0,1.42,-.34);avatar.add(packGroup);
-box(packGroup,.62,.78,.3,0,0,-.08,navy);
-box(packGroup,.48,.16,.32,0,.32,-.08,mat('#26383b'));
-box(packGroup,.12,.58,.07,-.34,0,.13,orangeDark);
-box(packGroup,.12,.58,.07,.34,0,.13,orangeDark);
-box(packGroup,.34,.2,.08,0,-.12,-.245,mat('#35464a'));
-const arms=[],legs=[];
-for(const side of [-1,1]){
- const arm=new THREE.Group();arm.position.set(side*.5,1.73,0);avatar.add(arm);arms.push(arm);
- const sleeve=new THREE.Mesh(new THREE.CylinderGeometry(.145,.17,.62,10),orange);sleeve.position.y=-.31;sleeve.castShadow=true;arm.add(sleeve);
- const upperStripe=box(arm,.29,.085,.31,0,-.22,0,yellow);
- box(arm,.29,.045,.315,0,-.27,0,reflective);
- const cuff=new THREE.Mesh(new THREE.CylinderGeometry(.13,.14,.13,10),orangeDark);cuff.position.y=-.59;arm.add(cuff);
- const glove=new THREE.Mesh(new THREE.SphereGeometry(.13,10,8),gloveMat);glove.position.y=-.7;arm.add(glove);
- const leg=new THREE.Group();leg.position.set(side*.23,.98,0);avatar.add(leg);legs.push(leg);
- const trousers=new THREE.Mesh(new THREE.CylinderGeometry(.17,.145,.78,10),navy);trousers.position.y=-.39;trousers.castShadow=true;leg.add(trousers);
- const knee=box(leg,.3,.16,.23,0,-.37,.015,mat('#17262b'));
- const boot=box(leg,.34,.2,.48,0,-.82,.08,bootMat);
- box(leg,.34,.055,.49,0,-.72,.08,mat('#4b5553'));
-}
-const pickaxe=new THREE.Group();pickaxe.position.set(.02,-.77,.08);arms[1].add(pickaxe);
-const handle=new THREE.Mesh(new THREE.CylinderGeometry(.035,.045,.92,8),mat('#5a3822'));handle.rotation.z=-.12;pickaxe.add(handle);
-const pickHead=box(pickaxe,.72,.095,.12,0,.4,0,mat('#687579',.38,.65));
-const pickTip=new THREE.Mesh(new THREE.ConeGeometry(.09,.28,8),mat('#687579',.38,.65));pickTip.rotation.z=Math.PI/2;pickTip.position.x=.43;pickaxe.add(pickTip);
+const hero=createCharacter(THREE,{scale:1.5});
+avatar.add(hero.root);
 avatar.position.set(-5,0,7);
+let mineAnim=false;
 
 // MODE MILITAIRE : personnage officiel en costume, avec mallette.
 const official = new THREE.Group(); scene.add(official);
@@ -339,11 +293,11 @@ function interact(){
  const t=closestTarget();if(!t){toast('Aucune interaction à proximité.');return;}
  if(t.type==='node'){
   if(state.materials>=3){toast('Tu as assez de minerai. Livre-le au dépôt.');return;}
-  t.obj.active=false;t.obj.group.visible=false;state.materials++;state.mineTime=.72;updateUI();toast('Extraction terminée : +1 unité de minerai fictif. '+state.materials+'/3.');return;
+  t.obj.active=false;t.obj.group.visible=false;state.materials++;hero.setCarrying(state.materials);state.mineTime=.72;updateUI();toast('Extraction terminée : +1 unité de minerai fictif. '+state.materials+'/3.');return;
  }
  if(t.type==='depot'){
   if(state.materials===0){toast('Va d’abord extraire du minerai sur le petit gisement.');return;}
-  const count=state.materials;state.materials=0;state.delivered+=count;state.researchStock+=count;try{localStorage.setItem('nt-research-stock',String(state.researchStock));}catch(e){}state.money+=500;updateUI();toast('Livraison validée : +500 €. Bon travail !');return;
+  const count=state.materials;state.materials=0;hero.setCarrying(0);state.delivered+=count;state.researchStock+=count;try{localStorage.setItem('nt-research-stock',String(state.researchStock));}catch(e){}state.money+=500;updateUI();toast('Livraison validée : +500 €. Bon travail !');return;
  }
  if(t.type==='bakery'){
   if(state.bakeryOn){toast('La boulangerie est déjà alimentée.');return;}
@@ -392,11 +346,10 @@ function animate(){
   let dx=0,dz=0;
   if(keys.arrowup)dz-=1;if(keys.arrowdown)dz+=1;if(keys.arrowleft)dx-=1;if(keys.arrowright)dx+=1;
   const moving=dx!==0||dz!==0;
-  if(moving){const len=Math.hypot(dx,dz);dx/=len;dz/=len;avatar.position.x+=dx*7*dt;avatar.position.z+=dz*7*dt;avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-28,28);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z,-24,24);avatar.rotation.y=Math.atan2(dx,dz);walkTime+=dt*10;legs[0].rotation.x=Math.sin(walkTime)*.55;legs[1].rotation.x=-Math.sin(walkTime)*.55;arms[0].rotation.x=-Math.sin(walkTime)*.35;arms[1].rotation.x=Math.sin(walkTime)*.35;jacket.position.y=1.42+Math.abs(Math.sin(walkTime))*.035;}
-  else{legs.forEach(l=>l.rotation.x=THREE.MathUtils.damp(l.rotation.x,0,8,dt));arms.forEach(a=>a.rotation.x=THREE.MathUtils.damp(a.rotation.x,0,8,dt));jacket.position.y=THREE.MathUtils.damp(jacket.position.y,1.42,8,dt);}
+  if(moving){const len=Math.hypot(dx,dz);dx/=len;dz/=len;avatar.position.x+=dx*7*dt;avatar.position.z+=dz*7*dt;avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-28,28);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z,-24,24);avatar.rotation.y=Math.atan2(dx,dz);}
+  hero.update(dt,moving,7);
  }
- if(state.mineTime>0){state.mineTime=Math.max(0,state.mineTime-dt);const swing=1-state.mineTime/.72;arms[1].rotation.x=-Math.sin(swing*Math.PI)*1.9;arms[1].rotation.z=-.18;pickaxe.rotation.z=-Math.sin(swing*Math.PI)*.55;}
- else{arms[1].rotation.z=THREE.MathUtils.damp(arms[1].rotation.z,0,9,dt);pickaxe.rotation.z=THREE.MathUtils.damp(pickaxe.rotation.z,0,9,dt);}
+ if(state.mineTime>0){if(!mineAnim&&!hero.isBusy()){hero.play('mine');mineAnim=true;}state.mineTime=Math.max(0,state.mineTime-dt);}else mineAnim=false;
  rotor.rotation.y+=dt*1.8;
  nodes.forEach((n,i)=>{if(n.active){n.crystal.position.y=1.05+Math.sin(time*2+i)*.08;n.crystal.rotation.y=time*.65;}});
  markers.forEach((m,i)=>{m.material.opacity=.5+Math.sin(time*2+i)*.25;m.scale.setScalar(1+Math.sin(time*2+i)*.05);});
