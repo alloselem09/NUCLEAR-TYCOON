@@ -299,7 +299,7 @@ window.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 $('start-btn').addEventListener('click',()=>{state.started=true;state.paused=false;$('intro-screen').classList.add('hidden');toast('Bienvenue à Valmont. Ton premier contrat commence.');});
 $('military-btn').addEventListener('click',beginMilitary);
 $('dialogue-next').addEventListener('click',()=>{if(militaryPhase!=='dialogue')return;if(dialogueIndex<dialogueLines.length-1){dialogueIndex++;showDialogue();}else acceptMilitary();});
-$('cinematic-action').addEventListener('click',startCinematic);
+$('cinematic-action').addEventListener('click',()=>{if(cinematicPhase==='complete')finishCinematic();else startCinematic();});
 $('pause-btn').addEventListener('click',togglePause);
 $('resume-btn').addEventListener('click',togglePause);
 $('continue-btn').addEventListener('click',()=>{$('win-screen').classList.add('hidden');state.won=false;toast('Tu peux continuer à développer ton réseau.');});
