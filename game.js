@@ -213,14 +213,19 @@ militaryWorld.visible=false;
 const controlRoom=new THREE.Group();scene.add(controlRoom);
 const roomWall=mat('#17262c',.92), roomTrim=mat('#52636a',.48,.45);
 box(controlRoom,20,.35,18,0,-.2,0,mat('#111b20'));
-box(controlRoom,20,8,.35,0,3.8,-8.8,roomWall);
+box(controlRoom,5.8,8,.35,-7.1,3.8,-8.8,roomWall);
+box(controlRoom,5.8,8,.35,7.1,3.8,-8.8,roomWall);
+box(controlRoom,8.4,1.35,.35,0,7.1,-8.8,roomWall);
+box(controlRoom,8.4,1.35,.35,0,.7,-8.8,roomWall);
+const panorama=new THREE.Mesh(new THREE.PlaneGeometry(8.3,5.2),new THREE.MeshStandardMaterial({color:'#18313a',transparent:true,opacity:.22,roughness:.25,metalness:.15}));
+panorama.position.set(0,4,-8.58);controlRoom.add(panorama);
 box(controlRoom,.35,8,18,-10,3.8,0,roomWall);
 box(controlRoom,.35,8,18,10,3.8,0,roomWall);
 box(controlRoom,20,.25,18,0,7.8,0,roomWall);
-for(let i=0;i<5;i++){
+for(const x of [-8,-5.4,5.4,8]){
   const screenMat=new THREE.MeshStandardMaterial({color:'#163a43',emissive:'#1c8792',emissiveIntensity:1.2,roughness:.3});
-  box(controlRoom,2.45,1.45,.12,-5+i*2.5,4.8,-8.55,screenMat,false);
-  box(controlRoom,2.5,.08,.18,-5+i*2.5,3.98,-8.45,roomTrim,false);
+  box(controlRoom,2.15,1.25,.12,x,5.5,-8.55,screenMat,false);
+  box(controlRoom,2.2,.08,.18,x,4.83,-8.45,roomTrim,false);
 }
 box(controlRoom,12,.55,2.2,0,1.05,2.0,roomTrim);
 box(controlRoom,12,.16,2.3,0,1.42,2.0,mat('#26383d',.38,.45));
