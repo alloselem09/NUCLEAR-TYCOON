@@ -1,7 +1,7 @@
 // Carte 3D du complexe désertique : zone industrielle compacte au nord-ouest,
 // laboratoire au sud-ouest, grand plateau ouvert à l'est et bunker au sud.
 // Les éléments sont des décors de jeu fictifs, sans fonctions opérationnelles.
-export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,z:-3},bunker:{x:28,z:2997}}) {
+export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,z:-3},bunker:{x:28,z:3997}}) {
   const world = new THREE.Group();
   world.name = 'DesertResearchSite';
   site.add(world);
@@ -20,8 +20,8 @@ export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,
   const metal=mat('#59615d',.62,.45), dark=mat('#252d2d',.78);
   const glass=new THREE.MeshStandardMaterial({color:'#8eaaa5',metalness:.2,roughness:.3});
 
-  const floor=new THREE.Mesh(new THREE.PlaneGeometry(220,3150),sand);
-  floor.rotation.x=-Math.PI/2;floor.position.set(0,-.06,1497);floor.receiveShadow=true;world.add(floor);
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(320,4300),sand);
+  floor.rotation.x=-Math.PI/2;floor.position.set(0,-.06,1997);floor.receiveShadow=true;world.add(floor);
 
   // Désert du Jornada del Muerto : horizon dégagé, sans falaises ni rochers.
   for(let i=0;i<125;i++){
@@ -42,7 +42,7 @@ export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,
   road(4,38,28,3,.12);
   // Liaison piétonne visible : axe mesuré du centre de la tour au centre du bunker.
   const siteDistance=Math.hypot(layout.bunker.x-layout.pointZero.x,layout.bunker.z-layout.pointZero.z);
-  if(Math.abs(siteDistance-3000)>.001)throw new Error('Tour et bunker doivent être séparés de 3 000 mètres.');
+  if(Math.abs(siteDistance-4000)>.001)throw new Error('Tour et bunker doivent être séparés de 4 000 mètres.');
   road(layout.pointZero.x,(layout.pointZero.z+layout.bunker.z)/2,6,siteDistance,Math.atan2(layout.bunker.x-layout.pointZero.x,layout.bunker.z-layout.pointZero.z));
 
   // ZONE INDUSTRIELLE / MINIÈRE — compacte, dans le quadrant supérieur gauche.
@@ -130,9 +130,9 @@ export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,
   // La tour reste le seul élément bâti de cette zone ; l'unique bunker est à 1 000 m.
 
   // UNIQUE BUNKER D'OBSERVATION — décor stylisé, enfoui dans un talus de sable.
-  // Son centre reste exactement à 1 000 m de la tour ; aucune autre construction sur le plateau.
+  // Son centre reste exactement à 4 000 m de la tour ; aucune autre construction sur le plateau.
   const bunker=new THREE.Group();bunker.position.set(layout.bunker.x,0,layout.bunker.z);world.add(bunker);
-  bunker.name='ObservationBunker_1000m';
+  bunker.name='ObservationBunker_4000m';
   const bunkerSand=mat('#b88a59',1), bunkerEarth=mat('#9d704b',1), bunkerTimber=mat('#624a35',.95), bunkerConcrete=mat('#77776d',.92);
   // Talus bas et large qui donne au bunker son aspect semi-enterré.
   const berm=new THREE.Mesh(new THREE.SphereGeometry(1,10,7),bunkerSand);
