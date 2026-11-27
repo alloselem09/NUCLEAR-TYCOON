@@ -247,7 +247,7 @@ for(let i=0;i<8;i++){
 cylinder(cRotor,.28,.28,.38,0,0,0,mat('#344448',.4,.65),20);
 const cRotorCap=cylinder(cRotor,.46,.46,.12,0,.78,0,mat('#d9c18a',.3,.55),24);
 
-// Vitrine Orion supprimée : le laboratoire reste un espace de recherche sans prototype exposé.
+// Le laboratoire reste un espace de recherche sans prototype exposé.
 
 
  // INTÉRIEUR DU LABORATOIRE — espace séparé, accessible par la porte.
@@ -557,7 +557,7 @@ function updateUI(){
  $('money').textContent=state.money.toLocaleString('fr-FR')+' €';$('materials').textContent=state.materials+' / 3';$('energy').textContent=state.energy+' MW';
  if(!state.delivered){$('mission-title').textContent='La mine à ciel ouvert';$('mission-copy').textContent='Approche les blocs et presse E pour extraire 3 unités de minerai d’uranium fictif.';$('progress-label').textContent=state.materials+' / 3 BLOCS EXTRAITS';$('progress-bar').style.width=(state.materials/3*100)+'%';$('mission-reward').textContent='RÉCOMPENSE : 500 €';}
  else if(!state.centrifugeVisited){$('mission-title').textContent='Le bâtiment centrifugeuse';$('mission-copy').textContent='Rejoins le bâtiment de recherche et découvre son installation scénographique.';$('progress-label').textContent='VISITE À EFFECTUER';$('progress-bar').style.width='45%';$('mission-reward').textContent='ÉTAPE DE RECHERCHE';}
- else if(!state.labVisited){$('mission-title').textContent='Le laboratoire rétro';$('mission-copy').textContent='Entre dans le laboratoire et observe la maquette fictive exposée sous vitrine.';$('progress-label').textContent='MAQUETTE À OBSERVER';$('progress-bar').style.width='70%';$('mission-reward').textContent='ÉTAPE DE RECHERCHE';}
+ else if(!state.labVisited){$('mission-title').textContent='Le laboratoire rétro';$('mission-copy').textContent='Entre dans le laboratoire et découvre les installations de recherche.';$('progress-label').textContent='LABORATOIRE À VISITER';$('progress-bar').style.width='70%';$('mission-reward').textContent='ÉTAPE DE RECHERCHE';}
  else {$('mission-title').textContent='Dossier énergétique';$('mission-copy').textContent='Continue à livrer des ressources fictives et consulte le terminal de recherche.';$('progress-label').textContent=Math.min(state.researchStock,6)+' / 6 RESSOURCES';$('progress-bar').style.width=(Math.min(state.researchStock,6)/6*100)+'%';$('mission-reward').textContent=state.researchStock>=6?'TERMINAL DÉBLOQUÉ':'OBJECTIF DE RECHERCHE';}
  $('research-stock').textContent=state.researchStock+' UNITÉS';
  $('objective-chip').innerHTML='<span class="pulse"></span> OBJECTIF <b>'+(!state.delivered?'EXTRAIRE LES BLOCS':!state.centrifugeVisited?'VISITER LA CENTRIFUGEUSE':!state.labVisited?'VISITER LE LABORATOIRE':state.researchStock>=6?'REJOINDRE LE TERMINAL':'PRÉPARER LE DOSSIER ÉNERGÉTIQUE')+'</b>';
@@ -639,7 +639,6 @@ function interact(){
   t.obj.active=false;t.obj.group.visible=false;state.materials++;hero.setCarrying(state.materials);state.mineTime=.72;updateUI();toast('Extraction terminée : +1 unité de minerai d’uranium fictif. '+state.materials+'/3.');return;
  }
  if(t.type==='centrifugeBuilding'){state.centrifugeVisited=true;enterCentrifuge();updateUI();return;}
- if(t.type==='previewCase'){state.labVisited=true;updateUI();toast('Laboratoire découvert : maquette fictive ajoutée au dossier.');return;}
  if(t.type==='depot'){
   if(state.materials===0){toast('Va d’abord extraire du minerai sur le petit gisement.');return;}
   const count=state.materials;state.materials=0;hero.setCarrying(0);state.delivered+=count;state.researchStock+=count;try{localStorage.setItem('nt-research-stock',String(state.researchStock));}catch(e){}state.money+=500;updateUI();toast('Livraison validée : +500 €. Bon travail !');return;
