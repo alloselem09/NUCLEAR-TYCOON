@@ -6,9 +6,9 @@ const $ = (id) => document.getElementById(id);
 const canvas = $('game-canvas');
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x9bb4b1);
-scene.fog = new THREE.Fog(0x9bb4b1, 38, 1350);
+scene.fog = new THREE.Fog(0x9bb4b1, 38, 1450);
 
-const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 1500);
+const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 1650);
 camera.position.set(10, 10, 14);
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -115,42 +115,75 @@ const desertMat=mat('#a18a64'), desertFloor=new THREE.Mesh(new THREE.PlaneGeomet
 // Le laboratoire principal est construit dans desert-landscape.js.
  // On évite de créer un second bâtiment au milieu du plateau.
 
-// REPÈRE HISTORIQUE : tour stylisée inspirée de la silhouette de Trinity.
-// Monument de décor uniquement, sans fonction technique.
-const trinityTower=new THREE.Group();trinityTower.position.set(28,0,-3);trinityTower.scale.set(.72,.72,.72);militaryWorld.add(trinityTower);
-const towerMetal=mat('#555e5a',.62,.72), towerGold=mat('#9b895e',.7,.45);
-const towerLevels=[0,2.3,4.6,6.9,9.2];
-for(let level=0;level<towerLevels.length;level++){
-  const y=towerLevels[level], half=2.15-level*.22;
-  for(const sx of [-1,1]) for(const sz of [-1,1]){
-    const post=cylinder(trinityTower,.055,.075,2.3, sx*half,y+1.15,sz*half,towerMetal,8);
-    post.rotation.z=sx*.025;
-  }
-  if(level>0){
-    const prev=2.15-(level-1)*.22;
-    for(const side of [-1,1]){
-      const brace=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,Math.hypot(2.3,Math.SQRT2*(prev-half)),8),towerGold);
-      brace.position.set(side*(prev+half)/2,y-1.15,0);
-      brace.rotation.z=Math.atan2(2.3,2*(prev-half));trinityTower.add(brace);
-    }
-  }
-  const deck=box(trinityTower,half*2,.12,half*2,0,y,0,towerMetal,false);
-  if(level===towerLevels.length-1) box(trinityTower,1.5,.45,1.5,0,y+.28,0,towerGold);
+// TOUR DE TRINITY — monument historique stylisé, décor uniquement.
+const SITE_LAYOUT=Object.freeze({
+  metersPerUnit:1,
+  pointZero:{x:28,z:-3},
+  bunker:{x:28,z:997}
+});
+const trinityDistance=Math.hypot(
+  SITE_LAYOUT.bunker.x-SITE_LAYOUT.pointZero.x,
+  SITE_LAYOUT.bunker.z-SITE_LAYOUT.pointZero.z
+);
+if(Math.abs(trinityDistance-1000)>.001)throw new Error('La distance Trinity–bunker doit être exactement de 1 000 m.');
+const trinityTower=new THREE.Group();
+trinityTower.name='TrinityObservationTower';
+trinityTower.position.set(SITE_LAYOUT.pointZero.x,0,SITE_LAYOUT.pointZero.z);
+militaryWorld.add(trinityTower);
+const towerSteel=mat('#59615f',.48,.78),towerDark=mat('#303b3b',.58,.72);
+const towerRust=mat('#8c6849',.82,.25),towerLampMat=new THREE.MeshStandardMaterial({color:'#e4b85e',emissive:'#d58a28',emissiveIntensity:1.6});
+const towerHeight=30,towerLevels=[0,5,10,15,20,25,30];
+const towerHalf=y=>3.15-(y/towerHeight)*1.25;
+function towerBeam(a,b,r,material){
+ const va=new THREE.Vector3(...a),vb=new THREE.Vector3(...b),delta=new THREE.Vector3().subVectors(vb,va);
+ const mesh=new THREE.Mesh(new THREE.CylinderGeometry(r*.78,r,delta.length(),8),material);
+ mesh.position.copy(va).add(vb).multiplyScalar(.5);
+ mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),delta.normalize());
+ mesh.castShadow=true;mesh.receiveShadow=true;trinityTower.add(mesh);return mesh;
 }
-// Petites traverses décoratives sur les quatre faces.
-for(let level=0;level<4;level++){
-  const y=towerLevels[level]+1.15, half=2.15-level*.22, next=2.15-(level+1)*.22;
-  for(const side of [-1,1]){
-    const bar=box(trinityTower,half+next,.07,.07,0,y,side*(half+next)/2,towerMetal,false);
-    const bar2=box(trinityTower,.07,.07,half+next,side*(half+next)/2,y,0,towerMetal,false);
-  }
+for(const sx of [-1,1])for(const sz of [-1,1]){
+ towerBeam([sx*3.15,0,sz*3.15],[sx*1.9,30,sz*1.9],.13,towerSteel);
 }
-cylinder(trinityTower,.18,.18,.3,0,.15,0,towerMetal,12);
+for(let i=0;i<towerLevels.length;i++){
+ const y=towerLevels[i],h=towerHalf(y);
+ box(trinityTower,h*2,.22,h*2,0,y,0,towerDark);
+ for(const sx of [-1,1])for(const sz of [-1,1])box(trinityTower,.25,.25,.25,sx*h,y+.12,sz*h,towerRust);
+ if(i<towerLevels.length-1){
+  const y2=towerLevels[i+1],h2=towerHalf(y2);
+  for(const face of ['front','back','left','right']){
+   let a,b,c,d;
+   if(face==='front'||face==='back'){
+    const sign=face==='front'?1:-1;
+    a=[-h,y,sign*h];b=[h,y,sign*h];c=[h2,y2,sign*h2];d=[-h2,y2,sign*h2];
+   }else{
+    const sign=face==='right'?1:-1;
+    a=[sign*h,y,-h];b=[sign*h,y,h];c=[sign*h2,y2,h2];d=[sign*h2,y2,-h2];
+   }
+   towerBeam(a,c,.065,towerSteel);towerBeam(b,d,.065,towerSteel);
+   towerBeam(a,b,.045,towerRust);
+  }
+ }
+}
+for(let y=1;y<28;y+=.55)box(trinityTower,.72,.055,.07,-2.05,y,-1.92,towerRust,false);
+for(const x of [-2.42,-1.68])towerBeam([x,.5,-1.92],[x,29.8,-1.92],.045,towerRust);
+for(const sx of [-1,1])for(const sz of [-1,1])towerBeam([sx*1.9,30,sz*1.9],[sx*1.9,31,sz*1.9],.055,towerSteel);
+for(const side of [-1,1]){
+ box(trinityTower,3.8,.08,.08,0,30.85,side*1.9,towerSteel,false);
+ box(trinityTower,.08,.08,3.8,side*1.9,30.85,0,towerSteel,false);
+}
+box(trinityTower,4.1,.22,4.1,0,30.05,0,towerDark);
+const beacon=new THREE.Mesh(new THREE.SphereGeometry(.22,16,12),towerLampMat);
+beacon.position.set(0,31.25,0);trinityTower.add(beacon);
+const towerLight=new THREE.PointLight('#e4b85e',2.2,16);towerLight.position.set(0,31.4,0);trinityTower.add(towerLight);
+for(let i=0;i<8;i++){
+ const bolt=new THREE.Mesh(new THREE.SphereGeometry(.07,8,6),towerRust);
+ const a=i*Math.PI/4;bolt.position.set(Math.cos(a)*2.65,5,Math.sin(a)*2.65);trinityTower.add(bolt);
+}
 
 // Modules de recherche fictifs : accessoires visuels non fonctionnels.
 // Plateau central volontairement dégagé : pas de groupe d'objets superflu.
 // Nouveau décor principal : site désertique isolé, sans ville ni boulangerie.
-const desertLandscape = createDesertLandscape(THREE, militaryWorld, mat);
+const desertLandscape = createDesertLandscape(THREE, militaryWorld, mat, SITE_LAYOUT);
 
  // Porte battante du laboratoire, alignée sur l'ouverture de la façade.
  const labDoorPivot=new THREE.Group();
@@ -172,7 +205,7 @@ scene.children.forEach((object) => {
   if (object.userData?.legacyTree || object.name === 'legacyRoad') object.visible = false;
 });
 scene.background = new THREE.Color('#c58d5a');
-scene.fog = new THREE.Fog('#c58d5a', 75, 1400);
+scene.fog = new THREE.Fog('#c58d5a', 75, 1500);
 
 
 
@@ -271,8 +304,10 @@ box(previewCase,2.4,.35,.12,0,.48,1.62,mat('#d2b879',.55,.2));
    lamp.position.set(x,3.35,-.4);labInterior.add(lamp);
  }
  const interiorLight=new THREE.PointLight('#f0d9a3',18,24);interiorLight.position.set(0,3.6,0);labInterior.add(interiorLight);
- const interiorDoor=new THREE.Group();interiorDoor.position.set(0,0,5.9);labInterior.add(interiorDoor);
- box(interiorDoor,1.5,2.4,.16,0,1.2,0,mat('#48534c'));
+ box(labInterior,6.9,4.5,.25,-4.45,2.15,6.45,mat('#777f79'));
+ box(labInterior,6.9,4.5,.25,4.45,2.15,6.45,mat('#777f79'));
+ const interiorDoor=new THREE.Group();interiorDoor.position.set(-.75,0,6.35);labInterior.add(interiorDoor);
+ box(interiorDoor,1.5,2.4,.16,.75,1.2,0,mat('#48534c'));
  // Position et configuration du laboratoire.
  let insideLab=false;
  let selectedLabComponents={console:'analogique',sensors:'standard',lighting:'warm'};
@@ -428,7 +463,7 @@ function updateUI(){
  $('objective-chip').innerHTML='<span class="pulse"></span> OBJECTIF <b>'+(!state.delivered?'EXTRAIRE LES BLOCS':!state.centrifugeVisited?'VISITER LA CENTRIFUGEUSE':!state.labVisited?'VISITER LE LABORATOIRE':state.researchStock>=6?'REJOINDRE LE TERMINAL':'PRÉPARER LE DOSSIER ORION')+'</b>';
 }
 function closestTarget(){
- if(insideLab)return {type:'exitLab',label:'SORTIR DU LABORATOIRE'};
+ if(insideLab){const exitDistance=avatar.position.distanceTo(new THREE.Vector3(240,0,5.1));return exitDistance<2.1?{type:'exitLab',label:'SORTIR DU LABORATOIRE'}:null;}
  let best=null,dist=3.1;
  const doorDistance=avatar.position.distanceTo(new THREE.Vector3(-36.8,0,26.2));
  if(doorDistance<5.2)return {type:'labDoor',label:'ENTRER DANS LE LABORATOIRE'};
@@ -507,20 +542,56 @@ function animate(){
    const oldX=avatar.position.x,oldZ=avatar.position.z;
    let nextX=oldX+vx*7*dt,nextZ=oldZ+vz*7*dt;
    if(insideLab){
-     nextX=THREE.MathUtils.clamp(nextX,234,246);
-     nextZ=THREE.MathUtils.clamp(nextZ,-5.7,4.6);
+     nextX=THREE.MathUtils.clamp(nextX,232.2,247.8);
+     nextZ=THREE.MathUtils.clamp(nextZ,-6.0,6.1);
+     const interiorWalls=[[232.0,248.0,-6.65,-6.25],[231.8,232.2,-6.2,6.3],[247.8,248.2,-6.2,6.3],[232.0,238.9,6.25,6.65],[241.1,248.0,6.25,6.65]];
+     const hit=interiorWalls.some(([x1,x2,z1,z2])=>nextX+.42>x1&&nextX-.42<x2&&nextZ+.42>z1&&nextZ-.42<z2);
+     if(hit){nextX=avatar.position.x;nextZ=avatar.position.z;}
    }else{
-     nextX=THREE.MathUtils.clamp(nextX,-58,58);
-     nextZ=THREE.MathUtils.clamp(nextZ,-58,1045);
-     const blocked=(x,z,minX,maxX,minZ,maxZ)=>x>minX&&x<maxX&&z>minZ&&z<maxZ;
-     // Empreinte des bâtiments : le personnage ne traverse plus les murs.
-     const buildingRects=[
-       [-38.4,-25.6,17.7,26.3], // laboratoire principal
-       [-22.3,-15.7,-22.2,-15.8], // bâtiment de recherche
-       [-41.8,-14.2,-32.8,-11.2], // centrale / hall industriel
-       [22,34,992,1002] // bunker d'observation
+     nextX=THREE.MathUtils.clamp(nextX,-84,84);
+     nextZ=THREE.MathUtils.clamp(nextZ,-160,1065);
+     // Collisions rectangulaires avec rayon du personnage : X puis Z pour glisser le long des murs.
+     const playerRadius=.48;
+     const siteWalls=[
+       // Laboratoire principal, avec passage de porte réel.
+       [-38.12,-25.88,17.88,18.12],
+       [-38.12,-37.88,18.0,26.12],
+       [-26.12,-25.88,18.0,26.12],
+       [-38.0,-37.52,25.88,26.12],
+       [-36.02,-26.0,25.88,26.12],
+       ...(!labDoorPivot.userData.open?[[-37.55,-36.05,25.92,26.32]]:[]),
+       // Annexes et bâtiments.
+       [-27.12,-20.88,15.38,20.62],
+       [-27.62,-22.38,24.88,29.12],
+       [-28.62,-20.38,-28.12,-21.88],
+       [-27.0,-22.0,-18.9,-14.1],
+       [-22.2,-15.8,-21.75,-16.25],
+       [-20.1,-15.9,27.55,30.45],
+       // Installations industrielles.
+       [-36.65,-33.35,-27.5,-24.0],
+       [-32.15,-28.85,-27.5,-24.0],
+       [-28.65,-20.35,-28.12,-21.88],
+       [-26.9,-21.1,-19.0,-14.0],
+       [SITE_LAYOUT.pointZero.x-2,SITE_LAYOUT.pointZero.x+2,SITE_LAYOUT.pointZero.z-2,SITE_LAYOUT.pointZero.z+2],
+       [SITE_LAYOUT.bunker.x-5.8,SITE_LAYOUT.bunker.x+5.8,SITE_LAYOUT.bunker.z-4.3,SITE_LAYOUT.bunker.z+4.3],
+       [18.5,23.5,-33.5,-26.5],
+       [45.5,50.5,17.5,24.5],
+       [54.5,59.5,-29.5,-22.5]
      ];
-     for(const r of buildingRects){if(blocked(nextX,nextZ,...r)){nextX=oldX;nextZ=oldZ;break;}}
+     const overlaps=(x,z)=>siteWalls.some(([x1,x2,z1,z2])=>
+       x+playerRadius>x1&&x-playerRadius<x2&&z+playerRadius>z1&&z-playerRadius<z2
+     );
+     const oldPos=avatar.position.clone();
+     if(!overlaps(nextX,oldZ))avatar.position.x=nextX;
+     if(!overlaps(avatar.position.x,nextZ))avatar.position.z=nextZ;
+     for(const block of mineBlocks){
+       if(!block.active)continue;
+       const p=block.mesh.getWorldPosition(new THREE.Vector3());
+       if(Math.abs(avatar.position.x-p.x)<1.45&&Math.abs(avatar.position.z-p.z)<1.45){
+         avatar.position.x=oldPos.x;avatar.position.z=oldPos.z;break;
+       }
+     }
+     nextX=avatar.position.x;nextZ=avatar.position.z;
    }
    avatar.position.x=nextX;avatar.position.z=nextZ;
    avatar.rotation.y=Math.atan2(vx,vz);
@@ -563,8 +634,8 @@ function drawMinimap(){
  const map=(x,z)=>({x:90+x*.55,y:8+(z+60)*.105});
  [[depot,'#a8c8c1'],[centrifugeBuilding,'#d4a45e'],[previewCase,'#e4c078']].forEach(([o,col])=>{const p=map(o.position.x,o.position.z);ctx.fillStyle=col;ctx.fillRect(p.x-4,p.y-4,8,8);});
  mineBlocks.forEach(b=>{if(b.active){const p=map(-36+b.mesh.position.x,-43+b.mesh.position.z);ctx.fillStyle='#c6a16b';ctx.fillRect(p.x-2,p.y-2,4,4);}});
- const zero=map(28,-3);ctx.fillStyle='#e35d4f';ctx.beginPath();ctx.arc(zero.x,zero.y,4,0,Math.PI*2);ctx.fill();
- const bunker=map(28,997);ctx.fillStyle='#6fc8bb';ctx.fillRect(bunker.x-4,bunker.y-4,8,8);
+ const zero=map(SITE_LAYOUT.pointZero.x,SITE_LAYOUT.pointZero.z);ctx.fillStyle='#e35d4f';ctx.beginPath();ctx.arc(zero.x,zero.y,4,0,Math.PI*2);ctx.fill();
+ const bunker=map(SITE_LAYOUT.bunker.x,SITE_LAYOUT.bunker.z);ctx.fillStyle='#6fc8bb';ctx.fillRect(bunker.x-4,bunker.y-4,8,8);ctx.strokeStyle='#d9b66b';ctx.lineWidth=1.5;ctx.setLineDash([3,3]);ctx.beginPath();ctx.moveTo(zero.x,zero.y);ctx.lineTo(bunker.x,bunker.y);ctx.stroke();ctx.setLineDash([]);
  const p=map(avatar.position.x,avatar.position.z);ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);ctx.fill();
 }
 $('loading').classList.add('hidden');
