@@ -398,7 +398,7 @@ box(previewCase,2.4,.35,.12,0,.48,1.62,mat('#d2b879',.55,.2));
  function enterBunker(){
    insideBunker=true;bunkerInterior.visible=true;militaryWorld.visible=false;
    avatar.position.set(SITE_LAYOUT.bunker.x,0,SITE_LAYOUT.bunker.z+3.4);avatar.rotation.y=Math.PI;
-   bunkerDoor.rotation.y=-1.35;bunkerDoor.userData.open=true;
+   bunkerDoor.rotation.y=-1.35;bunkerDoor.userData.open=true;bunkerInteriorDoor.rotation.y=-1.25;
    $('pause-btn').classList.add('hidden');
    cameraYaw=0;cameraPitch=.18;cameraDistance=10;
    toast('Bunker d’observation : intérieur accessible.');
@@ -406,7 +406,7 @@ box(previewCase,2.4,.35,.12,0,.48,1.62,mat('#d2b879',.55,.2));
  function exitBunker(){
    insideBunker=false;bunkerInterior.visible=false;militaryWorld.visible=true;
    avatar.position.set(SITE_LAYOUT.bunker.x,0,SITE_LAYOUT.bunker.z+5.9);avatar.rotation.y=Math.PI;
-   bunkerDoor.rotation.y=0;bunkerDoor.userData.open=false;
+   bunkerDoor.rotation.y=0;bunkerDoor.userData.open=false;bunkerInteriorDoor.rotation.y=0;
    $('pause-btn').classList.remove('hidden');
    cameraYaw=Math.PI;cameraPitch=.38;cameraDistance=13;
    toast('Tu as quitté le bunker.');
@@ -755,7 +755,12 @@ function animate(){
        [-28.65,-20.35,-28.12,-21.88],
        [-26.9,-21.1,-19.0,-14.0],
        [SITE_LAYOUT.pointZero.x-3.4,SITE_LAYOUT.pointZero.x+3.4,SITE_LAYOUT.pointZero.z-3.4,SITE_LAYOUT.pointZero.z+3.4],
-       [SITE_LAYOUT.bunker.x-5.8,SITE_LAYOUT.bunker.x+5.8,SITE_LAYOUT.bunker.z-4.3,SITE_LAYOUT.bunker.z+4.3],
+       [SITE_LAYOUT.bunker.x-5.8,SITE_LAYOUT.bunker.x-1.2,SITE_LAYOUT.bunker.z-4.3,SITE_LAYOUT.bunker.z+4.3],
+       [SITE_LAYOUT.bunker.x+1.2,SITE_LAYOUT.bunker.x+5.8,SITE_LAYOUT.bunker.z-4.3,SITE_LAYOUT.bunker.z+4.3],
+       [SITE_LAYOUT.bunker.x-5.8,SITE_LAYOUT.bunker.x+5.8,SITE_LAYOUT.bunker.z-4.3,SITE_LAYOUT.bunker.z-4.0],
+       [SITE_LAYOUT.bunker.x-5.8,SITE_LAYOUT.bunker.x-1.2,SITE_LAYOUT.bunker.z+4.0,SITE_LAYOUT.bunker.z+4.3],
+       [SITE_LAYOUT.bunker.x+1.2,SITE_LAYOUT.bunker.x+5.8,SITE_LAYOUT.bunker.z+4.0,SITE_LAYOUT.bunker.z+4.3],
+       ...(!bunkerDoor.userData.open?[[SITE_LAYOUT.bunker.x-1.2,SITE_LAYOUT.bunker.x+1.2,SITE_LAYOUT.bunker.z+4.0,SITE_LAYOUT.bunker.z+4.3]]:[]),
        // Les anciens abris du plateau ont été supprimés : aucune collision fantôme.
      ];
      const overlaps=(x,z)=>siteWalls.some(([x1,x2,z1,z2])=>
