@@ -400,10 +400,10 @@ box(previewCase,2.4,.35,.12,0,.48,1.62,mat('#d2b879',.55,.2));
  let insideBunker=false;
  function enterBunker(){
    insideBunker=true;bunkerInterior.visible=true;militaryWorld.visible=false;
-   avatar.position.set(SITE_LAYOUT.bunker.x,0,SITE_LAYOUT.bunker.z+3.4);avatar.rotation.y=Math.PI;
+   avatar.position.set(SITE_LAYOUT.bunker.x,0,SITE_LAYOUT.bunker.z+2.5);avatar.rotation.y=Math.PI;
    bunkerDoor.rotation.y=-1.35;bunkerDoor.userData.open=true;bunkerInteriorDoor.rotation.y=-1.25;
    $('pause-btn').classList.add('hidden');
-   cameraYaw=0;cameraPitch=.18;cameraDistance=10;
+   cameraYaw=0;cameraPitch=.18;cameraDistance=4.5;
    toast('Bunker d’observation : intérieur accessible.');
  }
  function exitBunker(){
