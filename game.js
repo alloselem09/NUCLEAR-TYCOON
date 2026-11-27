@@ -178,6 +178,50 @@ scene.background = new THREE.Color('#c58d5a');
 scene.fog = new THREE.Fog('#c58d5a', 75, 165);
 
 
+
+// NOUVELLES INSTALLATIONS DU SITE : mine en blocs, bâtiment centrifugeuse et vitrine de prototype fictif.
+nodes.forEach(n=>{n.group.visible=false;});
+const mineBlocks=[];
+const mineGroup=new THREE.Group();mineGroup.position.set(-30,0,-12);militaryWorld.add(mineGroup);
+const pitFloor=box(mineGroup,18,.35,14,0,-.12,0,mat('#6d4935'));
+for(let x=-7;x<=7;x+=2) for(let z=-5;z<=5;z+=2){
+  const blockMat=mat(['#8b6045','#9b704d','#76513e'][(Math.abs(x+z)/2)%3|0],1);
+  const block=box(mineGroup,1.92,1.9,1.92,x,.95,z,blockMat);
+  block.userData.mineable=true;
+  mineBlocks.push({mesh:block,active:true});
+  const seam=box(mineGroup,.32,.18,.32,x-.25,1.96,z-.2,mat('#c6a16b',.9));
+}
+for(const [x,z] of [[-9,-7],[9,-7],[-9,7],[9,7]]) box(mineGroup,.7,2.2,.7,x,1.1,z,mat('#6b5545'));
+
+// Bâtiment de centrifugeuse : équipement scénographique, non fonctionnel.
+const centrifugeBuilding=new THREE.Group();centrifugeBuilding.position.set(5,0,-17);militaryWorld.add(centrifugeBuilding);
+box(centrifugeBuilding,13,5.8,11,0,2.9,0,mat('#777970'));
+box(centrifugeBuilding,13.5,.35,11.5,0,5.85,0,mat('#303b3a'));
+box(centrifugeBuilding,5.8,3.5,.16,0,2.45,5.58,mat('#29383a'));
+for(let x=-2.8;x<=2.81;x+=1.4) box(centrifugeBuilding,.1,3.55,.2,x,2.45,5.7,mat('#a2aaa0'));
+const cSign=box(centrifugeBuilding,3.8,.55,.15,0,4.7,5.78,mat('#d1b474'));
+const cMachine=new THREE.Group();cMachine.position.set(0,0,0);centrifugeBuilding.add(cMachine);
+box(cMachine,3.8,.45,3.8,0,.25,0,mat('#252f31',.5,.4));
+const cShell=cylinder(cMachine,1.05,1.2,2.6,0,1.75,0,mat('#87918b',.35,.55),24);
+cylinder(cMachine,1.13,1.13,.16,0,3.08,0,mat('#d0ad62',.35,.45),24);
+const cGlow=new THREE.PointLight('#d5b66c',2,8);cGlow.position.set(0,3.6,0);cMachine.add(cGlow);
+
+// Laboratoire rétro : vitrine avec maquette abstraite et scellée du projet Orion.
+// Objet purement visuel : aucune pièce ni fonction technique représentée.
+const previewCase=new THREE.Group();previewCase.position.set(17,0,12);militaryWorld.add(previewCase);
+box(previewCase,4.8,.35,3.2,0,.2,0,mat('#343f40',.45,.45));
+const glassMat=new THREE.MeshStandardMaterial({color:'#9bc4c2',transparent:true,opacity:.2,metalness:.25,roughness:.15});
+box(previewCase,4.5,2.7,.12,0,1.65,-1.5,glassMat,false);
+box(previewCase,4.5,2.7,.12,0,1.65,1.5,glassMat,false);
+box(previewCase,.12,2.7,3, -2.2,1.65,0,glassMat,false);
+box(previewCase,.12,2.7,3, 2.2,1.65,0,glassMat,false);
+const exhibit=new THREE.Group();exhibit.position.set(0,1.55,0);previewCase.add(exhibit);
+const exhibitCore=new THREE.Mesh(new THREE.SphereGeometry(.72,24,16),new THREE.MeshStandardMaterial({color:'#b5a16d',metalness:.5,roughness:.25,emissive:'#49351b',emissiveIntensity:.45}));
+exhibit.add(exhibitCore);
+const exhibitRings=[];
+for(let i=0;i<3;i++){const ring=new THREE.Mesh(new THREE.TorusGeometry(1.05+i*.18,.045,8,48),mat(i===1?'#d6c18a':'#718d8b',.35,.65));ring.rotation.set(i*.8,.4+i*.55,0);exhibit.add(ring);exhibitRings.push(ring);}
+box(previewCase,2.4,.35,.12,0,.48,1.62,mat('#d2b879',.55,.2));
+
 // CINÉMATIQUE FICTIVE : salle de contrôle et spectacle lumineux stylisé.
 const controlRoom=new THREE.Group();scene.add(controlRoom);
 const roomWall=mat('#17262c',.92), roomTrim=mat('#52636a',.48,.45);
@@ -220,7 +264,7 @@ cinematicCloud.visible=false;controlRoom.visible=false;
 let cinematicPhase='off',cinematicTime=0,countdownShown=5;
 let militaryPhase='off';
 function beginFinalCinematic(){
-  if(militaryPhase!=='off'||!state.villageOn||state.researchStock<6){
+  if(militaryPhase!=='off'||!state.labVisited||state.researchStock<6){
     toast('Le projet Orion est encore verrouillé : réseau actif et 6 unités de recherche requises.');
     return;
   }
@@ -271,7 +315,7 @@ marker(0,1,0x8bd0c8);marker(-11,-7,0xe1bd69);marker(12,-7,0xd4a85e);marker(18,-1
 
 let savedResearchStock=0;
 try{savedResearchStock=Number(localStorage.getItem('nt-research-stock')||0)||0;}catch(e){}
-const state={money:0,materials:0,energy:0,delivered:0,researchStock:savedResearchStock,bakeryOn:false,villageOn:false,paused:true,started:false,won:false,near:null,mineTime:0};
+const state={money:0,materials:0,energy:0,delivered:0,researchStock:savedResearchStock,centrifugeVisited:false,labVisited:false,paused:true,started:false,won:false,near:null,mineTime:0};
 const keys={};
 window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase()))e.preventDefault();if(e.key.toLowerCase()==='e')interact();if(e.key==='Escape')togglePause();});
 window.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
@@ -285,20 +329,20 @@ let toastTimer;
 function toast(msg){const el=$('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2600);}
 function updateUI(){
  $('money').textContent=state.money.toLocaleString('fr-FR')+' €';$('materials').textContent=state.materials+' / 3';$('energy').textContent=state.energy+' MW';
- if(!state.delivered){$('mission-title').textContent='Le premier gisement';$('mission-copy').textContent='Explore le site et extrais 3 unités de minerai fictif avec ta pioche.';$('progress-label').textContent=state.materials+' / 3 EXTRACTIONS';$('progress-bar').style.width=(state.materials/3*100)+'%';$('mission-reward').textContent='RÉCOMPENSE : 500 €';}
- else if(!state.bakeryOn){$('mission-title').textContent='Une première lumière';$('mission-copy').textContent='Retourne à la boulangerie et active son module énergétique.';$('progress-label').textContent='MODULE À INSTALLER';$('progress-bar').style.width='45%';$('mission-reward').textContent='COÛT : 250 €';}
- else if(!state.villageOn){$('mission-title').textContent='Voir plus grand';$('mission-copy').textContent='Alimente le village pour développer ton réseau.';$('progress-label').textContent='RÉSEAU EN COURS';$('progress-bar').style.width='70%';$('mission-reward').textContent='RÉCOMPENSE : 500 €';}
- else {$('mission-title').textContent='Préparer le projet Orion';$('mission-copy').textContent='Le réseau est actif. Livre assez de ressources fictives puis rejoins le terminal de recherche.';$('progress-label').textContent=Math.min(state.researchStock,6)+' / 6 RESSOURCES';$('progress-bar').style.width=(Math.min(state.researchStock,6)/6*100)+'%';$('mission-reward').textContent=state.researchStock>=6?'TERMINAL DÉBLOQUÉ':'OBJECTIF DE RECHERCHE';}
+ if(!state.delivered){$('mission-title').textContent='La mine à ciel ouvert';$('mission-copy').textContent='Approche les blocs et presse E pour extraire 3 unités de minerai fictif.';$('progress-label').textContent=state.materials+' / 3 BLOCS EXTRAITS';$('progress-bar').style.width=(state.materials/3*100)+'%';$('mission-reward').textContent='RÉCOMPENSE : 500 €';}
+ else if(!state.centrifugeVisited){$('mission-title').textContent='Le bâtiment centrifugeuse';$('mission-copy').textContent='Rejoins le bâtiment de recherche et découvre son installation scénographique.';$('progress-label').textContent='VISITE À EFFECTUER';$('progress-bar').style.width='45%';$('mission-reward').textContent='ÉTAPE DE RECHERCHE';}
+ else if(!state.labVisited){$('mission-title').textContent='Le laboratoire rétro';$('mission-copy').textContent='Entre dans le laboratoire et observe la maquette fictive exposée sous vitrine.';$('progress-label').textContent='MAQUETTE À OBSERVER';$('progress-bar').style.width='70%';$('mission-reward').textContent='ÉTAPE DE RECHERCHE';}
+ else {$('mission-title').textContent='Dossier Orion';$('mission-copy').textContent='Continue à livrer des ressources fictives et consulte le terminal de recherche.';$('progress-label').textContent=Math.min(state.researchStock,6)+' / 6 RESSOURCES';$('progress-bar').style.width=(Math.min(state.researchStock,6)/6*100)+'%';$('mission-reward').textContent=state.researchStock>=6?'TERMINAL DÉBLOQUÉ':'OBJECTIF DE RECHERCHE';}
  $('research-stock').textContent=state.researchStock+' UNITÉS';
- $('objective-chip').innerHTML='<span class="pulse"></span> OBJECTIF <b>'+(!state.delivered?'EXTRAIRE DES RESSOURCES':!state.bakeryOn?'ALIMENTER LA BOULANGERIE':!state.villageOn?'ALIMENTER LE VILLAGE':state.researchStock>=6?'REJOINDRE LE TERMINAL':'PRÉPARER LE PROJET ORION')+'</b>';
+ $('objective-chip').innerHTML='<span class="pulse"></span> OBJECTIF <b>'+(!state.delivered?'EXTRAIRE LES BLOCS':!state.centrifugeVisited?'VISITER LA CENTRIFUGEUSE':!state.labVisited?'VISITER LE LABORATOIRE':state.researchStock>=6?'REJOINDRE LE TERMINAL':'PRÉPARER LE DOSSIER ORION')+'</b>';
 }
 function closestTarget(){
  let best=null,dist=3.1;
- for(const n of nodes)if(n.active){const d=avatar.position.distanceTo(n.group.position);if(d<dist){dist=d;best={type:'node',obj:n,label:'MINER LE GISEMENT'};}}
- for(const [type,obj,label] of [['depot',depot,'LIVRER LES MATÉRIAUX'],['bakery',bakery,state.bakeryOn?'BOULANGERIE ALIMENTÉE':'INSTALLER LE MODULE (250 €)'],['village',village,state.villageOn?'VILLAGE ALIMENTÉ':'ALIMENTER LE VILLAGE (500 €)']]){
+ for(const b of mineBlocks)if(b.active){const p=b.mesh.getWorldPosition(new THREE.Vector3());const d=avatar.position.distanceTo(p);if(d<3.5&&d<dist){dist=d;best={type:'mineBlock',obj:b,label:'PIOCHER LE BLOC'};}}
+ for(const [type,obj,label] of [['depot',depot,'LIVRER LES MATÉRIAUX'],['centrifugeBuilding',centrifugeBuilding,'VISITER LE BÂTIMENT CENTRIFUGEUSE'],['previewCase',previewCase,'OBSERVER LE PROTOTYPE FICTIF']]){
   const d=avatar.position.distanceTo(obj.position);if(d<3.8&&d<dist+1){dist=d;best={type,obj,label};}
  }
- const researchLabel=state.villageOn&&state.researchStock>=6?'OUVRIR LE PROJET ORION':'TERMINAL DE RECHERCHE — VERROUILLÉ';
+ const researchLabel=state.labVisited&&state.researchStock>=6?'OUVRIR LE DOSSIER ORION':'TERMINAL DE RECHERCHE — VERROUILLÉ';
  const rd=avatar.position.distanceTo(researchConsole.position);
  if(rd<4&&rd<dist+1){dist=rd;best={type:'research',obj:researchConsole,label:researchLabel};}
  return best;
@@ -306,28 +350,22 @@ function closestTarget(){
 function interact(){
  if(!state.started||state.paused)return;
  const t=closestTarget();if(!t){toast('Aucune interaction à proximité.');return;}
+ if(t.type==='mineBlock'){
+  if(state.materials>=3){toast('Sac plein. Va déposer tes blocs au dépôt.');return;}
+  t.obj.active=false;t.obj.mesh.visible=false;state.materials++;hero.setCarrying(state.materials);state.mineTime=.85;updateUI();toast('Bloc extrait : +1 minerai fictif.');return;
+ }
  if(t.type==='node'){
   if(state.materials>=3){toast('Tu as assez de minerai. Livre-le au dépôt.');return;}
   t.obj.active=false;t.obj.group.visible=false;state.materials++;hero.setCarrying(state.materials);state.mineTime=.72;updateUI();toast('Extraction terminée : +1 unité de minerai fictif. '+state.materials+'/3.');return;
  }
+ if(t.type==='centrifugeBuilding'){state.centrifugeVisited=true;updateUI();toast('Bâtiment centrifugeuse découvert. Installation décorative enregistrée.');return;}
+ if(t.type==='previewCase'){state.labVisited=true;updateUI();toast('Laboratoire découvert : maquette fictive ajoutée au dossier.');return;}
  if(t.type==='depot'){
   if(state.materials===0){toast('Va d’abord extraire du minerai sur le petit gisement.');return;}
   const count=state.materials;state.materials=0;hero.setCarrying(0);state.delivered+=count;state.researchStock+=count;try{localStorage.setItem('nt-research-stock',String(state.researchStock));}catch(e){}state.money+=500;updateUI();toast('Livraison validée : +500 €. Bon travail !');return;
  }
- if(t.type==='bakery'){
-  if(state.bakeryOn){toast('La boulangerie est déjà alimentée.');return;}
-  if(!state.delivered){toast('Termine d’abord la livraison au dépôt.');return;}
-  if(state.money<250){toast('Il te faut 250 € pour installer le module.');return;}
-  state.money-=250;state.bakeryOn=true;state.energy+=2;updateUI();toast('Boulangerie alimentée ! +2 MW au réseau.');return;
- }
- if(t.type==='village'){
-  if(state.villageOn){toast('Le village est déjà alimenté.');return;}
-  if(!state.bakeryOn){toast('Commence par alimenter la boulangerie.');return;}
-  if(state.money<500){toast('Il te faut 500 €. Explore et livre des ressources au dépôt.');return;}
-  state.money-=500;state.villageOn=true;state.energy+=5;updateUI();toast('Le réseau de Valmont est activé ! La campagne continue.');return;
- }
  if(t.type==='research'){
-  if(!state.villageOn||state.researchStock<6){toast('Projet verrouillé : active le village et livre 6 unités de ressources au total.');return;}
+  if(!state.labVisited||state.researchStock<6){toast('Projet verrouillé : active le village et livre 6 unités de ressources au total.');return;}
   beginFinalCinematic();return;
  }
 }
@@ -335,7 +373,11 @@ function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;renderer.setS
 window.addEventListener('resize',resize);resize();
 
 const clock=new THREE.Clock();
-const camOffset=new THREE.Vector3(9,9,11);
+let cameraYaw=Math.PI/4, cameraPitch=.42, cameraDistance=13, pointerLocked=false;
+const cameraTarget=new THREE.Vector3();
+canvas.addEventListener('click',()=>{if(state.started&&!state.paused&&militaryPhase!=='cinematic')canvas.requestPointerLock?.();});
+document.addEventListener('pointerlockchange',()=>{pointerLocked=document.pointerLockElement===canvas;});
+document.addEventListener('mousemove',e=>{if(!pointerLocked)return;cameraYaw-=e.movementX*.0025;cameraPitch=THREE.MathUtils.clamp(cameraPitch-e.movementY*.002,-.12,1.05);});
 let walkTime=0;
 function animate(){
  requestAnimationFrame(animate);
@@ -361,14 +403,31 @@ function animate(){
   let dx=0,dz=0;
   if(keys.arrowup)dz-=1;if(keys.arrowdown)dz+=1;if(keys.arrowleft)dx-=1;if(keys.arrowright)dx+=1;
   const moving=dx!==0||dz!==0;
-  if(moving){const len=Math.hypot(dx,dz);dx/=len;dz/=len;avatar.position.x+=dx*7*dt;avatar.position.z+=dz*7*dt;avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-28,28);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z,-24,24);avatar.rotation.y=Math.atan2(dx,dz);}
+  if(moving){
+   const forwardX=-Math.sin(cameraYaw),forwardZ=-Math.cos(cameraYaw),rightX=Math.cos(cameraYaw),rightZ=-Math.sin(cameraYaw);
+   const mx=rightX*dx+forwardX*(-dz), mz=rightZ*dx+forwardZ*(-dz), len=Math.hypot(mx,mz);
+   const vx=mx/len, vz=mz/len;
+   avatar.position.x+=vx*7*dt;avatar.position.z+=vz*7*dt;
+   avatar.position.x=THREE.MathUtils.clamp(avatar.position.x,-58,58);avatar.position.z=THREE.MathUtils.clamp(avatar.position.z,-58,58);
+   avatar.rotation.y=Math.atan2(vx,vz);
+  }
   hero.update(dt,moving,7);
  }
  if(state.mineTime>0){if(!mineAnim&&!hero.isBusy()){hero.play('mine');mineAnim=true;}state.mineTime=Math.max(0,state.mineTime-dt);}else mineAnim=false;
  rotor.rotation.y+=dt*1.8;
+ exhibit.rotation.y+=dt*.18; exhibitRings.forEach((r,i)=>{r.rotation.x+=dt*(.12+i*.04);r.rotation.y+=dt*(.18+i*.05);});
  nodes.forEach((n,i)=>{if(n.active){n.crystal.position.y=1.05+Math.sin(time*2+i)*.08;n.crystal.rotation.y=time*.65;}});
  markers.forEach((m,i)=>{m.material.opacity=.5+Math.sin(time*2+i)*.25;m.scale.setScalar(1+Math.sin(time*2+i)*.05);});
- if(militaryPhase!=='cinematic'){const desired=militaryPhase==='site'?new THREE.Vector3(8,8,13):avatar.position.clone().add(camOffset);camera.position.lerp(desired,.07);camera.lookAt(militaryPhase==='site'?new THREE.Vector3(0,1,0):new THREE.Vector3(avatar.position.x,1.15,avatar.position.z));}
+ if(militaryPhase!=='cinematic'){
+  cameraTarget.set(avatar.position.x,1.35,avatar.position.z);
+  const horizontal=Math.cos(cameraPitch)*cameraDistance;
+  const desired=new THREE.Vector3(
+   avatar.position.x+Math.sin(cameraYaw)*horizontal,
+   avatar.position.y+2.5+Math.sin(cameraPitch)*cameraDistance,
+   avatar.position.z+Math.cos(cameraYaw)*horizontal
+  );
+  camera.position.lerp(desired,.12);camera.lookAt(cameraTarget);
+ }
  const target=closestTarget();
  $('interaction').classList.toggle('visible',!!target&&state.started&&!state.paused);
  if(target)$('interaction-label').textContent=target.label;
@@ -380,8 +439,8 @@ function drawMinimap(){
  ctx.clearRect(0,0,w,h);ctx.fillStyle='#18282a';ctx.fillRect(0,0,w,h);
  ctx.strokeStyle='#50645b';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(90,0);ctx.lineTo(90,130);ctx.moveTo(0,66);ctx.lineTo(180,66);ctx.stroke();
  const map=(x,z)=>({x:90+x*2.15,y:65+z*2.15});
- [[depot,'#a8c8c1'],[bakery,state.bakeryOn?'#e4c078':'#d4a45e'],[village,state.villageOn?'#e4c078':'#d4a45e'],[workshop,'#879c9a']].forEach(([o,col])=>{const p=map(o.position.x,o.position.z);ctx.fillStyle=col;ctx.fillRect(p.x-4,p.y-4,8,8);});
- nodes.forEach(n=>{if(n.active){const p=map(n.group.position.x,n.group.position.z);ctx.fillStyle='#79d7c8';ctx.fillRect(p.x-2,p.y-2,4,4);}});
+ [[depot,'#a8c8c1'],[centrifugeBuilding,'#d4a45e'],[previewCase,'#e4c078']].forEach(([o,col])=>{const p=map(o.position.x,o.position.z);ctx.fillStyle=col;ctx.fillRect(p.x-4,p.y-4,8,8);});
+ mineBlocks.forEach(b=>{if(b.active){const p=map(-30+b.mesh.position.x,-12+b.mesh.position.z);ctx.fillStyle='#c6a16b';ctx.fillRect(p.x-2,p.y-2,4,4);}});
  const p=map(avatar.position.x,avatar.position.z);ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x,p.y,4,0,Math.PI*2);ctx.fill();
 }
 $('loading').classList.add('hidden');

@@ -22,3 +22,6 @@
 .cinematic-flash{position:absolute;inset:0;background:#fff8d9;opacity:0;pointer-events:none;transition:opacity .25s}
 .cinematic-flash.active{opacity:1}
 @media(max-width:700px){.cinematic-top{top:16px;left:14px;right:14px;font-size:7px;letter-spacing:1px}.cinematic-top span+span{display:none}.cinematic-bottom{bottom:14px;padding:15px}.cinematic-bottom p{font-size:11px}.cinematic-bottom .primary-btn{min-width:220px}.cinematic-glasses span{border-width:4px}}
+
+/* Commande caméra à la souris */
+#game-canvas{cursor:crosshair}body:has(#game-canvas:active){cursor:grabbing}
