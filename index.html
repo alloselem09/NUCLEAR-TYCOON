@@ -125,6 +125,21 @@
     <section class="military-site hidden" id="military-site"><div class="site-heading"><span class="scene-label">CAMPAGNE · NOUVELLE ZONE DÉBLOQUÉE</span><h2>SECTEUR <em>ORION</em></h2><p>Une nouvelle zone de recherche rejoint ta campagne. Explore le site et développe tes installations.</p><div class="site-status">ÉTAPE SUIVANTE · LABORATOIRE ORION</div><div class="site-status" id="site-stock">STOCK DE RECHERCHE : 0 UNITÉ</div></div></section>
     <div class="loading" id="loading"><div class="loader"></div><span>CHARGEMENT DE VALMONT…</span></div>
   </div>
+  <script>
+    // Ne jamais laisser l'écran de chargement tourner sans explication.
+    (() => {
+      const showStartupError = (message) => {
+        const panel = document.getElementById('loading');
+        if (!panel) return;
+        panel.innerHTML = '<div style="max-width:680px;padding:24px;background:#1d2928;border:1px solid #c58d5a;color:#f4ead7;text-align:left"><strong style="display:block;margin-bottom:10px;color:#e5b968">ERREUR AU DÉMARRAGE</strong><span style="font-size:13px;line-height:1.6;overflow-wrap:anywhere"></span><p style="font-size:12px;opacity:.75;margin-top:14px">Copie ce message et envoie-le pour corriger le problème.</p></div>';
+        panel.querySelector('span').textContent = String(message || 'Erreur inconnue');
+        panel.style.display = 'flex';
+        panel.style.zIndex = '99999';
+      };
+      window.addEventListener('error', e => showStartupError(e.message + (e.filename ? ' — ' + e.filename.split('/').pop() : '') + (e.lineno ? ':' + e.lineno : '')));
+      window.addEventListener('unhandledrejection', e => showStartupError(e.reason?.stack || e.reason?.message || e.reason));
+    })();
+  </script>
   <script type="module" src="./game.js"></script>
 </body>
 </html>
