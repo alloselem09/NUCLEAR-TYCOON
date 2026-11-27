@@ -3,3 +3,22 @@
 
 /* Mode militaire — ouverture cinématique */
 .secondary-btn{display:flex;align-items:center;justify-content:space-between;gap:38px;min-width:230px;margin-top:10px;padding:13px 18px;border:1px solid #d6b56d88;background:#172629d9;color:#e9d9b4;font:700 9px 'DM Sans';letter-spacing:1.1px;cursor:pointer;transition:.2s}.secondary-btn:hover{background:#263b3b;transform:translateY(-2px)}.military-dialogue{position:absolute;z-index:12;inset:0;pointer-events:none;background:linear-gradient(180deg,#07111444 0%,transparent 45%,#071114aa 100%)}.scene-label{display:inline-block;color:#e0c17b;font-size:9px;font-weight:700;letter-spacing:2px}.military-dialogue>.scene-label{position:absolute;top:105px;left:36px}.dialogue-card{position:absolute;left:50%;bottom:48px;transform:translateX(-50%);width:min(680px,calc(100% - 32px));padding:22px 25px;background:#101e22ed;border:1px solid #d9b66b99;box-shadow:0 15px 50px #0008;pointer-events:auto}.speaker{font:800 13px 'Barlow Condensed';letter-spacing:2px;color:#e2bd70}.dialogue-card p{font-size:14px;line-height:1.65;color:#f0eee5;margin:10px 0 18px}.dialogue-card .primary-btn{min-width:175px}.military-site{position:absolute;z-index:11;inset:0;pointer-events:none;background:linear-gradient(90deg,#0a1519d9,transparent 72%)}.site-heading{position:absolute;left:5%;top:19%;max-width:390px}.site-heading h2{font:900 clamp(48px,7vw,82px)/.9 'Barlow Condensed';margin:20px 0;color:#f1f0e8}.site-heading h2 em{font-style:normal;color:#d9b66b}.site-heading p{font-size:13px;line-height:1.7;color:#c1cbc3}.site-status{display:inline-block;margin-top:20px;padding:10px 13px;border:1px solid #d9b66b77;background:#142326c9;color:#e5d4a8;font-size:9px;letter-spacing:1.4px}@media(max-width:700px){.military-dialogue>.scene-label{top:82px;left:15px}.dialogue-card{bottom:18px;padding:17px}.dialogue-card p{font-size:12px}.site-heading{top:17%;left:7%;right:7%}}
+
+/* Cinématique fictive — salle de contrôle, lunettes et spectacle lumineux stylisé */
+.cinematic-ui{position:absolute;z-index:15;inset:0;overflow:hidden;color:#f2f1e8;background:linear-gradient(180deg,#06101535,transparent 45%,#050b10bb);pointer-events:none}
+.cinematic-top{position:absolute;top:28px;left:34px;right:34px;display:flex;justify-content:space-between;gap:12px;font-size:9px;letter-spacing:2px;color:#d8c58e}
+.cinematic-top span+span{color:#91a5a5}
+.cinematic-bottom{position:absolute;left:50%;bottom:38px;transform:translateX(-50%);width:min(650px,calc(100% - 32px));text-align:center;padding:22px;background:#0c1a20df;border:1px solid #d9b66b77;box-shadow:0 15px 50px #0008;pointer-events:auto}
+.cinematic-bottom p{margin:0 0 15px;font-size:13px;line-height:1.6;color:#d8e0da}
+.cinematic-bottom .primary-btn{margin:auto;justify-content:center;min-width:270px}
+.cinematic-countdown{position:absolute;left:50%;top:43%;transform:translate(-50%,-50%);font:900 clamp(90px,18vw,190px)/1 'Barlow Condensed';color:#f7e7bd;text-shadow:0 0 35px #f2d68b99;letter-spacing:4px}
+.cinematic-glasses{position:absolute;z-index:2;left:50%;top:44%;transform:translate(-50%,-50%) scale(.65);display:flex;gap:8px;opacity:0;transition:opacity .8s,transform .8s}
+.cinematic-glasses.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.cinematic-glasses span{display:block;width:min(19vw,150px);height:min(12vw,90px);border:7px solid #d9d8c8;border-radius:18px 18px 34px 34px;background:#0b171edb;box-shadow:0 0 22px #b9d9d966}
+.cinematic-glasses i{position:absolute;left:50%;top:34px;width:24px;height:8px;transform:translateX(-50%);background:#d9d8c8}
+.cinematic-hands{position:absolute;left:50%;bottom:0;transform:translateX(-50%);display:flex;gap:90px;opacity:0;animation:hands-rise 1.7s ease-out .3s forwards}
+.cinematic-hands span{display:block;width:78px;height:150px;border-radius:40px 40px 8px 8px;background:linear-gradient(90deg,#101b20,#35434a);border:2px solid #687a7b;box-shadow:0 0 24px #0008}
+@keyframes hands-rise{to{opacity:.95;transform:translate(-50%,-25px)}}
+.cinematic-flash{position:absolute;inset:0;background:#fff8d9;opacity:0;pointer-events:none;transition:opacity .25s}
+.cinematic-flash.active{opacity:1}
+@media(max-width:700px){.cinematic-top{top:16px;left:14px;right:14px;font-size:7px;letter-spacing:1px}.cinematic-top span+span{display:none}.cinematic-bottom{bottom:14px;padding:15px}.cinematic-bottom p{font-size:11px}.cinematic-bottom .primary-btn{min-width:220px}.cinematic-glasses span{border-width:4px}}
