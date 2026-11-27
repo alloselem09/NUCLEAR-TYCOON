@@ -249,25 +249,20 @@ const cloudPuffs=[
 cloudPuffs.forEach(([x,y,z,r])=>{const puff=new THREE.Mesh(new THREE.SphereGeometry(r,18,14),smokeMat);puff.position.set(x,y,z);puff.scale.y=.72;cinematicCloud.add(puff);});
 cinematicCloud.visible=false;controlRoom.visible=false;
 let cinematicPhase='off',cinematicTime=0,countdownShown=5;
-let militaryPhase='off', dialogueIndex=0, officialWalk=0;
-const dialogueLines=[
- ['VISITEUR','Bonsoir. Je représente un service de l’État. Nous avons suivi votre travail à Valmont.'],
- ['LE VISITEUR','Nous vous proposons de prendre la direction d’un petit site expérimental isolé. Vous aurez votre propre laboratoire et une équipe réduite.'],
- ['VOUS','Et qu’attendez-vous de moi ?'],
- ['LE VISITEUR','Explorer un programme de recherche entièrement fictif. Les résultats de vos essais détermineront la suite de votre financement. Alors, vous acceptez ?']
-];
-function showDialogue(){const line=dialogueLines[dialogueIndex];$('dialogue-speaker').textContent=line[0];$('dialogue-text').textContent=line[1];$('dialogue-next').innerHTML=(dialogueIndex===dialogueLines.length-1?'ACCEPTER LA PROPOSITION':'CONTINUER')+' <span>↗</span>';}
-function beginMilitary(){state.started=true;state.paused=false;militaryPhase='arrival';official.visible=true;officialWalk=0;avatar.position.set(-5,0,7);$('intro-screen').classList.add('hidden');$('military-dialogue').classList.remove('hidden');$('dialogue-card');$('dialogue-next').disabled=true;$('dialogue-speaker').textContent='';$('dialogue-text').textContent='Un homme en costume arrive sur le site de Valmont…';}
-function acceptMilitary(){
-  $('military-dialogue').classList.add('hidden');
-  ['.topbar','.mission-panel','.objective-chip','.interaction','.bottom-left','.bottom-right','.vignette'].forEach(sel=>{const el=document.querySelector(sel);if(el)el.classList.add('hidden');});
-  militaryPhase='cinematic';cinematicPhase='ready';cinematicTime=0;
-  $('cinematic-ui').classList.remove('hidden');$('cinematic-caption').textContent='SALLE DE CONTRÔLE · SECTEUR ORION';
-  $('cinematic-instruction').textContent='La salle est silencieuse. Une dernière vérification avant le lancement de la séquence fictive.';
+let militaryPhase='off';
+function beginFinalCinematic(){
+  if(militaryPhase!=='off'||!state.villageOn||state.researchStock<6){
+    toast('Le projet Orion est encore verrouillé : réseau actif et 6 unités de recherche requises.');
+    return;
+  }
+  militaryPhase='cinematic';cinematicPhase='ready';cinematicTime=0;countdownShown=5;
+  $('cinematic-ui').classList.remove('hidden');
+  $('cinematic-caption').textContent='SALLE DE CONTRÔLE · PROJET ORION';
+  $('cinematic-instruction').textContent='Le dossier de recherche fictif est validé. La salle attend votre confirmation.';
   $('cinematic-action').textContent='APPUYER SUR LE BOUTON';$('cinematic-action').classList.remove('hidden');
   $('cinematic-countdown').textContent='';$('cinematic-glasses').classList.remove('on');$('cinematic-flash').classList.remove('active');
   scene.children.forEach(o=>{if(o!==controlRoom&&o!==cinematicCloud&&!o.isLight)o.visible=false;});
-  controlRoom.visible=true;cinematicCloud.visible=false;official.visible=false;avatar.visible=false;
+  controlRoom.visible=true;cinematicCloud.visible=false;avatar.visible=false;official.visible=false;
   scene.background=new THREE.Color('#071116');scene.fog=new THREE.Fog('#071116',30,100);
   camera.position.set(0,2.8,7.2);camera.lookAt(0,2.4,-8);
   $('pause-btn').classList.add('hidden');
@@ -282,18 +277,28 @@ function startCinematic(){
 function finishCinematic(){
   cinematicPhase='off';militaryPhase='site';
   $('cinematic-ui').classList.add('hidden');$('military-site').classList.remove('hidden');
-  $('site-stock').textContent='STOCK DE RECHERCHE : '+state.researchStock+' UNITÉ(S)';
-  controlRoom.visible=false;cinematicCloud.visible=false;militaryWorld.visible=true;official.visible=true;avatar.visible=true;
-  scene.children.forEach(o=>{if(o!==avatar&&o!==official&&!o.isLight&&o!==militaryWorld&&o!==controlRoom&&o!==cinematicCloud)o.visible=false;});
-  official.position.set(-5,0,5);official.rotation.y=Math.PI;avatar.position.set(-8,0,5);avatar.rotation.y=0;
+  $('site-stock').textContent='PROJET ORION : ÉTAPE 1 VALIDÉE';
+  controlRoom.visible=false;cinematicCloud.visible=false;militaryWorld.visible=true;official.visible=false;avatar.visible=true;
+  scene.children.forEach(o=>{if(o!==avatar&&!o.isLight&&o!==militaryWorld&&o!==controlRoom&&o!==cinematicCloud)o.visible=false;});
+  avatar.position.set(-8,0,5);avatar.rotation.y=0;
   scene.background=new THREE.Color('#b69a70');scene.fog=new THREE.Fog('#b69a70',35,100);
   camera.position.set(8,8,13);camera.lookAt(0,1,0);
+  toast('Secteur Orion débloqué. La campagne continue.');
 }
 
 
+// Console de progression : débloque l'événement final après les objectifs de campagne.
+const researchConsole=new THREE.Group();researchConsole.position.set(18,0,-1);scene.add(researchConsole);
+const consoleBody=mat('#26383b',.42,.55),consoleScreen=new THREE.MeshStandardMaterial({color:'#1a4650',emissive:'#1a9a9d',emissiveIntensity:1.25,metalness:.25,roughness:.3});
+box(researchConsole,2.2,1.35,1.25,0,.68,0,consoleBody);
+box(researchConsole,1.55,.78,.08,0,1.55,.63,consoleScreen,false);
+box(researchConsole,2.35,.12,1.35,0,1.38,0,mat('#8c9b93',.35,.55));
+cylinder(researchConsole,.12,.12,.08,-.65,1.48,.72,mat('#d7b45e',.35,.25),16);
+const consoleLamp=new THREE.Mesh(new THREE.SphereGeometry(.11,12,8),new THREE.MeshBasicMaterial({color:0x6ed5c4}));
+consoleLamp.position.set(.65,1.5,.72);researchConsole.add(consoleLamp);
 const markers=[];
 function marker(x,z,color=0xe1bd69){const ring=new THREE.Mesh(new THREE.TorusGeometry(1.05,.055,8,32),new THREE.MeshBasicMaterial({color,transparent:true,opacity:.9}));ring.rotation.x=-Math.PI/2;ring.position.set(x,.08,z);scene.add(ring);markers.push(ring);return ring;}
-marker(0,1,0x8bd0c8);marker(-11,-7,0xe1bd69);marker(12,-7,0xd4a85e);
+marker(0,1,0x8bd0c8);marker(-11,-7,0xe1bd69);marker(12,-7,0xd4a85e);marker(18,-1,0x6ed5c4);
 
 let savedResearchStock=0;
 try{savedResearchStock=Number(localStorage.getItem('nt-research-stock')||0)||0;}catch(e){}
@@ -301,9 +306,7 @@ const state={money:0,materials:0,energy:0,delivered:0,researchStock:savedResearc
 const keys={};
 window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase()))e.preventDefault();if(e.key.toLowerCase()==='e')interact();if(e.key==='Escape')togglePause();});
 window.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
-$('start-btn').addEventListener('click',()=>{state.started=true;state.paused=false;$('intro-screen').classList.add('hidden');toast('Bienvenue à Valmont. Ton premier contrat commence.');});
-$('military-btn').addEventListener('click',beginMilitary);
-$('dialogue-next').addEventListener('click',()=>{if(militaryPhase!=='dialogue')return;if(dialogueIndex<dialogueLines.length-1){dialogueIndex++;showDialogue();}else acceptMilitary();});
+$('start-btn').addEventListener('click',()=>{state.started=true;state.paused=false;$('intro-screen').classList.add('hidden');toast('Bienvenue dans la campagne. Commence par explorer les gisements.');});
 $('cinematic-action').addEventListener('click',()=>{if(cinematicPhase==='complete')finishCinematic();else startCinematic();});
 $('pause-btn').addEventListener('click',togglePause);
 $('resume-btn').addEventListener('click',togglePause);
@@ -313,11 +316,12 @@ let toastTimer;
 function toast(msg){const el=$('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2600);}
 function updateUI(){
  $('money').textContent=state.money.toLocaleString('fr-FR')+' €';$('materials').textContent=state.materials+' / 3';$('energy').textContent=state.energy+' MW';
- if(!state.delivered){$('mission-title').textContent='Le premier gisement';$('mission-copy').textContent='Explore le petit site minier et extrais 3 unités de minerai fictif avec E.';$('progress-label').textContent=state.materials+' / 3 EXTRACTIONS';$('progress-bar').style.width=(state.materials/3*100)+'%';$('mission-reward').textContent='RÉCOMPENSE : 500 €';}
- else if(!state.bakeryOn){$('mission-title').textContent='Une première lumière';$('mission-copy').textContent='Retourne à la boulangerie et active son module énergétique.';$('progress-label').textContent='MODULE À INSTALLER';$('progress-bar').style.width='55%';$('mission-reward').textContent='COÛT : 250 €';}
- else if(!state.villageOn){$('mission-title').textContent='Voir plus grand';$('mission-copy').textContent='Alimente le village pour étendre ton réseau.';$('progress-label').textContent='1 / 2 ZONES ALIMENTÉES';$('progress-bar').style.width='70%';$('mission-reward').textContent='RÉCOMPENSE : 500 €';}
- else {$('mission-title').textContent='Valmont est éclairée';$('mission-copy').textContent='Ton premier réseau énergétique est opérationnel.';$('progress-label').textContent='CONTRAT TERMINÉ';$('progress-bar').style.width='100%';$('mission-reward').textContent='CHAPITRE 01 TERMINÉ';}
- $('objective-chip').innerHTML='<span class="pulse"></span> OBJECTIF <b>'+(!state.delivered?'COLLECTER DES MATÉRIAUX':!state.bakeryOn?'ACTIVER LA BOULANGERIE':!state.villageOn?'ALIMENTER LE VILLAGE':'EXPLORER LIBREMENT')+'</b>';
+ if(!state.delivered){$('mission-title').textContent='Le premier gisement';$('mission-copy').textContent='Explore le site et extrais 3 unités de minerai fictif avec ta pioche.';$('progress-label').textContent=state.materials+' / 3 EXTRACTIONS';$('progress-bar').style.width=(state.materials/3*100)+'%';$('mission-reward').textContent='RÉCOMPENSE : 500 €';}
+ else if(!state.bakeryOn){$('mission-title').textContent='Une première lumière';$('mission-copy').textContent='Retourne à la boulangerie et active son module énergétique.';$('progress-label').textContent='MODULE À INSTALLER';$('progress-bar').style.width='45%';$('mission-reward').textContent='COÛT : 250 €';}
+ else if(!state.villageOn){$('mission-title').textContent='Voir plus grand';$('mission-copy').textContent='Alimente le village pour développer ton réseau.';$('progress-label').textContent='RÉSEAU EN COURS';$('progress-bar').style.width='70%';$('mission-reward').textContent='RÉCOMPENSE : 500 €';}
+ else {$('mission-title').textContent='Préparer le projet Orion';$('mission-copy').textContent='Le réseau est actif. Livre assez de ressources fictives puis rejoins le terminal de recherche.';$('progress-label').textContent=Math.min(state.researchStock,6)+' / 6 RESSOURCES';$('progress-bar').style.width=(Math.min(state.researchStock,6)/6*100)+'%';$('mission-reward').textContent=state.researchStock>=6?'TERMINAL DÉBLOQUÉ':'OBJECTIF DE RECHERCHE';}
+ $('research-stock').textContent=state.researchStock+' UNITÉS';
+ $('objective-chip').innerHTML='<span class="pulse"></span> OBJECTIF <b>'+(!state.delivered?'EXTRAIRE DES RESSOURCES':!state.bakeryOn?'ALIMENTER LA BOULANGERIE':!state.villageOn?'ALIMENTER LE VILLAGE':state.researchStock>=6?'REJOINDRE LE TERMINAL':'PRÉPARER LE PROJET ORION')+'</b>';
 }
 function closestTarget(){
  let best=null,dist=3.1;
@@ -325,6 +329,9 @@ function closestTarget(){
  for(const [type,obj,label] of [['depot',depot,'LIVRER LES MATÉRIAUX'],['bakery',bakery,state.bakeryOn?'BOULANGERIE ALIMENTÉE':'INSTALLER LE MODULE (250 €)'],['village',village,state.villageOn?'VILLAGE ALIMENTÉ':'ALIMENTER LE VILLAGE (500 €)']]){
   const d=avatar.position.distanceTo(obj.position);if(d<3.8&&d<dist+1){dist=d;best={type,obj,label};}
  }
+ const researchLabel=state.villageOn&&state.researchStock>=6?'OUVRIR LE PROJET ORION':'TERMINAL DE RECHERCHE — VERROUILLÉ';
+ const rd=avatar.position.distanceTo(researchConsole.position);
+ if(rd<4&&rd<dist+1){dist=rd;best={type:'research',obj:researchConsole,label:researchLabel};}
  return best;
 }
 function interact(){
@@ -347,8 +354,12 @@ function interact(){
  if(t.type==='village'){
   if(state.villageOn){toast('Le village est déjà alimenté.');return;}
   if(!state.bakeryOn){toast('Commence par alimenter la boulangerie.');return;}
-  if(state.money<500){toast('Il te faut 500 €. Explore et livre des caisses au dépôt.');return;}
-  state.money-=500;state.villageOn=true;state.energy+=5;updateUI();$('win-screen').classList.remove('hidden');state.paused=true;toast('Le réseau de Valmont est activé !');return;
+  if(state.money<500){toast('Il te faut 500 €. Explore et livre des ressources au dépôt.');return;}
+  state.money-=500;state.villageOn=true;state.energy+=5;updateUI();toast('Le réseau de Valmont est activé ! La campagne continue.');return;
+ }
+ if(t.type==='research'){
+  if(!state.villageOn||state.researchStock<6){toast('Projet verrouillé : active le village et livre 6 unités de ressources au total.');return;}
+  beginFinalCinematic();return;
  }
 }
 function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
@@ -360,7 +371,6 @@ let walkTime=0;
 function animate(){
  requestAnimationFrame(animate);
  const dt=Math.min(clock.getDelta(),.04),time=clock.elapsedTime;
- if(militaryPhase==='arrival'){officialWalk=Math.min(1,officialWalk+dt*.22);official.position.x=15-(20*officialWalk);official.position.z=9-(2*officialWalk);official.rotation.y=-1.1+officialWalk*.7;if(officialWalk>=1){militaryPhase='dialogue';$('dialogue-next').disabled=false;dialogueIndex=0;showDialogue();}}
  if(cinematicPhase==='complete'&&cinematicCloud.visible){cinematicCloud.scale.setScalar(1.2+Math.sin(time*.35)*.025);}
  if(militaryPhase==='cinematic'){
   cinematicTime+=dt;
@@ -378,7 +388,7 @@ function animate(){
   }
   if(cinematicPhase==='ready'||cinematicPhase==='glasses'||cinematicPhase==='countdown'){camera.position.x=Math.sin(time*.25)*.035;camera.position.y=2.8+Math.sin(time*.5)*.018;camera.lookAt(0,2.4,-8);}
  }
- if(state.started&&!state.paused&&militaryPhase==='off'){
+ if(state.started&&!state.paused&&(militaryPhase==='off'||militaryPhase==='site')){
   let dx=0,dz=0;
   if(keys.arrowup)dz-=1;if(keys.arrowdown)dz+=1;if(keys.arrowleft)dx-=1;if(keys.arrowright)dx+=1;
   const moving=dx!==0||dz!==0;
