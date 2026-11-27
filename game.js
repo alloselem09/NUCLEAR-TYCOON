@@ -342,7 +342,7 @@ function closestTarget(){
  for(const [type,obj,label] of [['depot',depot,'LIVRER LES MATÉRIAUX'],['centrifugeBuilding',centrifugeBuilding,'VISITER LE BÂTIMENT CENTRIFUGEUSE'],['previewCase',previewCase,'OBSERVER LE PROTOTYPE FICTIF']]){
   const d=avatar.position.distanceTo(obj.position);if(d<3.8&&d<dist+1){dist=d;best={type,obj,label};}
  }
- const researchLabel=state.villageOn&&state.researchStock>=6?'OUVRIR LE PROJET ORION':'TERMINAL DE RECHERCHE — VERROUILLÉ';
+ const researchLabel=state.labVisited&&state.researchStock>=6?'OUVRIR LE DOSSIER ORION':'TERMINAL DE RECHERCHE — VERROUILLÉ';
  const rd=avatar.position.distanceTo(researchConsole.position);
  if(rd<4&&rd<dist+1){dist=rd;best={type:'research',obj:researchConsole,label:researchLabel};}
  return best;
@@ -363,18 +363,6 @@ function interact(){
  if(t.type==='depot'){
   if(state.materials===0){toast('Va d’abord extraire du minerai sur le petit gisement.');return;}
   const count=state.materials;state.materials=0;hero.setCarrying(0);state.delivered+=count;state.researchStock+=count;try{localStorage.setItem('nt-research-stock',String(state.researchStock));}catch(e){}state.money+=500;updateUI();toast('Livraison validée : +500 €. Bon travail !');return;
- }
- if(t.type==='bakery'){
-  if(state.bakeryOn){toast('La boulangerie est déjà alimentée.');return;}
-  if(!state.delivered){toast('Termine d’abord la livraison au dépôt.');return;}
-  if(state.money<250){toast('Il te faut 250 € pour installer le module.');return;}
-  state.money-=250;state.bakeryOn=true;state.energy+=2;updateUI();toast('Boulangerie alimentée ! +2 MW au réseau.');return;
- }
- if(t.type==='village'){
-  if(state.villageOn){toast('Le village est déjà alimenté.');return;}
-  if(!state.bakeryOn){toast('Commence par alimenter la boulangerie.');return;}
-  if(state.money<500){toast('Il te faut 500 €. Explore et livre des ressources au dépôt.');return;}
-  state.money-=500;state.villageOn=true;state.energy+=5;updateUI();toast('Le réseau de Valmont est activé ! La campagne continue.');return;
  }
  if(t.type==='research'){
   if(!state.villageOn||state.researchStock<6){toast('Projet verrouillé : active le village et livre 6 unités de ressources au total.');return;}
