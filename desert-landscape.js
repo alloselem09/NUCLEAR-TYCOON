@@ -185,7 +185,7 @@ export function createDesertLandscape(THREE, site, mat, layout={pointZero:{x:28,
       twig.rotation.z=(j-1)*.65;
     }
   }
-  world.userData.bunkerDoor=bunker.userData.bunkerDoor;
+  world.userData.bunkerDoor=bunker.userData.door;
   world.userData.bunker=bunker;
   return world;
 }
