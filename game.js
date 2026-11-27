@@ -41,19 +41,9 @@ function cylinder(parent, rt,rb,h,x,y,z,material,segments=20) {
   const m = new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,segments),material);
   m.position.set(x,y,z); m.castShadow=true; m.receiveShadow=true; parent.add(m); return m;
 }
-function makeBuilding(x,z,w,h,d,wall,roof,label) {
-  const g = new THREE.Group(); g.position.set(x,0,z); scene.add(g);
-  box(g,w,h,d,0,h/2,0,mat(wall));
-  box(g,w+0.25,0.35,d+0.25,0,h+0.17,0,mat(roof));
-  for(let i=-1;i<=1;i++) box(g,0.65,0.9,0.08,i*w*0.25,h*0.48,d/2+0.045,mat('#a9c6c4',0.4,0.2),false);
-  box(g,w*0.2,1.35,0.12,0,0.68,d/2+0.08,mat('#263a3d'));
-  g.userData.label=label; return g;
-}
-
-const bakery = makeBuilding(-11, -7, 5.2, 3.4, 4.2, '#c9b99d', '#7c5442','BOULANGERIE');
-const depot = makeBuilding(0, 1, 7, 4.2, 6, '#71858a', '#34474d','DÉPÔT');
-const workshop = makeBuilding(12, -7, 6, 4.8, 6, '#8a9893', '#3c5353','ATELIER');
-const village = makeBuilding(-13, 12, 5, 3.1, 4.5, '#c2b99f', '#8c6045','VILLAGE');
+// Ancien dépôt civil supprimé visuellement. Point logique conservé pour la livraison.
+const depot = new THREE.Object3D();
+depot.position.set(0, 0, 1);
 
 function makeTree(x,z,s=1) {
   const g=new THREE.Group(); g.userData.legacyTree=true; g.position.set(x,0,z); scene.add(g);
@@ -199,9 +189,6 @@ const bunkerDoor=desertLandscape.userData.bunkerDoor;
 militaryWorld.visible = true;
 ground.visible = false;
 grid.visible = false;
-bakery.visible = false;
-village.visible = false;
-workshop.visible = false;
 centrifuge.visible = false;
 scene.children.forEach((object) => {
   if (object.userData?.legacyTree || object.name === 'legacyRoad') object.visible = false;
@@ -672,7 +659,7 @@ function interact(){
   const count=state.materials;state.materials=0;hero.setCarrying(0);state.delivered+=count;state.researchStock+=count;try{localStorage.setItem('nt-research-stock',String(state.researchStock));}catch(e){}state.money+=500;updateUI();toast('Livraison validée : +500 €. Bon travail !');return;
  }
  if(t.type==='research'){
-  if(!state.labVisited||state.researchStock<6){toast('Projet verrouillé : active le village et livre 6 unités de ressources au total.');return;}
+  if(!state.labVisited||state.researchStock<6){toast('Projet verrouillé : visite le laboratoire et livre 6 unités de ressources au total.');return;}
   beginFinalCinematic();return;
  }
 }
